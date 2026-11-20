@@ -1,5 +1,10 @@
 # 圆明园数字复原计划
 
+[![Deploy](https://github.com/Ivan666jjj/yuanmingyuan-restoration/actions/workflows/deploy.yml/badge.svg)](https://github.com/Ivan666jjj/yuanmingyuan-restoration/actions/workflows/deploy.yml)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-green.svg)](LICENSE)
+[![Images: CC BY-SA 4.0](https://img.shields.io/badge/images-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE-IMAGES)
+[![Scenes](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FIvan666jjj%2Fyuanmingyuan-restoration%2Fmain%2Fsrc%2Fdata%2Fscenes.json&query=%24.scenes.length&label=scenes%20listed&color=a52a20)](https://ivan666jjj.github.io/yuanmingyuan-restoration/)
+
 把 1860 年前的圆明园，一块一块拼回来。
 
 一个开放的、可核验的圆明园数字复原图册：以《圆明园四十景图咏》绢本彩绘（1744）、《西洋楼二十景》铜版画（1786）、样式雷图档与考古照片为依据，逐景复原已毁的园林与建筑。每一景都附带参考图出处、提示词与生成模型，并标注“AI 考据级复原，非考古测绘”。

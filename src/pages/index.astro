@@ -6,94 +6,138 @@ const base = import.meta.env.BASE_URL;
 const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
 const done = scenes.scenes.filter((s) => s.status === 'done');
 const open = scenes.scenes.filter((s) => s.status === 'open');
+const pct = Math.round((done.length / scenes.scenes.length) * 100);
+const featured = scenes.scenes.find((s) => s.id === 'fanghu');
+const side = ['dashuifa', 'haiyantang', 'pengdao', 'wanfang'].map((id) => scenes.scenes.find((s) => s.id === id));
 ---
 <Base>
   <section class="hero">
-    <img src={u('images/restorations/dashuifa.webp')} alt="大水法复原图" />
+    <img class="bg" src={u('images/restorations/dashuifa.webp')} alt="大水法复原图" />
+    <div class="top">
+      <span>YUANMINGYUAN · DIGITAL RESTORATION</span>
+      <span>1744 — 1786 — 1860</span>
+    </div>
+    <span class="vertical">萬園之園</span>
     <div class="inner">
-      <p class="eyebrow" style="color:#e7c98f">YUANMINGYUAN · DIGITAL RESTORATION</p>
       <h1>把 1860 年前的圆明园，<br />一块一块拼回来</h1>
-      <p>以《圆明园四十景图咏》绢本彩绘与《西洋楼二十景》铜版画为据，逐景复原已毁的园林与建筑；每一块都可核验、可讨论、可替换。这是一个开放的拼图，欢迎任何人补上下一块。</p>
-      <div class="meta">
-        <span>已复原 {done.length} 景</span>
-        <span>待认领 {open.length} 景</span>
-        <span>依据：公有领域图像 + AI 生成</span>
+      <p class="sub">以《圆明园四十景图咏》与《西洋楼二十景》铜版画为据，逐景复原已毁的园林与建筑。每一块都可核验、可讨论、可替换。</p>
+      <div class="foot">
+        <div><b>{done.length}</b> 景已复原　·　<b>{open.length}</b> 景待认领　·　依据公有领域图像</div>
+        <span class="scroll"><i></i>向下浏览</span>
       </div>
     </div>
   </section>
 
-  <div class="wrap">
-    <div class="stats">
-      <div class="stat"><b>{done.length}</b><span>已完成复原</span></div>
-      <div class="stat"><b>{open.length}</b><span>待认领景点</span></div>
-      <div class="stat"><b>2</b><span>核心图像文献</span></div>
-      <div class="stat"><b>2940×1912</b><span>统一交付尺寸</span></div>
-    </div>
-  </div>
-
-  <section class="block" id="map">
-    <div class="wrap">
-      <div class="head">
-        <div>
-          <p class="eyebrow">THE PUZZLE</p>
-          <h2>复原拼图</h2>
+  <section class="intro">
+    <div class="wrap grid12">
+      <div class="l" data-reveal>
+        <p class="kicker">THE PREMISE</p>
+        <p class="lead dropcap">圆明园没有留下照片。它留下的是一套图像：乾隆九年绘成的四十景绢本彩绘，乾隆五十一年刊刻完成的二十幅西洋楼铜版画，以及样式雷家族的图纸与烫样。它们足够精确，也足够零散。这个项目做的事，是把这些碎片重新翻译成可以看见的画面。</p>
+        <p class="lead" style="font-size:16px">不是凭想象画一座园子，而是先确定开间、材料、色彩与朝向，再让图像生成回到这些约束里。每一景都标注参照文献；能说的说出处，不能说的标为推断。</p>
+      </div>
+      <div class="r" data-reveal>
+        <blockquote>
+          “海中作大小三岛，仿李思训画意，为仙山楼阁之状。岧岧亭亭，望之若金堂五所、玉楼十二也。”
+          <footer>—— 乾隆《圆明园四十景·蓬岛瑶台》诗序</footer>
+        </blockquote>
+        <div class="progressline">
+          <div class="small">复原进度</div>
+          <div class="n">{done.length} <em>/ {scenes.scenes.length}</em></div>
+          <div class="bar"><i style={`width:${pct}%`}></i></div>
+          <div class="small" style="margin-top:10px">{pct}% · 欢迎补上下一块</div>
         </div>
-        <p>地图按圆明园、长春园、绮春园分区。实心红点为已完成，空心为待认领。点击任意景点查看参照文献、复原说明与参与方式。</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="hair" />
+
+  <section id="map">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div class="k"><p class="kicker">THE PUZZLE</p></div>
+        <div class="t">
+          <h2 class="h2">一张可以继续拼的地图</h2>
+          <p>按圆明园、长春园、绮春园分区。实心为已完成，空心为待认领。点选任意景点，查看依据与复原说明。</p>
+        </div>
       </div>
       <SceneMap />
     </div>
   </section>
 
-  <section class="block alt">
+  <section class="night">
     <div class="wrap">
-      <div class="head">
-        <div>
-          <p class="eyebrow">TIMELINE</p>
-          <h2>从盛世到遗址</h2>
+      <p class="kicker" data-reveal>1860 · THE RUIN</p>
+      <div class="grid12" data-reveal>
+        <div style="grid-column:1/9">
+          <div class="big">十天大火之后，<br />这些建筑只剩石头的轮廓。</div>
         </div>
-        <p>复原的对象不是一座抽象的“万园之园”，而是一段有确切年代、有图像证据可依的历史。</p>
+        <div style="grid-column:9/13;align-self:end">
+          <p class="small" style="line-height:2">1860 年 10 月，英法联军焚烧圆明园。木构尽毁，石雕残存。今天人们熟悉的大水法，其实只是当年一座喷泉的背景墙。</p>
+        </div>
       </div>
-      <div class="tl">
-        <div><b>1709</b><span>康熙赐园，圆明园始建</span></div>
-        <div><b>1744</b><span>《圆明园四十景图咏》绢本彩绘完成</span></div>
-        <div><b>1747–1783</b><span>西洋楼陆续建成，郎世宁、蒋友仁参与设计</span></div>
-        <div><b>1786</b><span>《西洋楼二十景》铜版画刊刻完成</span></div>
-        <div><b>1860</b><span>英法联军焚园，建筑群毁于一旦</span></div>
+      <div class="cols">
+        <p style="grid-column:1/5">复原本质上是一种对抗遗忘的方法：把散落在铜版画、彩绘本与档案里的信息重新组织成空间，让今天的人能站进去看。</p>
+        <p style="grid-column:5/9">但我们拒绝伪造确定性。每一张图都标明它是 AI 复原，而不是照片、测绘或“原貌确证”。</p>
+        <p style="grid-column:9/13">这也是为什么本项目把提示词、参考图与失败经验一并公开——可复核，比好看更重要。</p>
       </div>
     </div>
   </section>
 
-  <section class="block">
+  <section>
     <div class="wrap">
-      <div class="head">
-        <div>
-          <p class="eyebrow">METHOD</p>
-          <h2>不是“想象一座园子”</h2>
+      <div class="sec-head" data-reveal>
+        <div class="k"><p class="kicker">SELECTED</p></div>
+        <div class="t">
+          <h2 class="h2">已复原</h2>
+          <p>从西洋楼的巴洛克水法，到福海中央的一池三山。</p>
         </div>
-        <p>每一景先考据形制参数，再写生成提示词，最后做物理校正。能说的都有出处，不能说的就标为推断。</p>
       </div>
-      <div class="steps">
-        <div class="step"><b>01 考据</b><h3>找形制，而不是找感觉</h3><p>从铜版画、彩绘本、样式雷图档与考古报告中提取开间、材料、色彩、尺度与朝向。</p></div>
-        <div class="step"><b>02 建模</b><h3>把参数写进提示词</h3><p>琉璃瓦颜色、墙面粉灰、兽首数量、喷泉层级，逐项落到提示词，而非泛泛描述。</p></div>
-        <div class="step"><b>03 生成</b><h3>参考图驱动</h3><p>以公有领域图像作参考图，要求“只取形制、重渲染为照片”，避免版画线条与纸张质感。</p></div>
-        <div class="step"><b>04 校正</b><h3>物理与比例复核</h3><p>水从明确出水口喷出、水面低于池沿、阴影同向、构件不悬空，逐条检查。</p></div>
+      <div class="feat" data-reveal>
+        <figure class="main">
+          <a href={u('gallery')}><img src={u(`images/${featured.image.replace('/images/', '')}`)} alt={`${featured.name}复原图`} /></a>
+          <figcaption><span>{featured.name} · {featured.garden}</span><span>{featured.ref}</span></figcaption>
+        </figure>
+        <div class="side">
+          {side.map((s) => (
+            <a href={u('gallery')}><span>{s.name}</span><span>{s.garden}</span></a>
+          ))}
+          <a href={u('gallery')} style="border-bottom:0;margin-top:8px"><span class="link-arrow">查看全部 {done.length} 景</span></a>
+        </div>
       </div>
-      <a class="btn ghost" href={u('method')}>阅读完整方法</a>
     </div>
   </section>
 
-  <section class="block alt">
+  <hr class="hair" />
+
+  <section>
     <div class="wrap">
-      <div class="head">
-        <div>
-          <p class="eyebrow">OPEN CALL</p>
-          <h2>这块拼图，缺你一块</h2>
+      <div class="sec-head" data-reveal>
+        <div class="k"><p class="kicker">METHOD</p></div>
+        <div class="t">
+          <h2 class="h2">先考据，再生成</h2>
+          <p>三步，缺一不可。每一步的产物都写进站点，供人复核。</p>
         </div>
-        <p>你不需要会写代码。按模板交一张图、一段提示词和一个出处，就能让一个景点重新出现在地图上。</p>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn" href={u('contribute')}>查看参与方式</a>
-        <a class="btn ghost" href="https://github.com/Ivan666jjj/yuanmingyuan-restoration/issues/new?template=claim-scene.yml" target="_blank" rel="noopener">直接认领一个景点</a>
+      <div class="three" data-reveal>
+        <div class="s"><div class="idx">一</div><h3>提取形制</h3><p>从铜版画、彩绘本、样式雷图档与考古报告里，记录开间、材料、色彩、尺度与朝向，而不是描述“感觉”。</p></div>
+        <div class="s"><div class="idx">二</div><h3>参考图驱动生成</h3><p>以公有领域图像为参考，要求只取形制、重渲染为摄影照片；禁止保留版画刻线、纸张与印章。</p></div>
+        <div class="s"><div class="idx">三</div><h3>物理校正</h3><p>喷泉必须有出水口、水面低于池沿、阴影同向、构件不悬空。逐条检查后才进入图册。</p></div>
+      </div>
+      <div style="margin-top:34px"><a class="link-arrow" href={u('method')}>阅读完整方法与边界声明</a></div>
+    </div>
+  </section>
+
+  <section class="tight">
+    <div class="wrap">
+      <div class="cta" data-reveal>
+        <div class="t">
+          <p class="kicker">OPEN CALL</p>
+          <h2 class="h2" style="max-width:18ch">下一块拼图，可能是你补的</h2>
+        </div>
+        <div class="a">
+          <a class="btn red" href={u('contribute')}>参与共建 →</a>
+        </div>
       </div>
     </div>
   </section>

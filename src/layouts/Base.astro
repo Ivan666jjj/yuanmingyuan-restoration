@@ -11,6 +11,7 @@ const nav = [
   { href: 'method', label: '复原方法' },
   { href: 'contribute', label: '参与共建' },
 ];
+const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -21,6 +22,7 @@ const nav = [
     <meta name="description" content={desc} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={desc} />
+    <meta property="og:type" content="website" />
     <link rel="icon" href={u('favicon.svg')} type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,11 +31,13 @@ const nav = [
   <body>
     <header class="site">
       <div class="wrap">
-        <a class="brand" href={u('')}><span class="seal">圆</span><b>圆明园数字复原计划</b></a>
-        <nav>
-          {nav.map((n) => (
-            <a href={u(n.href)} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
-          ))}
+        <a class="brand" href={u('')} aria-label="圆明园数字复原计划 首页">
+          <span class="seal">圆</span>
+          <span><b>圆明园数字复原计划</b><span>Yuanmingyuan Restoration</span></span>
+        </a>
+        <nav class="main">
+          {nav.map((n) => <a href={u(n.href)} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+          <a class="gh" href={repo} target="_blank" rel="noopener">GITHUB ↗</a>
         </nav>
       </div>
     </header>
@@ -42,16 +46,34 @@ const nav = [
 
     <footer class="site">
       <div class="wrap">
-        <div>
-          <b style="color:var(--ink)">圆明园数字复原计划</b><br />
-          个人开发者项目 · 严毓焕 · 2026<br />
-          复原图为 AI 考据级复原，非考古测绘。
+        <div class="top">
+          <div class="brandcol">
+            <b>圆明园数字复原计划</b>
+            一个个人发起的开放复原项目：以公有领域图像为据，逐景重建 1860 年前的圆明园，并把方法、提示词与出处一并公开。
+          </div>
+          <div class="links">
+            <a href={u('gallery')}>复原图册</a>
+            <a href={u('method')}>复原方法</a>
+            <a href={u('contribute')}>参与共建</a>
+          </div>
+          <div class="links2">
+            <a href={repo} target="_blank" rel="noopener">GitHub 仓库 ↗</a>
+            <a href={`${repo}/issues`} target="_blank" rel="noopener">认领与讨论 ↗</a>
+            <span>CC BY-SA 4.0 · MIT</span>
+          </div>
         </div>
-        <div style="text-align:right">
-          图像 CC BY-SA 4.0 · 代码 MIT<br />
-          <a href="https://github.com/Ivan666jjj/yuanmingyuan-restoration" target="_blank" rel="noopener">GitHub 仓库</a>
+        <div class="bottom">
+          <span>© 2026 严毓焕 / Yan Yuhuan</span>
+          <span>本站图像为 AI 考据级复原，非考古测绘，不可作为修复或论文依据。</span>
         </div>
       </div>
     </footer>
+
+    <script>
+      const io = new IntersectionObserver((es) => {
+        es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+    </script>
   </body>
 </html>

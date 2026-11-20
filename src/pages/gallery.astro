@@ -7,32 +7,33 @@ const done = scenes.scenes.filter((s) => s.status === 'done');
 const cats = ['全部', ...new Set(done.map((s) => s.category))];
 ---
 <Base title="复原图册 · 圆明园数字复原计划">
-  <section class="block">
+  <div class="page-head">
+    <div class="wrap row">
+      <div>
+        <p class="kicker">GALLERY</p>
+        <h1>复原图册</h1>
+      </div>
+      <p>{done.length} 景已完成。每图均标注参照文献与生成模型；点击查看大图与依据。</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="wrap" role="group" aria-label="按类别筛选">
+      {cats.map((c) => <button class="chip" data-cat={c} aria-pressed={c === '全部' ? 'true' : 'false'}>{c}</button>)}
+    </div>
+  </div>
+
+  <section class="tight">
     <div class="wrap">
-      <div class="head">
-        <div>
-          <p class="eyebrow">GALLERY</p>
-          <h2>复原图册</h2>
-        </div>
-        <p>{done.length} 景已完成。每张图均标注参照文献与生成模型；点击查看大图。</p>
-      </div>
-
-      <div class="filters" role="group" aria-label="按类别筛选">
-        {cats.map((c) => (
-          <button class="chip" data-cat={c} aria-pressed={c === '全部' ? 'true' : 'false'}>{c}</button>
-        ))}
-      </div>
-
-      <div class="grid" id="grid">
+      <div class="gallery" id="grid">
         {done.map((s) => (
-          <a class="card" href="#" data-cat={s.category} data-full={u(s.image)} data-title={`${s.name} · ${s.garden}`}>
+          <figure class="g" data-cat={s.category} data-full={u(s.image)} data-title={`${s.name} · ${s.garden}`} tabindex="0" role="button" aria-label={`查看${s.name}大图`}>
             <div class="ph"><img src={u(s.thumb)} alt={`${s.name}复原图`} loading="lazy" /></div>
-            <div class="bd">
-              <h3>{s.name}</h3>
-              <div class="sub">{s.garden} · {s.category} · {s.en}</div>
-              <p>{s.prompt}</p>
-            </div>
-          </a>
+            <figcaption>
+              <div><h3>{s.name}</h3><div class="meta">{s.garden} · {s.category}</div></div>
+              <div class="ref">{s.ref}</div>
+            </figcaption>
+          </figure>
         ))}
       </div>
     </div>
@@ -45,26 +46,21 @@ const cats = ['全部', ...new Set(done.map((s) => s.category))];
 
   <script>
     const chips = document.querySelectorAll('.chip');
-    const cards = [...document.querySelectorAll('.card')];
+    const cards = [...document.querySelectorAll('.g')];
     chips.forEach((ch) => ch.addEventListener('click', () => {
       chips.forEach((x) => x.setAttribute('aria-pressed', 'false'));
       ch.setAttribute('aria-pressed', 'true');
       const c = ch.dataset.cat;
-      cards.forEach((card) => {
-        card.style.display = c === '全部' || card.dataset.cat === c ? '' : 'none';
-      });
+      cards.forEach((card) => { card.style.display = c === '全部' || card.dataset.cat === c ? '' : 'none'; });
     }));
-
     const lb = document.getElementById('lb');
     const img = document.getElementById('lb-img');
     const cap = document.getElementById('lb-cap');
-    cards.forEach((card) => card.addEventListener('click', (e) => {
-      e.preventDefault();
-      img.src = card.dataset.full;
-      img.alt = card.dataset.title;
-      cap.textContent = card.dataset.title;
-      lb.showModal();
-    }));
+    const open = (card) => { img.src = card.dataset.full; img.alt = card.dataset.title; cap.textContent = card.dataset.title; lb.showModal(); };
+    cards.forEach((card) => {
+      card.addEventListener('click', () => open(card));
+      card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(card); } });
+    });
     lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
   </script>
 </Base>

@@ -1,48 +1,74 @@
 ---
 import Base from '../layouts/Base.astro';
 import scenes from '../data/scenes.json';
+import contributors from '../data/contributors.json';
 const open = scenes.scenes.filter((s) => s.status === 'open');
 const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
 ---
 <Base title="参与共建 · 圆明园数字复原计划">
-  <section class="block">
-    <div class="wrap prose">
-      <p class="eyebrow">OPEN CALL</p>
-      <h2 style="margin-top:10px">这块拼图，缺你一块</h2>
-      <p>你不需要会写代码。会用任意 AI 图像工具即可：交一张图、一段提示词、一个出处，就能让一个景点重新出现在地图上。</p>
+  <div class="page-head">
+    <div class="wrap row">
+      <div><p class="kicker">OPEN CALL</p><h1>参与共建</h1></div>
+      <p>不需要会写代码。会用任意 AI 图像工具即可：交一张图、一段提示词、一个出处，就能让一个景点重新出现在地图上。</p>
+    </div>
+  </div>
 
-      <h3>怎么参与</h3>
+  <div class="wrap article">
+    <nav class="toc" aria-label="本页目录">
+      <a href="#how">怎么参与</a>
+      <a href="#spec">提交清单</a>
+      <a href="#list">待认领</a>
+      <a href="#wall">贡献者</a>
+    </nav>
+    <div class="prose">
+      <h2 id="how">怎么参与</h2>
       <ol>
-        <li><b>认领</b>：在 <a href={`${repo}/issues/new?template=claim-scene.yml`} target="_blank" rel="noopener">GitHub 新建认领 Issue</a>，或从地图上点一个空心圆点。</li>
+        <li><b>认领</b>：开一个 <a href={`${repo}/issues/new?template=claim-scene.yml`} target="_blank" rel="noopener">认领 Issue</a>，或从地图上点一个空心圆点。</li>
         <li><b>考据</b>：按该景点的“可用依据”找参考图（铜版画、彩绘本、老照片、样式雷图档）。</li>
         <li><b>制作</b>：写清形制参数的提示词，用参考图生成，按物理清单自查。</li>
-        <li><b>提交</b>：在 Issue 里附上成图与元数据；会 Git 的直接提 PR，不会的我们帮你合入。</li>
+        <li><b>提交</b>：在 Issue 附成图与元数据；会 Git 的直接提 PR，不会的我们帮你合入。</li>
       </ol>
 
-      <h3>提交清单</h3>
+      <h2 id="spec">提交清单</h2>
       <ul>
-        <li>成图：2940×1912 PNG（或 1600px 以上 WebP）。</li>
+        <li>成图：2940×1912 PNG，或长边 ≥1600 的 WebP。</li>
         <li>参考图出处：链接或馆藏信息，须为公有领域或获授权。</li>
         <li>完整提示词与模型名/版本。</li>
         <li>一句话说明：哪些细节有据，哪些是推断。</li>
         <li>署名：你的名字或 ID，用于贡献者墙。</li>
       </ul>
+      <div class="note">规则：不得虚构“史料”；不得把 AI 图宣称为照片或测绘；参考图必须可溯源；复原图统一以 CC BY-SA 4.0 共享。</div>
 
-      <p class="note">规则：不得虚构“史料”；不得把 AI 图宣称为照片或测绘；参考图必须可溯源；复原图统一以 CC BY-SA 4.0 共享。</p>
-
-      <h3>待认领景点（{open.length}）</h3>
-      <div class="grid" style="margin-top:18px">
-        {open.map((s) => (
-          <div class="card" style="cursor:default">
-            <div class="bd">
-              <h3>{s.name}</h3>
-              <div class="sub">{s.garden} · {s.category} · 待认领</div>
-              <p>可用依据：{s.ref}</p>
-              <a class="btn ghost" style="margin-top:12px" href={`${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent('认领：' + s.name)}`} target="_blank" rel="noopener">认领</a>
-            </div>
+      <h2 id="list">待认领景点（{open.length}）</h2>
+      <div class="claim-list">
+        {open.map((s, i) => (
+          <div class="row">
+            <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{s.name}</h3>
+            <span class="r">{s.garden} · {s.ref}</span>
+            <a href={`${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent('认领：' + s.name)}`} target="_blank" rel="noopener">认领</a>
           </div>
         ))}
       </div>
+
+      <h2 id="wall">贡献者墙</h2>
+      <p class="small">每一位提交并被收录的人都会留在这里。复原一块，署名一块。</p>
+      <div class="claim-list" style="border-top:1px solid var(--ink)">
+        {contributors.map((c, i) => (
+          <div class="row">
+            <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{c.name}</h3>
+            <span class="r">{c.scenes} 景 · {c.role}</span>
+            <a href={c.url} target="_blank" rel="noopener">主页</a>
+          </div>
+        ))}
+        <div class="row">
+          <span class="idx">＋</span>
+          <h3 style="color:var(--muted)">虚位以待</h3>
+          <span class="r">下一块拼图，可能是你补的</span>
+          <a href={`${repo}/issues/new?template=claim-scene.yml`} target="_blank" rel="noopener">加入</a>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 </Base>
