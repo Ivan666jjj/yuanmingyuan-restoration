@@ -17,6 +17,7 @@ const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
     <nav class="toc" aria-label="本页目录">
       <a href="#how">怎么参与</a>
       <a href="#spec">提交清单</a>
+      <a href="#three-d">三维复原</a>
       <a href="#list">待认领</a>
       <a href="#wall">贡献者</a>
     </nav>
@@ -38,6 +39,17 @@ const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
         <li>署名：你的名字或 ID，用于贡献者墙。</li>
       </ul>
       <div class="note">规则：不得虚构“史料”；不得把 AI 图宣称为照片或测绘；参考图必须可溯源；复原图统一以 CC BY-SA 4.0 共享。</div>
+
+      <h2 id="three-d">三维复原</h2>
+      <p>会 Blender、SketchUp 或写程序化建模脚本，都欢迎。三维与二维同等收录：<b>只交渲染图也算完成</b>；多交一份 glb，就能在图册里直接旋转、在手机上 AR 摆到桌面。</p>
+      <ul>
+        <li>主图 1 张，加正立面、侧面、斜俯视三视图，长边 ≥1600 的 WebP。</li>
+        <li>glb 可选，Draco 或 meshopt 压缩后 ≤10MB；单位米，原点在台基中心，导出 Y-up。</li>
+        <li>逐项写明：哪些尺寸来自图档，哪些是估算。</li>
+        <li>贴图须自制或公有领域，不使用来源不明的扫描图与网络贴图。</li>
+      </ul>
+      <div class="note">三维是“可检验的几何”，不是测绘成果。柱网、开间、尺度能对回图档才算立住；材质与彩画仍属推断，须一并标注。</div>
+      <p class="small"><a href={`${repo}/issues/new?template=submit-3d.yml`} target="_blank" rel="noopener">提交三维复原 →</a>　字段规范见 <a href={`${repo}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener">CONTRIBUTING</a></p>
 
       <h2 id="list">待认领景点（{open.length}）</h2>
       <div class="claim-list">

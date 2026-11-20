@@ -11,7 +11,7 @@ const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
     <p>No coding required. Any AI image tool will do: submit one image, one prompt, one source, and a scene returns to the map.</p>
   </div></div>
   <div class="wrap article">
-    <nav class="toc" aria-label="Contents"><a href="#how">How</a><a href="#spec">Checklist</a><a href="#list">To claim</a><a href="#wall">Contributors</a></nav>
+    <nav class="toc" aria-label="Contents"><a href="#how">How</a><a href="#spec">Checklist</a><a href="#three-d">3D</a><a href="#list">To claim</a><a href="#wall">Contributors</a></nav>
     <div class="prose">
       <h2 id="how">How</h2>
       <ol>
@@ -29,6 +29,16 @@ const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
         <li>Credit: your name/ID for the contributor wall.</li>
       </ul>
       <div class="note">Rules: no fabricated “sources”; never present AI images as photographs or surveys; references must be traceable; images shared under CC BY-SA 4.0.</div>
+      <h2 id="three-d">Three-dimensional restorations</h2>
+      <p>Blender, SketchUp or scripted modelling — all welcome. 3D ranks equal to images: <b>renders alone count</b>; add a glb and the scene becomes rotatable in the gallery and viewable in AR on a phone.</p>
+      <ul>
+        <li>One hero render plus front, side and oblique views, WebP ≥1600px.</li>
+        <li>Optional glb, Draco/meshopt, ≤10MB; metres, origin at terrace centre, Y-up.</li>
+        <li>State element by element what is sourced and what is estimated.</li>
+        <li>Procedural or public-domain textures only; no unverified scans or images from the web.</li>
+      </ul>
+      <div class="note">3D is checkable geometry, not a survey. It stands only if the column grid, bays and dimensions trace back to the drawings; materials and painted decoration remain inference and must be labelled.</div>
+      <p class="small"><a href={`${repo}/issues/new?template=submit-3d.yml`} target="_blank" rel="noopener">Submit 3D →</a>　Spec in <a href={`${repo}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener">CONTRIBUTING</a></p>
       <h2 id="list">Scenes to claim ({open.length})</h2>
       <div class="claim-list">
         {open.map((s, i) => (

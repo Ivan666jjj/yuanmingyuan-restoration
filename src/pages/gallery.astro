@@ -3,8 +3,10 @@ import Base from '../layouts/Base.astro';
 import scenes from '../data/scenes.json';
 const base = import.meta.env.BASE_URL;
 const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const asset = (p) => (/^https?:\/\//.test(p) ? p : u(p));
 const done = scenes.scenes.filter((s) => s.status === 'done');
 const cats = ['全部', ...new Set(done.map((s) => s.category))];
+const has3d = done.filter((s) => s.model3d).length;
 ---
 <Base title="复原图册 · 圆明园数字复原计划">
   <div class="page-head">
@@ -13,7 +15,7 @@ const cats = ['全部', ...new Set(done.map((s) => s.category))];
         <p class="kicker">GALLERY</p>
         <h1>复原图册</h1>
       </div>
-      <p>{done.length} 景已完成。每图均标注参照文献与生成模型；点击查看大图与依据。</p>
+      <p>{done.length} 景已完成{has3d ? `，其中 ${has3d} 景可旋转查看三维模型` : ''}。每图均标注参照文献与生成模型；点击查看大图与依据。</p>
     </div>
   </div>
 
@@ -27,8 +29,21 @@ const cats = ['全部', ...new Set(done.map((s) => s.category))];
     <div class="wrap">
       <div class="gallery" id="grid">
         {done.map((s) => (
-          <figure class="g" data-cat={s.category} data-full={u(s.image)} data-title={`${s.name} · ${s.garden}`} tabindex="0" role="button" aria-label={`查看${s.name}大图`}>
-            <div class="ph"><img src={u(s.thumb)} alt={`${s.name}复原图`} loading="lazy" /></div>
+          <figure
+            class="g"
+            data-cat={s.category}
+            data-full={u(s.image)}
+            data-title={`${s.name} · ${s.garden}`}
+            data-glb={s.model3d?.glb ? asset(s.model3d.glb) : undefined}
+            data-basis={s.model3d?.basis}
+            tabindex="0"
+            role="button"
+            aria-label={`查看${s.name}大图`}
+          >
+            <div class="ph">
+              <img src={u(s.thumb)} alt={`${s.name}复原图`} loading="lazy" />
+              {s.model3d && <span class="badge-3d">3D</span>}
+            </div>
             <figcaption>
               <div><h3>{s.name}</h3><div class="meta">{s.garden} · {s.category}</div></div>
               <div class="ref">{s.ref}</div>
@@ -41,7 +56,10 @@ const cats = ['全部', ...new Set(done.map((s) => s.category))];
 
   <dialog class="lightbox" id="lb">
     <img id="lb-img" alt="" />
+    <model-viewer id="lb-3d" hidden camera-controls auto-rotate ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1"></model-viewer>
+    <div class="lb-bar"><button type="button" id="lb-toggle" hidden>旋转查看</button></div>
     <div class="cap" id="lb-cap"></div>
+    <div class="meta" id="lb-meta"></div>
   </dialog>
 
   <script>
@@ -53,14 +71,72 @@ const cats = ['全部', ...new Set(done.map((s) => s.category))];
       const c = ch.dataset.cat;
       cards.forEach((card) => { card.style.display = c === '全部' || card.dataset.cat === c ? '' : 'none'; });
     }));
+
     const lb = document.getElementById('lb');
     const img = document.getElementById('lb-img');
+    const mv = document.getElementById('lb-3d');
     const cap = document.getElementById('lb-cap');
-    const open = (card) => { img.src = card.dataset.full; img.alt = card.dataset.title; cap.textContent = card.dataset.title; lb.showModal(); };
+    const meta = document.getElementById('lb-meta');
+    const toggle = document.getElementById('lb-toggle');
+    const MV_CDN = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@4.1.0/dist/model-viewer.min.js';
+    let mvReady = null;
+    let mode = 'img';
+
+    const loadMV = () => mvReady || (mvReady = new Promise((resolve, reject) => {
+      if (customElements.get('model-viewer')) return resolve();
+      const el = document.createElement('script');
+      el.type = 'module';
+      el.src = MV_CDN;
+      el.onload = resolve;
+      el.onerror = () => { mvReady = null; reject(new Error('cdn')); };
+      document.head.appendChild(el);
+    }));
+
+    const showImg = () => {
+      mode = 'img';
+      img.hidden = false;
+      mv.hidden = true;
+      toggle.textContent = '旋转查看';
+    };
+
+    const show3d = async () => {
+      const src = lb.dataset.glb;
+      if (!src) return;
+      toggle.disabled = true;
+      toggle.textContent = '模型加载中…';
+      try {
+        await loadMV();
+        if (!mv.getAttribute('src')) mv.setAttribute('src', src);
+        img.hidden = true;
+        mv.hidden = false;
+        mode = '3d';
+        toggle.textContent = '查看平面图';
+      } catch {
+        toggle.textContent = '模型加载失败，点此重试';
+      } finally {
+        toggle.disabled = false;
+      }
+    };
+
+    const open = (card) => {
+      const d = card.dataset;
+      lb.dataset.glb = d.glb || '';
+      img.src = d.full;
+      img.alt = d.title;
+      cap.textContent = d.title;
+      meta.textContent = d.basis || '';
+      toggle.hidden = !d.glb;
+      if (!d.glb) mv.removeAttribute('src');
+      showImg();
+      lb.showModal();
+    };
+
     cards.forEach((card) => {
       card.addEventListener('click', () => open(card));
       card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(card); } });
     });
+    toggle.addEventListener('click', () => { mode === '3d' ? showImg() : show3d(); });
     lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+    lb.addEventListener('close', () => { if (mode === '3d') { img.hidden = false; mv.hidden = true; mode = 'img'; } });
   </script>
 </Base>

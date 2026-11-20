@@ -3,14 +3,16 @@ import Base from '../../layouts/Base.astro';
 import scenes from '../../data/scenes.json';
 const base = import.meta.env.BASE_URL;
 const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const asset = (p) => (/^https?:\/\//.test(p) ? p : u(p));
 const done = scenes.scenes.filter((s) => s.status === 'done');
 const cats = ['All', ...new Set(done.map((s) => s.category))];
+const has3d = done.filter((s) => s.model3d).length;
 ---
 <Base lang="en" title="Gallery · Yuanmingyuan Restoration">
   <div class="page-head">
     <div class="wrap row">
       <div><p class="kicker">GALLERY</p><h1>Restoration Gallery</h1></div>
-      <p>{done.length} scenes restored. Each image cites its reference and model; click for the full image and sources.</p>
+      <p>{done.length} scenes restored{has3d ? `, ${has3d} with a rotatable 3D model` : ''}. Each image cites its reference and model; click for the full image and sources.</p>
     </div>
   </div>
   <div class="filters"><div class="wrap" role="group" aria-label="Filter by category">
@@ -19,8 +21,21 @@ const cats = ['All', ...new Set(done.map((s) => s.category))];
   <section class="tight"><div class="wrap">
     <div class="gallery" id="grid">
       {done.map((s) => (
-        <figure class="g" data-cat={s.category} data-full={u(s.image)} data-title={`${s.en} · ${s.garden}`} tabindex="0" role="button" aria-label={`View ${s.en}`}>
-          <div class="ph"><img src={u(s.thumb)} alt={`${s.en} restoration`} loading="lazy" /></div>
+        <figure
+          class="g"
+          data-cat={s.category}
+          data-full={u(s.image)}
+          data-title={`${s.en} · ${s.garden}`}
+          data-glb={s.model3d?.glb ? asset(s.model3d.glb) : undefined}
+          data-basis={s.model3d?.basis}
+          tabindex="0"
+          role="button"
+          aria-label={`View ${s.en}`}
+        >
+          <div class="ph">
+            <img src={u(s.thumb)} alt={`${s.en} restoration`} loading="lazy" />
+            {s.model3d && <span class="badge-3d">3D</span>}
+          </div>
           <figcaption>
             <div><h3>{s.en}</h3><div class="meta">{s.garden} · {s.category}</div></div>
             <div class="ref">{s.ref}</div>
@@ -29,7 +44,13 @@ const cats = ['All', ...new Set(done.map((s) => s.category))];
       ))}
     </div>
   </div></section>
-  <dialog class="lightbox" id="lb"><img id="lb-img" alt="" /><div class="cap" id="lb-cap"></div></dialog>
+  <dialog class="lightbox" id="lb">
+    <img id="lb-img" alt="" />
+    <model-viewer id="lb-3d" hidden camera-controls auto-rotate ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1"></model-viewer>
+    <div class="lb-bar"><button type="button" id="lb-toggle" hidden>Rotate 3D</button></div>
+    <div class="cap" id="lb-cap"></div>
+    <div class="meta" id="lb-meta"></div>
+  </dialog>
   <script>
     const chips = document.querySelectorAll('.chip');
     const cards = [...document.querySelectorAll('.g')];
@@ -39,12 +60,61 @@ const cats = ['All', ...new Set(done.map((s) => s.category))];
       const c = ch.dataset.cat;
       cards.forEach((card) => { card.style.display = c === 'All' || card.dataset.cat === c ? '' : 'none'; });
     }));
-    const lb = document.getElementById('lb'), img = document.getElementById('lb-img'), cap = document.getElementById('lb-cap');
-    const open = (card) => { img.src = card.dataset.full; img.alt = card.dataset.title; cap.textContent = card.dataset.title; lb.showModal(); };
+    const lb = document.getElementById('lb');
+    const img = document.getElementById('lb-img');
+    const mv = document.getElementById('lb-3d');
+    const cap = document.getElementById('lb-cap');
+    const meta = document.getElementById('lb-meta');
+    const toggle = document.getElementById('lb-toggle');
+    const MV_CDN = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@4.1.0/dist/model-viewer.min.js';
+    let mvReady = null;
+    let mode = 'img';
+    const loadMV = () => mvReady || (mvReady = new Promise((resolve, reject) => {
+      if (customElements.get('model-viewer')) return resolve();
+      const el = document.createElement('script');
+      el.type = 'module';
+      el.src = MV_CDN;
+      el.onload = resolve;
+      el.onerror = () => { mvReady = null; reject(new Error('cdn')); };
+      document.head.appendChild(el);
+    }));
+    const showImg = () => { mode = 'img'; img.hidden = false; mv.hidden = true; toggle.textContent = 'Rotate 3D'; };
+    const show3d = async () => {
+      const src = lb.dataset.glb;
+      if (!src) return;
+      toggle.disabled = true;
+      toggle.textContent = 'Loading model…';
+      try {
+        await loadMV();
+        if (!mv.getAttribute('src')) mv.setAttribute('src', src);
+        img.hidden = true;
+        mv.hidden = false;
+        mode = '3d';
+        toggle.textContent = 'Show still image';
+      } catch {
+        toggle.textContent = 'Model failed to load — retry';
+      } finally {
+        toggle.disabled = false;
+      }
+    };
+    const open = (card) => {
+      const d = card.dataset;
+      lb.dataset.glb = d.glb || '';
+      img.src = d.full;
+      img.alt = d.title;
+      cap.textContent = d.title;
+      meta.textContent = d.basis || '';
+      toggle.hidden = !d.glb;
+      if (!d.glb) mv.removeAttribute('src');
+      showImg();
+      lb.showModal();
+    };
     cards.forEach((card) => {
       card.addEventListener('click', () => open(card));
       card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(card); } });
     });
+    toggle.addEventListener('click', () => { mode === '3d' ? showImg() : show3d(); });
     lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+    lb.addEventListener('close', () => { if (mode === '3d') { img.hidden = false; mv.hidden = true; mode = 'img'; } });
   </script>
 </Base>

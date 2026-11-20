@@ -11,6 +11,17 @@ body:
       placeholder: 例如：海岳开襟
     validations:
       required: true
+  - type: dropdown
+    id: medium
+    attributes:
+      label: 呈现方式
+      description: 三维复原请用「提交三维复原」模板
+      options:
+        - 2D 复原图
+        - 3D 模型（可旋转）
+        - 两者都做
+    validations:
+      required: true
   - type: textarea
     id: evidence
     attributes:
