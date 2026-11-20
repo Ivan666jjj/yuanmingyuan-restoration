@@ -225,6 +225,7 @@ blockquote footer{margin-top:16px;font-family:var(--sans);font-size:12px;letter-
 dialog.lightbox{border:0;padding:0;background:transparent;max-width:94vw;max-height:94vh}
 dialog.lightbox::backdrop{background:rgba(12,11,9,.92)}
 dialog.lightbox img{max-width:94vw;max-height:86vh}
+dialog.lightbox img[hidden]{display:none}
 dialog.lightbox .cap{color:#e9e1d2;font-family:var(--serif);text-align:center;margin-top:14px;font-size:14px}
 dialog.lightbox .meta{color:#9d9485;text-align:center;margin-top:6px;font-size:12px;line-height:1.7;max-width:70ch}
 dialog.lightbox model-viewer{width:min(94vw,1100px);height:min(78vh,720px);background:#e9e3d6;--poster-color:transparent}
