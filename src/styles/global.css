@@ -123,7 +123,7 @@ blockquote footer{margin-top:16px;font-family:var(--sans);font-size:12px;letter-
 .mk .dot{fill:var(--red);stroke:var(--paper);stroke-width:2;transition:transform .18s,r .18s}
 .mk.open .dot{fill:var(--paper);stroke:var(--red);stroke-dasharray:3 3}
 .mk:hover .dot,.mk:focus-visible .dot{transform:scale(1.5);transform-origin:center;transform-box:fill-box}
-.mk .lbl{font-size:10.5px;fill:var(--ink-soft);opacity:.62;transition:opacity .18s}
+.mk .lbl{font-size:10.5px;fill:var(--ink-soft);opacity:0;transition:opacity .18s}
 .mk:hover .lbl,.mk:focus-visible .lbl,.mk.active .lbl{opacity:1}
 .mk.active .dot{stroke:var(--ink);stroke-width:2.5;transform:scale(1.4);transform-origin:center;transform-box:fill-box}
 
