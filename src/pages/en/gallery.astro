@@ -27,6 +27,7 @@ const has3d = done.filter((s) => s.model3d).length;
           data-full={u(s.image)}
           data-title={`${s.en} · ${s.garden}`}
           data-glb={s.model3d?.glb ? asset(s.model3d.glb) : undefined}
+            data-camera={s.model3d?.camera}
           data-basis={s.model3d?.basis}
           data-model={s.model}
           tabindex="0"
@@ -95,7 +96,7 @@ const has3d = done.filter((s) => s.model3d).length;
         mv.setAttribute('environment-image', 'neutral');
         mv.setAttribute('shadow-softness', '0.9');
         mv.setAttribute('field-of-view', '30deg');
-        mv.setAttribute('camera-orbit', '195deg 62deg auto');
+        mv.setAttribute('camera-orbit', (document.getElementById('lb').dataset.camera) || '195deg 62deg auto');
         img.hidden = true;
         mv.hidden = false;
         mode = '3d';
@@ -109,6 +110,7 @@ const has3d = done.filter((s) => s.model3d).length;
     const open = (card) => {
       const d = card.dataset;
       lb.dataset.glb = d.glb || '';
+      lb.dataset.camera = d.camera || '';
       img.src = d.full;
       img.alt = d.title;
       cap.textContent = d.title;
