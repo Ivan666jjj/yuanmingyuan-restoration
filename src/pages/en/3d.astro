@@ -87,6 +87,7 @@ const viewLabel = ['front', 'side', 'oblique'];
           mv.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           view.prepend(mv);
           view.classList.add('loaded');
+          mv.addEventListener('load', () => { if (!mv.paused) return; try { mv.play(); } catch (e) {} }, { once: true });
         } catch {
           btn.disabled = false;
           btn.textContent = 'Model failed to load — retry';

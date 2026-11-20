@@ -87,6 +87,7 @@ const viewLabel = ['正立面', '侧面', '斜俯视'];
           mv.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           view.prepend(mv);
           view.classList.add('loaded');
+          mv.addEventListener('load', () => { if (!mv.paused) return; try { mv.play(); } catch (e) {} }, { once: true });
         } catch {
           btn.disabled = false;
           btn.textContent = '模型加载失败，点此重试';
