@@ -52,25 +52,35 @@ const L = en ? {
       <p class="small attrib">{L.attrib}</p>
     </div>
     <div class="mapcard" id="overview">
-      <svg viewBox="0 0 1000 700" role="img" aria-label="Yuanmingyuan restoration map">
-        <rect class="zone" x="46" y="112" width="516" height="540" rx="2" />
-        <rect class="zone" x="570" y="58" width="336" height="276" rx="2" />
-        <rect class="zone" x="570" y="352" width="336" height="300" rx="2" />
-        <text class="zone-label" x="70" y="146">{en ? 'Yuanming Yuan' : '圆明园'}</text>
-        <text class="zone-label" x="590" y="88">{en ? 'Changchun Yuan · Xiyang Lou' : '长春园 · 西洋楼'}</text>
-        <text class="zone-label" x="590" y="382">{en ? 'Qichun Yuan' : '绮春园'}</text>
-        <ellipse class="water" cx="352" cy="404" rx="112" ry="80" />
-        <text x="322" y="410" font-size="11" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="2">{en ? 'Fu Hai' : '福 海'}</text>
-        <ellipse class="water" cx="300" cy="302" rx="88" ry="58" />
-        <text x="276" y="308" font-size="11" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="2">{en ? 'Hou Hu' : '后 湖'}</text>
-        <ellipse class="water" cx="648" cy="244" rx="54" ry="36" />
-        <text x="630" y="250" font-size="10" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="1">{en ? 'West Lake' : '西湖'}</text>
-        {scenes.scenes.map((s) => (
-          <g class:list={['mk', s.status]} data-id={s.id} tabindex="0" role="button" aria-label={en ? s.en : s.name}>
-            <circle class="dot" cx={s.x} cy={s.y} r={s.status === 'done' ? 6 : 5} />
-            <text class="lbl" x={s.x + 11} y={s.y + 4}>{en ? s.en : s.name}</text>
-          </g>
-        ))}
+      <svg viewBox="0 0 1000 780" role="img" aria-label="Yuanmingyuan restoration map">
+        <g transform="rotate(-4 500 400)">
+          <path class="land" d="M60,120 H640 V560 H60 Z" />
+          <path class="land" d="M640,100 H950 V400 H640 Z" />
+          <path class="land" d="M600,420 H900 V720 H600 Z" />
+          <rect class="xy" x="640" y="100" width="310" height="52" />
+          <rect class="water" x="430" y="200" width="190" height="200" />
+          <circle class="islet" cx="525" cy="300" r="10" />
+          <rect class="water" x="250" y="260" width="150" height="100" />
+          <rect class="water" x="250" y="470" width="150" height="70" />
+          <circle class="water" cx="700" cy="260" r="40" />
+          <path class="water" d="M770,210 H930 V380 H800 V300 H770 Z" />
+          <ellipse class="water" cx="700" cy="560" rx="70" ry="50" />
+          <ellipse class="water" cx="820" cy="500" rx="50" ry="35" />
+          <text class="zone-label" x="80" y="152">{en ? 'YUANMING YUAN' : '圆明园'}</text>
+          <text class="zone-label" x="660" y="192">{en ? 'CHANGCHUN YUAN' : '长春园'}</text>
+          <text class="zone-label" x="620" y="452">{en ? 'QICHUN YUAN' : '绮春园'}</text>
+          <text class="wlabel" x="480" y="305">{en ? 'Fu Hai' : '福海'}</text>
+          <text class="wlabel" x="285" y="315">{en ? 'Hou Hu' : '后湖'}</text>
+          <text class="wlabel" x="285" y="510">{en ? 'Qian Hu' : '前湖'}</text>
+          <text class="wlabel" x="682" y="265">{en ? 'W. Lake' : '西湖'}</text>
+          <text class="xylabel" x="700" y="130">{en ? 'XIYANG LOU' : '西洋楼'}</text>
+          {scenes.scenes.map((s) => (
+            <g class:list={['mk', s.status]} data-id={s.id} tabindex="0" role="button" aria-label={en ? s.en : s.name}>
+              <circle class="dot" cx={s.x} cy={s.y} r={s.status === 'done' ? 6 : 4.5} />
+              <text class="lbl" x={s.x + 10} y={s.y + 4}>{en ? s.en : s.name}</text>
+            </g>
+          ))}
+        </g>
       </svg>
     </div>
   </div>

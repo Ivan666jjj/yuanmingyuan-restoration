@@ -118,7 +118,12 @@ blockquote footer{margin-top:16px;font-family:var(--sans);font-size:12px;letter-
 .mapcard svg{width:100%;height:auto;display:block}
 .zone{fill:rgba(169,131,74,.055);stroke:rgba(22,21,15,.28);stroke-width:1}
 .zone-label{font-family:var(--serif);font-size:14px;fill:var(--ink-soft);letter-spacing:.2em}
-.water{fill:rgba(88,120,128,.12);stroke:rgba(88,120,128,.28);stroke-width:1}
+.land{fill:rgba(169,131,74,.10);stroke:rgba(22,21,15,.4);stroke-width:1.2}
+.xy{fill:rgba(165,42,32,.14);stroke:rgba(165,42,32,.45);stroke-width:1}
+.islet{fill:rgba(169,131,74,.35);stroke:rgba(22,21,15,.3);stroke-width:1}
+.water{fill:rgba(88,120,128,.14);stroke:rgba(88,120,128,.32);stroke-width:1}
+.wlabel{font-family:var(--serif);font-size:11px;fill:rgba(70,100,108,.9);letter-spacing:.18em}
+.xylabel{font-family:var(--serif);font-size:10px;fill:var(--red);letter-spacing:.22em}
 .mk{cursor:pointer;outline:none}
 .mk .dot{fill:var(--red);stroke:var(--paper);stroke-width:2;transition:transform .18s,r .18s}
 .mk.open .dot{fill:var(--paper);stroke:var(--red);stroke-dasharray:3 3}
