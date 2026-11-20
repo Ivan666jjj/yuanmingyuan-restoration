@@ -6,7 +6,13 @@
 
 1. 打开 [认领 Issue](https://github.com/Ivan666jjj/yuanmingyuan-restoration/issues/new?template=claim-scene.yml)。
 2. 填写景点名、依据、制作计划。
-3. 完成后把成图与元数据贴在 Issue 里，维护者会合入并署名。
+3. 附成图（可选）。图片请先把文件存到本机，再任选一种上传：
+   - 复制图片后直接在文本框里粘贴；
+   - 点文本框下方的「Paste, drop, or click to add files」，选本地文件；
+   - 把图片文件拖进文本框。
+   上传时会出现 `<!-- Uploading "xxx.jpg"... -->`，几秒后变成 `github.com/user-attachments/...` 的链接，属于正常。
+   **不要**粘贴小红书、微博、微信公众号的图片地址：这类链接有防盗链且会过期，GitHub 抓不到图，框里就会留下 `<!-- Failed to upload -->`。图片在网页上时，先存到本地或直接给出 Commons／馆藏页链接。
+4. 完成后提交，维护者会合入并署名。
 
 ### B. 会 Git
 

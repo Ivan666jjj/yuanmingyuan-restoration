@@ -14,8 +14,8 @@ body:
   - type: textarea
     id: evidence
     attributes:
-      label: 你找到的依据
-      description: 参考图链接、馆藏信息、论文或图档
+      label: 你找到的依据（附图可选）
+      description: 参考图链接、馆藏信息、论文或图档。附图请用下方按钮上传本地图片，不要贴小红书/微博的图片链接，会因防盗链失败
       placeholder: 例如：《西洋楼二十景》铜版画第 X 幅；或 1882 年谢满禄照片
     validations:
       required: true
