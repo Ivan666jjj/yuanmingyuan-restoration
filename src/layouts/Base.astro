@@ -31,7 +31,7 @@ const T = en ? {
   switch: 'EN',
 };
 const path = Astro.url.pathname.replace(base, '').replace(/^\/|\/$/g, '');
-const switchHref = en ? u(path.replace(/^en\/?/, '')) : u('en/' + path);
+const switchHref = path === '404' ? u(en ? '' : 'en/') : en ? u(path.replace(/^en\/?/, '')) : u('en/' + path);
 const ogImage = new URL(u('og-cover.jpg'), Astro.site).href;
 const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
 ---

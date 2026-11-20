@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL;
+const u = (p = '') => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+---
+<Base title="404 · 圆明园数字复原计划" desc="这一页还没有复原。回到图册或直接认领一景。">
+  <div class="page-head">
+    <div class="wrap row">
+      <div><p class="kicker">404</p><h1>这一页还没有</h1></div>
+      <p>地址可能写错了，也可能这一景还没人做。已复原的 15 景在图册里，其余 62 景在等一个认领。</p>
+    </div>
+  </div>
+
+  <div class="wrap article">
+    <div class="prose">
+      <p><a class="btn" href={u('gallery')}>去看复原图册</a>　<a class="btn ghost" href={u('contribute')}>认领一景</a></p>
+      <h2>可能你要找的</h2>
+      <ul>
+        <li><a href={u('')}>首页</a></li>
+        <li><a href={u('method')}>复原方法</a>：证据分级、四步流程、交付规格</li>
+        <li><a href={u('contribute')}>参与共建</a>：62 景待认领清单</li>
+        <li><a href="https://github.com/Ivan666jjj/yuanmingyuan-restoration/issues">认领与讨论</a></li>
+      </ul>
+    </div>
+  </div>
+</Base>
