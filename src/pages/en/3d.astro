@@ -87,7 +87,13 @@ const viewLabel = ['front', 'side', 'oblique'];
           mv.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           view.prepend(mv);
           view.classList.add('loaded');
-          mv.addEventListener('load', () => { if (!mv.paused) return; try { mv.play(); } catch (e) {} }, { once: true });
+          mv.addEventListener('load', () => {
+            const kick = (n) => {
+              try { if (!mv.availableAnimations.length) return; mv.play(); } catch (e) { return; }
+              if (mv.paused && n < 10) setTimeout(() => kick(n + 1), 150);
+            };
+            kick(0);
+          }, { once: true });
         } catch {
           btn.disabled = false;
           btn.textContent = 'Model failed to load — retry';
