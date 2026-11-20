@@ -11,7 +11,7 @@ const viewLabel = ['front', 'side', 'oblique'];
   <div class="page-head">
     <div class="wrap row">
       <div><p class="kicker">3D MASSING</p><h1>3D Models</h1></div>
-      <p>{items.length} scene{items.length === 1 ? '' : 's'} with a rotatable model. These are massing studies, not photoreal restorations: form and dimensions can be checked, ornament is not yet modelled.</p>
+      <p>{items.length} scene{items.length === 1 ? '' : 's'} with a rotatable model. Form and dimensions can be checked; surfaces carry glazed-tile, marble and plaster textures, and the fountain animates.</p>
     </div>
   </div>
 
@@ -74,8 +74,8 @@ const viewLabel = ['front', 'side', 'oblique'];
           if (view.dataset.sky) mv.setAttribute('skybox-image', view.dataset.sky);
           mv.setAttribute('environment-image', 'neutral');
           mv.setAttribute('shadow-softness', '0.9');
-          mv.setAttribute('field-of-view', '34deg');
-          mv.setAttribute('camera-orbit', '195deg 62deg 100m');
+          mv.setAttribute('field-of-view', '30deg');
+          mv.setAttribute('camera-orbit', '195deg 62deg auto');
           mv.setAttribute('alt', view.dataset.title || '3D model');
           mv.setAttribute('camera-controls', '');
           mv.setAttribute('autoplay', '');

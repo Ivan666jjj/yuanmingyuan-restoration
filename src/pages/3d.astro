@@ -11,7 +11,7 @@ const viewLabel = ['正立面', '侧面', '斜俯视'];
   <div class="page-head">
     <div class="wrap row">
       <div><p class="kicker">3D MASSING</p><h1>三维底稿</h1></div>
-      <p>{items.length} 景已建成可旋转模型。这里是几何底稿，不是照片级复原：形体与尺度可核，装饰细节尚未建模。</p>
+      <p>{items.length} 景已建成可旋转模型。形体与尺度可核，表面有琉璃瓦、汉白玉与粉墙贴图；喷泉与铜禽在动。</p>
     </div>
   </div>
 
@@ -74,8 +74,8 @@ const viewLabel = ['正立面', '侧面', '斜俯视'];
           if (view.dataset.sky) mv.setAttribute('skybox-image', view.dataset.sky);
           mv.setAttribute('environment-image', 'neutral');
           mv.setAttribute('shadow-softness', '0.9');
-          mv.setAttribute('field-of-view', '34deg');
-          mv.setAttribute('camera-orbit', '195deg 62deg 100m');
+          mv.setAttribute('field-of-view', '30deg');
+          mv.setAttribute('camera-orbit', '195deg 62deg auto');
           mv.setAttribute('alt', view.dataset.title || '三维模型');
           mv.setAttribute('camera-controls', '');
           mv.setAttribute('autoplay', '');
