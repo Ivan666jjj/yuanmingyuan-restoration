@@ -1,0 +1,37 @@
+name: 认领景点
+description: 认领一个待复原的圆明园景点，并提交你的复原方案
+title: "[认领] "
+labels: ["claim"]
+body:
+  - type: input
+    id: scene
+    attributes:
+      label: 景点名称
+      description: 从待认领列表中选择，或写你想补充的景点
+      placeholder: 例如：海岳开襟
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 你找到的依据
+      description: 参考图链接、馆藏信息、论文或图档
+      placeholder: 例如：《西洋楼二十景》铜版画第 X 幅；或 1882 年谢满禄照片
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: 制作计划
+      description: 打算用什么模型、什么参考图、如何处理物理细节
+    validations:
+      required: true
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: 提交约定
+      options:
+        - label: 我确认参考图可溯源且为公有领域或获授权
+          required: true
+        - label: 我同意复原图以 CC BY-SA 4.0 共享，并标注为 AI 生成
+          required: true

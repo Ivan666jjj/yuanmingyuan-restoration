@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+
+const base = import.meta.env.BASE_URL;
+const u = (p = '') => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const { title = '圆明园数字复原计划', desc = '以《圆明园四十景图咏》与《西洋楼二十景》铜版画为依据，逐景复原 1860 年前的圆明园，并开放给所有人共同拼完。' } = Astro.props;
+const path = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
+const nav = [
+  { href: '', label: '首页' },
+  { href: 'gallery', label: '复原图册' },
+  { href: 'method', label: '复原方法' },
+  { href: 'contribute', label: '参与共建' },
+];
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={desc} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={desc} />
+    <link rel="icon" href={u('favicon.svg')} type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href={u('')}><span class="seal">圆</span><b>圆明园数字复原计划</b></a>
+        <nav>
+          {nav.map((n) => (
+            <a href={u(n.href)} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <main><slot /></main>
+
+    <footer class="site">
+      <div class="wrap">
+        <div>
+          <b style="color:var(--ink)">圆明园数字复原计划</b><br />
+          个人开发者项目 · 严毓焕 · 2026<br />
+          复原图为 AI 考据级复原，非考古测绘。
+        </div>
+        <div style="text-align:right">
+          图像 CC BY-SA 4.0 · 代码 MIT<br />
+          <a href="https://github.com/Ivan666jjj/yuanmingyuan-restoration" target="_blank" rel="noopener">GitHub 仓库</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

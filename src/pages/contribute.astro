@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import scenes from '../data/scenes.json';
+const open = scenes.scenes.filter((s) => s.status === 'open');
+const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
+---
+<Base title="参与共建 · 圆明园数字复原计划">
+  <section class="block">
+    <div class="wrap prose">
+      <p class="eyebrow">OPEN CALL</p>
+      <h2 style="margin-top:10px">这块拼图，缺你一块</h2>
+      <p>你不需要会写代码。会用任意 AI 图像工具即可：交一张图、一段提示词、一个出处，就能让一个景点重新出现在地图上。</p>
+
+      <h3>怎么参与</h3>
+      <ol>
+        <li><b>认领</b>：在 <a href={`${repo}/issues/new?template=claim-scene.yml`} target="_blank" rel="noopener">GitHub 新建认领 Issue</a>，或从地图上点一个空心圆点。</li>
+        <li><b>考据</b>：按该景点的“可用依据”找参考图（铜版画、彩绘本、老照片、样式雷图档）。</li>
+        <li><b>制作</b>：写清形制参数的提示词，用参考图生成，按物理清单自查。</li>
+        <li><b>提交</b>：在 Issue 里附上成图与元数据；会 Git 的直接提 PR，不会的我们帮你合入。</li>
+      </ol>
+
+      <h3>提交清单</h3>
+      <ul>
+        <li>成图：2940×1912 PNG（或 1600px 以上 WebP）。</li>
+        <li>参考图出处：链接或馆藏信息，须为公有领域或获授权。</li>
+        <li>完整提示词与模型名/版本。</li>
+        <li>一句话说明：哪些细节有据，哪些是推断。</li>
+        <li>署名：你的名字或 ID，用于贡献者墙。</li>
+      </ul>
+
+      <p class="note">规则：不得虚构“史料”；不得把 AI 图宣称为照片或测绘；参考图必须可溯源；复原图统一以 CC BY-SA 4.0 共享。</p>
+
+      <h3>待认领景点（{open.length}）</h3>
+      <div class="grid" style="margin-top:18px">
+        {open.map((s) => (
+          <div class="card" style="cursor:default">
+            <div class="bd">
+              <h3>{s.name}</h3>
+              <div class="sub">{s.garden} · {s.category} · 待认领</div>
+              <p>可用依据：{s.ref}</p>
+              <a class="btn ghost" style="margin-top:12px" href={`${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent('认领：' + s.name)}`} target="_blank" rel="noopener">认领</a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

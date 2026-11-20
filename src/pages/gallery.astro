@@ -1,0 +1,70 @@
+---
+import Base from '../layouts/Base.astro';
+import scenes from '../data/scenes.json';
+const base = import.meta.env.BASE_URL;
+const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const done = scenes.scenes.filter((s) => s.status === 'done');
+const cats = ['全部', ...new Set(done.map((s) => s.category))];
+---
+<Base title="复原图册 · 圆明园数字复原计划">
+  <section class="block">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="eyebrow">GALLERY</p>
+          <h2>复原图册</h2>
+        </div>
+        <p>{done.length} 景已完成。每张图均标注参照文献与生成模型；点击查看大图。</p>
+      </div>
+
+      <div class="filters" role="group" aria-label="按类别筛选">
+        {cats.map((c) => (
+          <button class="chip" data-cat={c} aria-pressed={c === '全部' ? 'true' : 'false'}>{c}</button>
+        ))}
+      </div>
+
+      <div class="grid" id="grid">
+        {done.map((s) => (
+          <a class="card" href="#" data-cat={s.category} data-full={u(s.image)} data-title={`${s.name} · ${s.garden}`}>
+            <div class="ph"><img src={u(s.thumb)} alt={`${s.name}复原图`} loading="lazy" /></div>
+            <div class="bd">
+              <h3>{s.name}</h3>
+              <div class="sub">{s.garden} · {s.category} · {s.en}</div>
+              <p>{s.prompt}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <dialog class="lightbox" id="lb">
+    <img id="lb-img" alt="" />
+    <div class="cap" id="lb-cap"></div>
+  </dialog>
+
+  <script>
+    const chips = document.querySelectorAll('.chip');
+    const cards = [...document.querySelectorAll('.card')];
+    chips.forEach((ch) => ch.addEventListener('click', () => {
+      chips.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      ch.setAttribute('aria-pressed', 'true');
+      const c = ch.dataset.cat;
+      cards.forEach((card) => {
+        card.style.display = c === '全部' || card.dataset.cat === c ? '' : 'none';
+      });
+    }));
+
+    const lb = document.getElementById('lb');
+    const img = document.getElementById('lb-img');
+    const cap = document.getElementById('lb-cap');
+    cards.forEach((card) => card.addEventListener('click', (e) => {
+      e.preventDefault();
+      img.src = card.dataset.full;
+      img.alt = card.dataset.title;
+      cap.textContent = card.dataset.title;
+      lb.showModal();
+    }));
+    lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+  </script>
+</Base>

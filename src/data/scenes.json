@@ -1,0 +1,236 @@
+{
+  "meta": {
+    "title": "圆明园数字复原计划",
+    "subtitle": "把 1860 年前的圆明园，一块一块拼回来",
+    "author": "严毓焕",
+    "model": "qwen-image-3.0-pro",
+    "outputSize": "2940×1912",
+    "license": "CC BY-SA 4.0",
+    "disclaimer": "本站图片为 AI 考据级复原，非考古测绘；参照《圆明园四十景图咏》《西洋楼二十景》铜版画等公有领域图像，形制与配色力求有据，细节不逐寸对应。"
+  },
+  "scenes": [
+    {
+      "id": "xieqiqu",
+      "name": "谐奇趣",
+      "en": "Xieqiqu",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 596, "y": 118,
+      "status": "done",
+      "image": "/images/restorations/xieqiqu.webp",
+      "thumb": "/images/thumbs/xieqiqu.webp",
+      "ref": "《西洋楼二十景》铜版画·谐奇趣南面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "三层巴洛克楼阁，红色圆光琉璃瓦庑殿顶、粉红灰墙、汉白玉卷草柱；九间弧形游廊连两座两层八角乐亭；海棠形水池、翻尾石鱼、铜雁铜羊吐水。"
+    },
+    {
+      "id": "wanhuazhen",
+      "name": "万花阵",
+      "en": "Maze (Wanhuazhen)",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 631, "y": 108,
+      "status": "done",
+      "image": "/images/restorations/wanhuazhen.webp",
+      "thumb": "/images/thumbs/wanhuazhen.webp",
+      "ref": "《西洋楼二十景》铜版画·花园正面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "长方形欧式迷宫，砖墙高约 1.2 米镶卍字雕花，南北 89 米、东西 59 米；中心八方西式石亭，石狮驮宝瓶喷水。"
+    },
+    {
+      "id": "yangquelong",
+      "name": "养雀笼",
+      "en": "Aviary Gate",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 666, "y": 117,
+      "status": "done",
+      "image": "/images/restorations/yangquelong.webp",
+      "thumb": "/images/thumbs/yangquelong.webp",
+      "ref": "《西洋楼二十景》铜版画·养雀笼西面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "中式五楼牌坊，五间三卷，二十四根方石柱墩落地；次间铜丝网笼养孔雀；石刻海蜇形山子；绿琉璃瓦与五色琉璃构件。"
+    },
+    {
+      "id": "wuzhuting",
+      "name": "五竹亭",
+      "en": "Five Bamboo Pavilions",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 712, "y": 111,
+      "status": "done",
+      "image": "/images/restorations/wuzhuting.webp",
+      "thumb": "/images/thumbs/wuzhuting.webp",
+      "ref": "《西洋楼二十景》铜版画·竹亭北面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "五座西洋式重檐敞亭与四座游廊共十八间，木构雕作竹节、斑竹彩画，嵌彩色玻璃与螺钿；圆形喷水池与荷花池。"
+    },
+    {
+      "id": "fangwaiguan",
+      "name": "方外观",
+      "en": "Fangwaiguan",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 754, "y": 117,
+      "status": "done",
+      "image": "/images/restorations/fangwaiguan.webp",
+      "thumb": "/images/thumbs/fangwaiguan.webp",
+      "ref": "《西洋楼二十景》铜版画·方外观正面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "南向两层三间西式小楼，四根汉白玉方柱承重檐庑殿顶，孔雀绿琉璃瓦；两侧半环形石阶贴墙而上；楼前五孔石桥。"
+    },
+    {
+      "id": "haiyantang",
+      "name": "海晏堂",
+      "en": "Haiyantang",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 792, "y": 110,
+      "status": "done",
+      "image": "/images/restorations/haiyantang.webp",
+      "thumb": "/images/thumbs/haiyantang.webp",
+      "ref": "《西洋楼二十景》铜版画·海晏堂西面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "朝西十一开间，孔雀绿琉璃瓦、粉红灰墙、汉白玉番花柱；池心石蛤蜊与转轮水法；八字形十二座石台，兽首人身铜像手持玉笏。"
+    },
+    {
+      "id": "yuanyingguan",
+      "name": "远瀛观",
+      "en": "Yuanyingguan",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 828, "y": 117,
+      "status": "done",
+      "image": "/images/restorations/yuanyingguan.webp",
+      "thumb": "/images/thumbs/yuanyingguan.webp",
+      "ref": "《西洋楼二十景》铜版画·远瀛观正面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "高台钟楼式大殿，汉白玉巨柱刻下垂葡萄纹；门窗玻璃一千二百余块；檐口山花密布石雕。"
+    },
+    {
+      "id": "dashuifa",
+      "name": "大水法",
+      "en": "Great Fountain",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 846, "y": 134,
+      "status": "done",
+      "image": "/images/restorations/dashuifa.webp",
+      "thumb": "/images/thumbs/dashuifa.webp",
+      "ref": "《西洋楼二十景》铜版画·大水法正面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "巴洛克石龛式水法，贝壳纹山花与涡卷雕饰；菊花式大水池中猎狗逐鹿喷泉；两侧各一座十三级喷水塔。"
+    },
+    {
+      "id": "guanshuifa",
+      "name": "观水法",
+      "en": "Throne of Viewing Water",
+      "garden": "长春园",
+      "category": "西洋楼",
+      "x": 852, "y": 156,
+      "status": "done",
+      "image": "/images/restorations/guanshuifa.webp",
+      "thumb": "/images/thumbs/guanshuifa.webp",
+      "ref": "《西洋楼二十景》铜版画·观水法正面",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "皇帝宝座与五扇石雕屏风，屏上浮雕西洋军旗、甲胄、刀剑、枪炮；东西各立汉白玉方塔，北望大水法水幕。"
+    },
+    {
+      "id": "fanghu",
+      "name": "方壶胜境",
+      "en": "Fanghu Shengjing",
+      "garden": "圆明园",
+      "category": "福海",
+      "x": 474, "y": 300,
+      "status": "done",
+      "image": "/images/restorations/fanghu.webp",
+      "thumb": "/images/thumbs/fanghu.webp",
+      "ref": "《圆明园四十景图咏》绢本彩绘·方壶胜境",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "福海东北湾，三座重檐大亭呈山字形伸入湖中；九座楼阁以飞阁复道相连，黄绿紫琉璃并用。"
+    },
+    {
+      "id": "pengdao",
+      "name": "蓬岛瑶台",
+      "en": "Penglai Islet",
+      "garden": "圆明园",
+      "category": "福海",
+      "x": 352, "y": 396,
+      "status": "done",
+      "image": "/images/restorations/pengdao.webp",
+      "thumb": "/images/thumbs/pengdao.webp",
+      "ref": "《圆明园四十景图咏》绢本彩绘·蓬岛瑶台",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "福海中央一池三山，大岛正殿蓝瓦黄剪边，东岛六角亭悬「瀛海仙山」匾，红栏木曲桥相连，薄雾晨光。"
+    },
+    {
+      "id": "wanfang",
+      "name": "万方安和",
+      "en": "Wanfang Anhe",
+      "garden": "圆明园",
+      "category": "后湖",
+      "x": 252, "y": 300,
+      "status": "done",
+      "image": "/images/restorations/wanfang.webp",
+      "thumb": "/images/thumbs/wanfang.webp",
+      "ref": "《圆明园四十景图咏》绢本彩绘·万方安和",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "水中汉白玉基座上的卍字形殿堂，三十三间殿宇沿卍字轴线相连，四周通设外廊，四面临水。"
+    },
+    {
+      "id": "tongleyuan",
+      "name": "同乐园·清音阁",
+      "en": "Tongleyuan Theatre",
+      "garden": "圆明园",
+      "category": "后湖",
+      "x": 330, "y": 190,
+      "status": "done",
+      "image": "/images/restorations/tongleyuan.webp",
+      "thumb": "/images/thumbs/tongleyuan.webp",
+      "ref": "国博藏样式雷同乐园烫样",
+      "model": "qwen-image-3.0-pro",
+      "prompt": "清代第一座三层大戏楼清音阁，重檐三层，朱红柱绿彩画；后台扮戏楼、对面两层看戏殿，东西游廊围合。"
+    },
+
+    {
+      "id": "haiyuekaijin", "name": "海岳开襟", "en": "Haiyue Kaijin", "garden": "长春园", "category": "楼阁",
+      "x": 646, "y": 238, "status": "open", "ref": "1882 年谢满禄照片 + 圆形台基遗址"
+    },
+    {
+      "id": "sheweicheng", "name": "舍卫城", "en": "Shewei City", "garden": "圆明园", "category": "佛城",
+      "x": 404, "y": 178, "status": "open", "ref": "1882 年南门照片 + 2019 年考古"
+    },
+    {
+      "id": "anyougong", "name": "安佑宫", "en": "Anyou Palace", "garden": "圆明园", "category": "祖庙",
+      "x": 198, "y": 176, "status": "open", "ref": "遗址华表 + 样式雷图档"
+    },
+    {
+      "id": "wenyuange", "name": "文源阁", "en": "Wenyuan Pavilion", "garden": "圆明园", "category": "藏书楼",
+      "x": 300, "y": 168, "status": "open", "ref": "遗址水池与石碑 + 天一阁形制"
+    },
+    {
+      "id": "zhengdaguangming", "name": "正大光明", "en": "Zhengda Guangming", "garden": "圆明园", "category": "正殿",
+      "x": 282, "y": 522, "status": "open", "ref": "《四十景图咏》 + 样式雷图档"
+    },
+    {
+      "id": "jiuzhou", "name": "九州清晏", "en": "Jiuzhou Qingyan", "garden": "圆明园", "category": "寝宫",
+      "x": 302, "y": 470, "status": "open", "ref": "《四十景图咏》 + 600 余幅图档"
+    },
+    {
+      "id": "shangxiatiantian", "name": "上下天光", "en": "Shangxia Tiantian", "garden": "圆明园", "category": "湖景",
+      "x": 384, "y": 302, "status": "open", "ref": "《四十景图咏》"
+    },
+    {
+      "id": "quyuanfenghe", "name": "曲院风荷", "en": "Quyuan Fenghe", "garden": "圆明园", "category": "湖景",
+      "x": 432, "y": 522, "status": "open", "ref": "《四十景图咏》"
+    },
+    {
+      "id": "danbohingjing", "name": "澹泊宁静", "en": "Danbo Ningjing", "garden": "圆明园", "category": "田字殿",
+      "x": 242, "y": 360, "status": "open", "ref": "《四十景图咏》田字形平面"
+    },
+    {
+      "id": "jiexiushanfang", "name": "接秀山房", "en": "Jiexiu Shanfang", "garden": "圆明园", "category": "湖景",
+      "x": 424, "y": 432, "status": "open", "ref": "《四十景图咏》"
+    }
+  ]
+}

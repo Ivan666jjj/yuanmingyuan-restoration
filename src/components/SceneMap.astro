@@ -1,0 +1,92 @@
+---
+import scenes from '../data/scenes.json';
+const base = import.meta.env.BASE_URL;
+const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const done = scenes.scenes.filter((s) => s.status === 'done');
+const open = scenes.scenes.filter((s) => s.status === 'open');
+const total = scenes.scenes.length;
+const pct = Math.round((done.length / total) * 100);
+---
+<div class="mapwrap" data-base={base}>
+  <div class="mapcard">
+    <svg viewBox="0 0 1000 680" role="img" aria-label="圆明园景区复原进度地图">
+      <rect class="zone" x="50" y="108" width="510" height="520" rx="30" />
+      <rect class="zone" x="566" y="58" width="330" height="268" rx="22" />
+      <rect class="zone" x="566" y="344" width="330" height="284" rx="22" />
+
+      <text class="zone-label" x="80" y="140">圆明园</text>
+      <text class="zone-label" x="588" y="88">长春园 · 西洋楼</text>
+      <text class="zone-label" x="588" y="374">绮春园</text>
+
+      <ellipse class="water" cx="352" cy="398" rx="108" ry="76" />
+      <text x="318" y="404" font-size="12" fill="rgba(90,130,140,.9)" font-family="serif">福海</text>
+      <ellipse class="water" cx="300" cy="300" rx="86" ry="56" />
+      <text x="272" y="304" font-size="12" fill="rgba(90,130,140,.9)" font-family="serif">后湖</text>
+      <ellipse class="water" cx="648" cy="240" rx="52" ry="34" />
+      <text x="626" y="244" font-size="11" fill="rgba(90,130,140,.9)" font-family="serif">西湖</text>
+
+      {scenes.scenes.map((s) => (
+        <g class:list={['mk', s.status]} data-id={s.id} tabindex="0" role="button" aria-label={s.name}>
+          <circle class="dot" cx={s.x} cy={s.y} r={s.status === 'done' ? 7.5 : 6} />
+          {s.status === 'open' && <text x={s.x + 3} y={s.y + 3.5} font-size="10" fill="var(--red)" stroke="none" opacity="1">+</text>}
+          <text x={s.x + 12} y={s.y + 4}>{s.name}</text>
+        </g>
+      ))}
+    </svg>
+  </div>
+
+  <aside class="panel" id="panel" aria-live="polite">
+    <div class="sub">PROGRESS {done.length}/{total} · {pct}%</div>
+    <div style="height:6px;background:rgba(27,26,23,.1);border-radius:99px;overflow:hidden;margin:8px 0 16px">
+      <div style="height:100%;width:{pct}%;background:var(--red)"></div>
+    </div>
+    <h3>点击地图上的圆点</h3>
+    <p class="kv">实心红点为已复原景点，空心为待认领。选中后可查看参照文献与复原说明，未复原的可一键去 GitHub 认领。</p>
+  </aside>
+</div>
+
+<script type="application/json" id="scene-data" set:html={JSON.stringify(scenes.scenes)}></script>
+<script>
+  const root = document.querySelector('.mapwrap');
+  const BASE = root.getAttribute('data-base') || '/';
+  const scenes = JSON.parse(document.getElementById('scene-data').textContent);
+  const byId = Object.fromEntries(scenes.map((s) => [s.id, s]));
+  const panel = document.getElementById('panel');
+  const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
+  const asset = (p) => BASE.replace(/\/$/, '') + p;
+
+  function esc(t) {
+    return String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function render(s) {
+    if (s.status === 'done') {
+      panel.innerHTML = `
+        <img src="${asset(s.thumb)}" alt="${esc(s.name)}复原图" loading="lazy" />
+        <h3>${esc(s.name)}</h3>
+        <div class="sub">${esc(s.garden)} · ${esc(s.category)}</div>
+        <div class="kv"><b>参照</b>：${esc(s.ref)}</div>
+        <div class="kv"><b>模型</b>：${esc(s.model)} · 2940×1912</div>
+        <div class="kv">${esc(s.prompt)}</div>
+        <a class="btn ghost" href="${asset(s.image)}" target="_blank" rel="noopener">查看大图</a>`;
+    } else {
+      panel.innerHTML = `
+        <h3>${esc(s.name)}</h3>
+        <div class="sub">${esc(s.garden)} · ${esc(s.category)} · 待认领</div>
+        <div class="kv"><b>可用依据</b>：${esc(s.ref)}</div>
+        <p class="kv">这项复原尚未完成。你可以依据上述文献，用任意 AI 图像工具完成它，然后提交到本站。</p>
+        <a class="btn" href="${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent('认领：' + s.name)}" target="_blank" rel="noopener">认领这个景点</a>`;
+    }
+  }
+
+  document.querySelectorAll('.mk').forEach((el) => {
+    const s = byId[el.dataset.id];
+    const act = () => {
+      document.querySelectorAll('.mk.active').forEach((x) => x.classList.remove('active'));
+      el.classList.add('active');
+      render(s);
+    };
+    el.addEventListener('click', act);
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } });
+  });
+</script>
