@@ -7,6 +7,19 @@
 
 把 1860 年前的圆明园，一块一块拼回来。
 
+> **Piecing the Yuanmingyuan back together, before 1860.** An open, checkable restoration atlas: 77 scenes across the three gardens, rebuilt from the 1744 silk album, the 1786 copperplates and Lei-family drawings. Every image publishes its source, prompt and model. [English site](https://ivan666jjj.github.io/yuanmingyuan-restoration/en/) · [认领一块拼图](https://github.com/Ivan666jjj/yuanmingyuan-restoration/issues?q=is%3Aissue+is%3Aopen+label%3Aclaim)
+
+<p align="center">
+  <img src="public/images/restorations/dashuifa.webp" width="49%" />
+  <img src="public/images/restorations/fanghu.webp" width="49%" />
+</p>
+<p align="center">
+  <img src="public/images/restorations/haiyantang.webp" width="32%" />
+  <img src="public/images/restorations/wanhuazhen.webp" width="32%" />
+  <img src="public/images/restorations/pengdao.webp" width="32%" />
+</p>
+<p align="center"><sub>大水法 · 方壶胜境 · 海晏堂 · 万花阵 · 蓬岛瑶台（AI 考据级复原，非考古测绘）</sub></p>
+
 一个开放的、可核验的圆明园数字复原图册：以《圆明园四十景图咏》绢本彩绘（1744）、《西洋楼二十景》铜版画（1786）、样式雷图档与考古照片为依据，逐景复原已毁的园林与建筑。每一景都附带参考图出处、提示词与生成模型，并标注“AI 考据级复原，非考古测绘”。
 
 - 站点：https://Ivan666jjj.github.io/yuanmingyuan-restoration/
