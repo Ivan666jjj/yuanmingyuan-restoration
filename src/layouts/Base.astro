@@ -7,7 +7,7 @@ const { lang = 'zh', title, desc } = Astro.props;
 const en = lang === 'en';
 const T = en ? {
   brand: 'Yuanmingyuan Restoration', sub: '圆明园数字复原计划',
-  nav: [['', 'Home'], ['gallery', 'Gallery'], ['method', 'Method'], ['contribute', 'Contribute']],
+  nav: [['', 'Home'], ['gallery', 'Gallery'], ['3d', '3D models'], ['method', 'Method'], ['contribute', 'Contribute']],
   defaultTitle: 'Yuanmingyuan Digital Restoration',
   defaultDesc: 'Rebuilding the Yuanmingyuan as it stood before 1860, scene by scene, from public-domain engravings and album paintings — open for anyone to complete.',
   footerAbout: 'An open, individual-led restoration project: reconstructing the Yuanmingyuan before 1860 from public-domain imagery, publishing the method, prompts and sources alongside every image.',
@@ -19,7 +19,7 @@ const T = en ? {
   switch: '中文',
 } : {
   brand: '圆明园数字复原计划', sub: 'Yuanmingyuan Restoration',
-  nav: [['', '首页'], ['gallery', '复原图册'], ['method', '复原方法'], ['contribute', '参与共建']],
+  nav: [['', '首页'], ['gallery', '复原图册'], ['3d', '三维底稿'], ['method', '复原方法'], ['contribute', '参与共建']],
   defaultTitle: '圆明园数字复原计划',
   defaultDesc: '以《圆明园四十景图咏》与《西洋楼二十景》铜版画为依据，逐景复原 1860 年前的圆明园，并开放给所有人共同拼完。',
   footerAbout: '一个个人发起的开放复原项目：以公有领域图像为据，逐景重建 1860 年前的圆明园，并把方法、提示词与出处一并公开。',

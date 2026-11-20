@@ -1,0 +1,91 @@
+---
+import Base from '../../layouts/Base.astro';
+import scenes from '../../data/scenes.json';
+const base = import.meta.env.BASE_URL;
+const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
+const items = scenes.scenes.filter((s) => s.model3d);
+const viewLabel = ['front', 'side', 'oblique'];
+---
+<Base lang="en" title="3D massing · Yuanmingyuan Restoration">
+  <div class="page-head">
+    <div class="wrap row">
+      <div><p class="kicker">3D MASSING</p><h1>3D Models</h1></div>
+      <p>{items.length} scene{items.length === 1 ? '' : 's'} with a rotatable model. These are massing studies, not photoreal restorations: form and dimensions can be checked, ornament is not yet modelled.</p>
+    </div>
+  </div>
+
+  <section class="tight">
+    <div class="wrap">
+      <div class="note">How to read: check whether the column grid, bays, depth and eave height trace back to the drawings, then judge the proportions. Each model states its tool, which dimensions are estimated, and what is missing. AR works on a phone.</div>
+
+      {items.map((s) => (
+        <article class="d3-item">
+          <div class="d3-view" data-glb={u(s.model3d.glb)} data-title={`${s.en} · 3D massing`}>
+            <img src={u(s.model3d.hero || s.image)} alt={`${s.en} 3D massing`} loading="lazy" />
+            <button type="button" class="d3-load">Load 3D model</button>
+          </div>
+          <div class="d3-text">
+            <h2>{s.en}<span>{s.name}</span></h2>
+            <p class="d3-meta">{s.garden} · {s.category} · {s.model3d.tool}</p>
+            <p class="d3-basis">{s.model3d.basis}</p>
+            {s.model3d.views?.length ? (
+              <p class="d3-views">
+                Views:
+                {s.model3d.views.map((v, i) => (
+                  <a href={u(v)} target="_blank" rel="noopener">{viewLabel[i] || `view ${i + 1}`}</a>
+                ))}
+              </p>
+            ) : null}
+            <p class="d3-foot">
+              Licence {s.model3d.license || 'CC BY-SA 4.0'}　·　
+              <a href={`${repo}/issues/new?template=submit-3d.yml&title=${encodeURIComponent('[三维] ' + s.name)}`} target="_blank" rel="noopener">Submit your version →</a>
+            </p>
+          </div>
+        </article>
+      ))}
+
+      {items.length === 0 && <p class="small">No 3D entries yet. Use the “submit 3D” template to contribute one.</p>}
+    </div>
+  </section>
+
+  <script>
+    const MV_CDN = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@4.1.0/dist/model-viewer.min.js';
+    let mvReady = null;
+    const loadMV = () => mvReady || (mvReady = new Promise((resolve, reject) => {
+      if (customElements.get('model-viewer')) return resolve();
+      const el = document.createElement('script');
+      el.type = 'module';
+      el.src = MV_CDN;
+      el.onload = resolve;
+      el.onerror = () => { mvReady = null; reject(new Error('cdn')); };
+      document.head.appendChild(el);
+    }));
+
+    document.querySelectorAll('.d3-view').forEach((view) => {
+      const btn = view.querySelector('.d3-load');
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Loading model…';
+        try {
+          await loadMV();
+          const mv = document.createElement('model-viewer');
+          mv.setAttribute('src', view.dataset.glb);
+          mv.setAttribute('alt', view.dataset.title || '3D model');
+          mv.setAttribute('camera-controls', '');
+          mv.setAttribute('auto-rotate', '');
+          mv.setAttribute('touch-action', 'pan-y');
+          mv.setAttribute('shadow-intensity', '1');
+          mv.setAttribute('exposure', '1');
+          mv.setAttribute('ar', '');
+          mv.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+          view.prepend(mv);
+          view.classList.add('loaded');
+        } catch {
+          btn.disabled = false;
+          btn.textContent = 'Model failed to load — retry';
+        }
+      });
+    });
+  </script>
+</Base>

@@ -66,7 +66,7 @@ body:
     id: glb
     attributes:
       label: glb 模型
-      description: 可选。附链接，或说明文件体积；建议 Draco 压缩后 ≤10MB。没有就填「无」
+      description: 可选。附链接，或说明文件体积；建议 ≤10MB，优先不压缩（Draco 解码器在境外 CDN，国内可能加载失败）。没有就填「无」
       placeholder: 例如 6.4MB，Draco 压缩；或 https://…
   - type: textarea
     id: texture

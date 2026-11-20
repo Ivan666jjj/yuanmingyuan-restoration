@@ -28,6 +28,7 @@ const has3d = done.filter((s) => s.model3d).length;
           data-title={`${s.en} · ${s.garden}`}
           data-glb={s.model3d?.glb ? asset(s.model3d.glb) : undefined}
           data-basis={s.model3d?.basis}
+          data-model={s.model}
           tabindex="0"
           role="button"
           aria-label={`View ${s.en}`}
@@ -38,7 +39,10 @@ const has3d = done.filter((s) => s.model3d).length;
           </div>
           <figcaption>
             <div><h3>{s.en}</h3><div class="meta">{s.garden} · {s.category}</div></div>
-            <div class="ref">{s.ref}</div>
+            <div class="side">
+              <div class="ref">{s.ref}</div>
+              <div class="model">Model: {s.model}</div>
+            </div>
           </figcaption>
         </figure>
       ))}
@@ -103,7 +107,7 @@ const has3d = done.filter((s) => s.model3d).length;
       img.src = d.full;
       img.alt = d.title;
       cap.textContent = d.title;
-      meta.textContent = d.basis || '';
+      meta.textContent = [d.model && `Model ${d.model}`, d.basis].filter(Boolean).join(' · ');
       toggle.hidden = !d.glb;
       if (!d.glb) mv.removeAttribute('src');
       showImg();

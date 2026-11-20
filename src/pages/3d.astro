@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+import scenes from '../data/scenes.json';
+const base = import.meta.env.BASE_URL;
+const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
+const items = scenes.scenes.filter((s) => s.model3d);
+const viewLabel = ['正立面', '侧面', '斜俯视'];
+---
+<Base title="三维底稿 · 圆明园数字复原计划">
+  <div class="page-head">
+    <div class="wrap row">
+      <div><p class="kicker">3D MASSING</p><h1>三维底稿</h1></div>
+      <p>{items.length} 景已建成可旋转模型。这里是几何底稿，不是照片级复原：形体与尺度可核，装饰细节尚未建模。</p>
+    </div>
+  </div>
+
+  <section class="tight">
+    <div class="wrap">
+      <div class="note">读法：先看柱网、开间、进深、檐高能不能对回图档，再看比例是否合理。每个模型都写明用了什么工具、哪几项是估算、哪些细节没做。可在手机上用 AR 摆到桌面。</div>
+
+      {items.map((s) => (
+        <article class="d3-item">
+          <div class="d3-view" data-glb={u(s.model3d.glb)} data-title={`${s.name} · 三维底稿`}>
+            <img src={u(s.model3d.hero || s.image)} alt={`${s.name}三维底稿`} loading="lazy" />
+            <button type="button" class="d3-load">载入三维模型</button>
+          </div>
+          <div class="d3-text">
+            <h2>{s.name}<span>{s.en}</span></h2>
+            <p class="d3-meta">{s.garden} · {s.category} · {s.model3d.tool}</p>
+            <p class="d3-basis">{s.model3d.basis}</p>
+            {s.model3d.views?.length ? (
+              <p class="d3-views">
+                三视图：
+                {s.model3d.views.map((v, i) => (
+                  <a href={u(v)} target="_blank" rel="noopener">{viewLabel[i] || `图 ${i + 1}`}</a>
+                ))}
+              </p>
+            ) : null}
+            <p class="d3-foot">
+              许可 {s.model3d.license || 'CC BY-SA 4.0'}　·　
+              <a href={`${repo}/issues/new?template=submit-3d.yml&title=${encodeURIComponent('[三维] ' + s.name)}`} target="_blank" rel="noopener">提交你的版本 →</a>
+            </p>
+          </div>
+        </article>
+      ))}
+
+      {items.length === 0 && <p class="small">还没有三维条目。欢迎用「提交三维复原」模板投稿。</p>}
+    </div>
+  </section>
+
+  <script>
+    const MV_CDN = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@4.1.0/dist/model-viewer.min.js';
+    let mvReady = null;
+    const loadMV = () => mvReady || (mvReady = new Promise((resolve, reject) => {
+      if (customElements.get('model-viewer')) return resolve();
+      const el = document.createElement('script');
+      el.type = 'module';
+      el.src = MV_CDN;
+      el.onload = resolve;
+      el.onerror = () => { mvReady = null; reject(new Error('cdn')); };
+      document.head.appendChild(el);
+    }));
+
+    document.querySelectorAll('.d3-view').forEach((view) => {
+      const btn = view.querySelector('.d3-load');
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = '模型加载中…';
+        try {
+          await loadMV();
+          const mv = document.createElement('model-viewer');
+          mv.setAttribute('src', view.dataset.glb);
+          mv.setAttribute('alt', view.dataset.title || '三维模型');
+          mv.setAttribute('camera-controls', '');
+          mv.setAttribute('auto-rotate', '');
+          mv.setAttribute('touch-action', 'pan-y');
+          mv.setAttribute('shadow-intensity', '1');
+          mv.setAttribute('exposure', '1');
+          mv.setAttribute('ar', '');
+          mv.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+          view.prepend(mv);
+          view.classList.add('loaded');
+        } catch {
+          btn.disabled = false;
+          btn.textContent = '模型加载失败，点此重试';
+        }
+      });
+    });
+  </script>
+</Base>
