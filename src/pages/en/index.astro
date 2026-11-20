@@ -1,0 +1,123 @@
+---
+import Base from '../../layouts/Base.astro';
+import SceneMap from '../../components/SceneMap.astro';
+import scenes from '../../data/scenes.json';
+const base = import.meta.env.BASE_URL;
+const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const done = scenes.scenes.filter((s) => s.status === 'done');
+const open = scenes.scenes.filter((s) => s.status === 'open');
+const pct = Math.round((done.length / scenes.scenes.length) * 100);
+const featured = scenes.scenes.find((s) => s.id === 'fanghu');
+---
+<Base lang="en" title="Yuanmingyuan Digital Restoration">
+  <section class="hero">
+    <img class="bg" src={u('images/restorations/dashuifa.webp')} alt="Restored Great Fountain (Dashuifa)" />
+    <div class="top"><span>YUANMINGYUAN · DIGITAL RESTORATION</span><span>1744 — 1786 — 1860</span></div>
+    <span class="vertical">萬園之園</span>
+    <div class="inner">
+      <h1>Piecing the Yuanmingyuan back together, before 1860</h1>
+      <p class="sub">Scene by scene, from the 1744 album paintings and the 1786 copperplate engravings of the Western Mansions. Every piece is checkable, discussable, replaceable.</p>
+      <div class="foot">
+        <div><b>{done.length}</b> restored　·　<b>{open.length}</b> to claim　·　public-domain sources</div>
+        <span class="scroll"><i></i>Scroll</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="intro">
+    <div class="wrap grid12">
+      <div class="l" data-reveal>
+        <p class="kicker">THE PREMISE</p>
+        <p class="lead dropcap">The Yuanmingyuan left no photographs. It left images: the forty-scene silk album of 1744, the twenty copperplates of the Western Mansions completed in 1786, and the Lei family's architectural drawings and models. Precise, but scattered. This project translates those fragments back into visible space.</p>
+        <p class="lead" style="font-size:16px">Not imagining a garden, but fixing bays, materials, colours and orientation first, then letting image generation stay inside those constraints. Every scene cites its source; what is inference is labelled as inference.</p>
+      </div>
+      <div class="r" data-reveal>
+        <blockquote>
+          “In the sea three isles were made, after the manner of Li Sixun's immortal mountains — towering, like five halls of gold and twelve towers of jade.”
+          <footer>— Qianlong, preface to “Penglai Islet”, Forty Scenes of the Yuanmingyuan</footer>
+        </blockquote>
+        <div class="progressline">
+          <div class="small">Restoration progress</div>
+          <div class="n">{done.length} <em>/ {scenes.scenes.length}</em></div>
+          <div class="bar"><i style={`width:${pct}%`}></i></div>
+          <div class="small" style="margin-top:10px">{pct}% · add the next piece</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="hair" />
+
+  <section id="map">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div class="k"><p class="kicker">THE PUZZLE</p></div>
+        <div class="t"><h2 class="h2">A map you can keep completing</h2>
+        <p>Three gardens: Yuanming, Changchun, Qichun. Solid = restored, hollow = to claim. Select any scene for its sources.</p></div>
+      </div>
+      <SceneMap lang="en" />
+    </div>
+  </section>
+
+  <section class="night">
+    <div class="wrap">
+      <p class="kicker" data-reveal>1860 · THE RUIN</p>
+      <div class="grid12" data-reveal>
+        <div style="grid-column:1/9"><div class="big">After ten days of fire, only the stone outlines remained.</div></div>
+        <div style="grid-column:9/13;align-self:end"><p class="small" style="line-height:2">In October 1860 Anglo-French forces burned the Yuanmingyuan. Timber was lost; carved stone survived. The “Great Fountain” visitors know today is only the backdrop of a much larger waterwork.</p></div>
+      </div>
+      <div class="cols">
+        <p style="grid-column:1/5">Restoration is a method against forgetting: reorganising information scattered across engravings, albums and archives into space you can stand in.</p>
+        <p style="grid-column:5/9">But we refuse to fake certainty. Every image is labelled an AI reconstruction — not a photograph, survey, or “confirmed original”.</p>
+        <p style="grid-column:9/13">That is why prompts, references and failures are published too: checkable matters more than pretty.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div class="k"><p class="kicker">SELECTED</p></div>
+        <div class="t"><h2 class="h2">Restored</h2><p>From Baroque waterworks to the three isles in the Fu Hai.</p></div>
+      </div>
+      <div class="feat" data-reveal>
+        <figure class="main">
+          <a href={u('en/gallery')}><img src={u(featured.image)} alt={featured.en} /></a>
+          <figcaption><span>{featured.en} · {featured.garden}</span><span>{featured.ref}</span></figcaption>
+        </figure>
+        <div class="side">
+          {['dashuifa', 'haiyantang', 'pengdao', 'wanfang'].map((id) => { const s = scenes.scenes.find((x) => x.id === id); return (
+            <a href={u('en/gallery')}><span>{s.en}</span><span>{s.garden}</span></a>
+          ); })}
+          <a href={u('en/gallery')} style="border-bottom:0;margin-top:8px"><span class="link-arrow">All {done.length} scenes</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="hair" />
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div class="k"><p class="kicker">METHOD</p></div>
+        <div class="t"><h2 class="h2">Evidence first, then generation</h2><p>Three steps, none optional. Each output is published for review.</p></div>
+      </div>
+      <div class="three" data-reveal>
+        <div class="s"><div class="idx">I</div><h3>Extract the form</h3><p>Bays, materials, colours, scale and orientation from engravings, albums, Lei-family drawings and excavation reports — not “feel”.</p></div>
+        <div class="s"><div class="idx">II</div><h3>Reference-driven generation</h3><p>Public-domain images as references; take only the form and re-render as photography. No engraving lines, paper or seals.</p></div>
+        <div class="s"><div class="idx">III</div><h3>Physical correction</h3><p>Fountains need outlets; water below the rim; one light source; no floating members. Checked before entering the gallery.</p></div>
+      </div>
+      <div style="margin-top:34px"><a class="link-arrow" href={u('en/method')}>Full method & limits</a></div>
+    </div>
+  </section>
+
+  <section class="tight">
+    <div class="wrap">
+      <div class="cta" data-reveal>
+        <div class="t"><p class="kicker">OPEN CALL</p><h2 class="h2" style="max-width:22ch">The next piece might be yours</h2></div>
+        <div class="a"><a class="btn red" href={u('en/contribute')}>Contribute →</a></div>
+      </div>
+    </div>
+  </section>
+</Base>

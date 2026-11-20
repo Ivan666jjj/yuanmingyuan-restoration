@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import scenes from '../../data/scenes.json';
+import contributors from '../../data/contributors.json';
+const open = scenes.scenes.filter((s) => s.status === 'open');
+const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
+---
+<Base lang="en" title="Contribute · Yuanmingyuan Restoration">
+  <div class="page-head"><div class="wrap row">
+    <div><p class="kicker">OPEN CALL</p><h1>Contribute</h1></div>
+    <p>No coding required. Any AI image tool will do: submit one image, one prompt, one source, and a scene returns to the map.</p>
+  </div></div>
+  <div class="wrap article">
+    <nav class="toc" aria-label="Contents"><a href="#how">How</a><a href="#spec">Checklist</a><a href="#list">To claim</a><a href="#wall">Contributors</a></nav>
+    <div class="prose">
+      <h2 id="how">How</h2>
+      <ol>
+        <li><b>Claim</b>: open a <a href={`${repo}/issues/new?template=claim-scene.yml`} target="_blank" rel="noopener">claim issue</a>, or click a hollow dot on the map.</li>
+        <li><b>Research</b>: find references (copperplates, album, old photos, Lei drawings) per the scene's listed basis.</li>
+        <li><b>Make</b>: write parameter-rich prompts, generate with references, self-check the physics list.</li>
+        <li><b>Submit</b>: attach image + metadata to the issue; Git users open a PR, others we merge for you.</li>
+      </ol>
+      <h2 id="spec">Checklist</h2>
+      <ul>
+        <li>Image: 2940×1912 PNG or WebP ≥1600px.</li>
+        <li>Reference source: link or holding info, public domain or licensed.</li>
+        <li>Full prompt + model name/version.</li>
+        <li>One line: what is sourced, what is inferred.</li>
+        <li>Credit: your name/ID for the contributor wall.</li>
+      </ul>
+      <div class="note">Rules: no fabricated “sources”; never present AI images as photographs or surveys; references must be traceable; images shared under CC BY-SA 4.0.</div>
+      <h2 id="list">Scenes to claim ({open.length})</h2>
+      <div class="claim-list">
+        {open.map((s, i) => (
+          <div class="row">
+            <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{s.en}</h3>
+            <span class="r">{s.garden} · {s.ref}</span>
+            <a href={`${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent('Claim: ' + s.en)}`} target="_blank" rel="noopener">Claim</a>
+          </div>
+        ))}
+      </div>
+      <h2 id="wall">Contributors</h2>
+      <p class="small">Everyone whose submission is accepted stays here. Restore a piece, sign a piece.</p>
+      <div class="claim-list" style="border-top:1px solid var(--ink)">
+        {contributors.map((c, i) => (
+          <div class="row"><span class="idx">{String(i + 1).padStart(2, '0')}</span><h3>{c.name}</h3><span class="r">{c.scenes} scenes · {c.role}</span><a href={c.url} target="_blank" rel="noopener">Profile</a></div>
+        ))}
+        <div class="row"><span class="idx">＋</span><h3 style="color:var(--muted)">Your name here</h3><span class="r">The next piece might be yours</span><a href={`${repo}/issues/new?template=claim-scene.yml`} target="_blank" rel="noopener">Join</a></div>
+      </div>
+    </div>
+  </div>
+</Base>

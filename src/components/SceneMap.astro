@@ -2,62 +2,73 @@
 import scenes from '../data/scenes.json';
 const base = import.meta.env.BASE_URL;
 const u = (p) => base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
+const { lang = 'zh' } = Astro.props;
+const en = lang === 'en';
 const done = scenes.scenes.filter((s) => s.status === 'done');
 const open = scenes.scenes.filter((s) => s.status === 'open');
 const total = scenes.scenes.length;
 const pct = Math.round((done.length / total) * 100);
 const PLAN_POS = {
-  xieqiqu: [12.0, 64.0],
-  yangquelong: [13.5, 59.2],
-  wanhuazhen: [10.0, 49.2],
-  fangwaiguan: [21.5, 54.5],
-  wuzhuting: [24.5, 59.5],
-  haiyantang: [39.0, 55.2],
-  dashuifa: [51.5, 51.5],
-  guanshuifa: [52.0, 55.0],
-  yuanyingguan: [51.0, 46.8],
+  xieqiqu: [12.0, 64.0], yangquelong: [13.5, 59.2], wanhuazhen: [10.0, 49.2],
+  fangwaiguan: [21.5, 54.5], wuzhuting: [24.5, 59.5], haiyantang: [39.0, 55.2],
+  dashuifa: [51.5, 51.5], guanshuifa: [52.0, 55.0], yuanyingguan: [51.0, 46.8],
+};
+const L = en ? {
+  restored: 'Restored', open: 'To claim', hint: 'Click a point for sources',
+  overview: 'Three gardens', plan: 'Xiyang Lou plan',
+  pick: 'Pick a scene', pickBody: 'Solid dots are restored; hollow dots await a contributor. Select one to see its sources and notes.',
+  progress: 'PROGRESS', basis: 'Basis', model: 'Model', view: 'View full image', revise: 'Suggest revision',
+  claimBody: 'Not yet restored. Use the sources above with any AI image tool, then submit it here.',
+  claim: 'Claim this scene', attrib: 'Plan © Maximilian Dörrbecker / Wikimedia Commons · CC BY-SA 2.5',
+  toClaim: 'To claim',
+} : {
+  restored: '已复原', open: '待认领', hint: '点击查看依据',
+  overview: '三园示意', plan: '西洋楼精确图',
+  pick: '从地图上选一景', pickBody: '实心圆为已复原，空心为待认领。选中后可看到参照文献、复原说明；未复原的可直接去 GitHub 认领。',
+  progress: 'PROGRESS', basis: '依据', model: '模型', view: '查看大图', revise: '提出修订',
+  claimBody: '这项复原尚未完成。可依据上述文献，用任意 AI 图像工具完成，再提交到本站。',
+  claim: '认领这个景点', attrib: '平面图 © Maximilian Dörrbecker / Wikimedia Commons · CC BY-SA 2.5 · 编号与景点对应',
+  toClaim: '待认领',
 };
 ---
-<div class="mapwrap" data-base={base}>
+<div class="mapwrap" data-base={base} data-lang={lang}>
   <div>
     <div class="legend">
-      <span><i></i>已复原 {done.length}</span>
-      <span><i class="open"></i>待认领 {open.length}</span>
-      <span class="viewtoggle" role="group" aria-label="切换地图视图">
-        <button class="vt" data-view="overview" aria-pressed="true">三园示意</button>
-        <button class="vt" data-view="plan" aria-pressed="false">西洋楼精确图</button>
+      <span><i></i>{L.restored} {done.length}</span>
+      <span><i class="open"></i>{L.open} {open.length}</span>
+      <span>{L.hint}</span>
+      <span class="viewtoggle" role="group" aria-label="map view">
+        <button class="vt" data-view="overview" aria-pressed="true">{L.overview}</button>
+        <button class="vt" data-view="plan" aria-pressed="false">{L.plan}</button>
       </span>
     </div>
     <div class="planview" id="planview" hidden>
-      <img src={u('images/maps/xiyanglou-plan.webp')} alt="西洋楼精确平面图（CC BY-SA 2.5）" />
+      <img src={u('images/maps/xiyanglou-plan.webp')} alt="Xiyang Lou plan (CC BY-SA 2.5)" />
       {scenes.scenes.filter((s) => PLAN_POS[s.id]).map((s) => (
         <button class:list={['hs', s.status]} data-id={s.id} style={`left:${PLAN_POS[s.id][0]}%;top:${PLAN_POS[s.id][1]}%`} aria-label={s.name}>
-          <span class="dot"></span><span class="lbl">{s.name}</span>
+          <span class="dot"></span><span class="lbl">{en ? s.en : s.name}</span>
         </button>
       ))}
-      <p class="small attrib">平面图 © Maximilian Dörrbecker / Wikimedia Commons · CC BY-SA 2.5 · 编号与景点对应</p>
+      <p class="small attrib">{L.attrib}</p>
     </div>
     <div class="mapcard" id="overview">
-      <svg viewBox="0 0 1000 700" role="img" aria-label="圆明园景区复原进度地图">
+      <svg viewBox="0 0 1000 700" role="img" aria-label="Yuanmingyuan restoration map">
         <rect class="zone" x="46" y="112" width="516" height="540" rx="2" />
         <rect class="zone" x="570" y="58" width="336" height="276" rx="2" />
         <rect class="zone" x="570" y="352" width="336" height="300" rx="2" />
-
-        <text class="zone-label" x="70" y="146">圆明园</text>
-        <text class="zone-label" x="590" y="88">长春园 · 西洋楼</text>
-        <text class="zone-label" x="590" y="382">绮春园</text>
-
+        <text class="zone-label" x="70" y="146">{en ? 'Yuanming Yuan' : '圆明园'}</text>
+        <text class="zone-label" x="590" y="88">{en ? 'Changchun Yuan · Xiyang Lou' : '长春园 · 西洋楼'}</text>
+        <text class="zone-label" x="590" y="382">{en ? 'Qichun Yuan' : '绮春园'}</text>
         <ellipse class="water" cx="352" cy="404" rx="112" ry="80" />
-        <text x="322" y="410" font-size="11" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="2">福 海</text>
+        <text x="322" y="410" font-size="11" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="2">{en ? 'Fu Hai' : '福 海'}</text>
         <ellipse class="water" cx="300" cy="302" rx="88" ry="58" />
-        <text x="276" y="308" font-size="11" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="2">后 湖</text>
+        <text x="276" y="308" font-size="11" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="2">{en ? 'Hou Hu' : '后 湖'}</text>
         <ellipse class="water" cx="648" cy="244" rx="54" ry="36" />
-        <text x="630" y="250" font-size="10" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="1">西湖</text>
-
+        <text x="630" y="250" font-size="10" fill="rgba(88,120,128,.85)" font-family="serif" letter-spacing="1">{en ? 'West Lake' : '西湖'}</text>
         {scenes.scenes.map((s) => (
-          <g class:list={['mk', s.status]} data-id={s.id} tabindex="0" role="button" aria-label={s.name}>
+          <g class:list={['mk', s.status]} data-id={s.id} tabindex="0" role="button" aria-label={en ? s.en : s.name}>
             <circle class="dot" cx={s.x} cy={s.y} r={s.status === 'done' ? 6 : 5} />
-            <text class="lbl" x={s.x + 11} y={s.y + 4}>{s.name}</text>
+            <text class="lbl" x={s.x + 11} y={s.y + 4}>{en ? s.en : s.name}</text>
           </g>
         ))}
       </svg>
@@ -65,19 +76,19 @@ const PLAN_POS = {
   </div>
 
   <aside class="panel" id="panel" aria-live="polite">
-    <div class="progress"><span>PROGRESS</span><span>{done.length}/{total} · {pct}%</span></div>
+    <div class="progress"><span>{L.progress}</span><span>{done.length}/{total} · {pct}%</span></div>
     <div class="bar" style="margin:12px 0 22px"><i style={`width:${pct}%`}></i></div>
-    <div class="empty">
-      <h3>从地图上选一景</h3>
-      <p class="kv">实心圆为已复原，空心为待认领。选中后可看到参照文献、复原说明；未复原的可直接去 GitHub 认领。</p>
-    </div>
+    <div class="empty"><h3>{L.pick}</h3><p class="kv">{L.pickBody}</p></div>
   </aside>
 </div>
 
 <script type="application/json" id="scene-data" set:html={JSON.stringify(scenes.scenes)}></script>
+<script type="application/json" id="map-i18n" set:html={JSON.stringify(L)}></script>
 <script>
   const root = document.querySelector('.mapwrap');
   const BASE = root.getAttribute('data-base') || '/';
+  const EN = root.getAttribute('data-lang') === 'en';
+  const L = JSON.parse(document.getElementById('map-i18n').textContent);
   const scenes = JSON.parse(document.getElementById('scene-data').textContent);
   const byId = Object.fromEntries(scenes.map((s) => [s.id, s]));
   const panel = document.getElementById('panel');
@@ -85,38 +96,38 @@ const PLAN_POS = {
   const asset = (p) => BASE.replace(/\/$/, '') + p;
   const doneCount = scenes.filter((s) => s.status === 'done').length;
   const pct = Math.round((doneCount / scenes.length) * 100);
-
+  const name = (s) => EN ? s.en : s.name;
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   function render(s) {
     panel.innerHTML = `
       <div class="progress"><span>${esc(s.garden)}</span><span>${doneCount}/${scenes.length} · ${pct}%</span></div>
       <div class="bar" style="margin:12px 0 18px"><i style="width:${pct}%"></i></div>
-      ${s.status === 'done' ? `<img src="${asset(s.thumb)}" alt="${esc(s.name)}复原图" loading="lazy" />` : ''}
-      <h3>${esc(s.name)}</h3>
-      <div class="sub">${esc(s.category)}${s.status === 'open' ? ' · 待认领' : ''}</div>
-      <div class="kv"><b>依据</b>　${esc(s.ref)}</div>
+      ${s.status === 'done' ? `<img src="${asset(s.thumb)}" alt="${esc(name(s))}" loading="lazy" />` : ''}
+      <h3>${esc(name(s))}</h3>
+      <div class="sub">${esc(s.category)}${s.status === 'open' ? ' · ' + L.toClaim : ''}</div>
+      <div class="kv"><b>${L.basis}</b>　${esc(s.ref)}</div>
       ${s.status === 'done' ? `
-        <div class="kv"><b>模型</b>　${esc(s.model)} · 2940×1912</div>
+        <div class="kv"><b>${L.model}</b>　${esc(s.model)} · 2940×1912</div>
         <div class="kv" style="margin-top:14px">${esc(s.prompt)}</div>
         <div class="actions">
-          <a class="btn ghost" href="${asset(s.image)}" target="_blank" rel="noopener">查看大图</a>
-          <a class="link-arrow" href="${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent('修订：' + s.name)}" target="_blank" rel="noopener">提出修订</a>
+          <a class="btn ghost" href="${asset(s.image)}" target="_blank" rel="noopener">${L.view}</a>
+          <a class="link-arrow" href="${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent((EN ? 'Revise: ' : '修订：') + name(s))}" target="_blank" rel="noopener">${L.revise}</a>
         </div>` : `
-        <p class="kv" style="margin-top:14px">这项复原尚未完成。可依据上述文献，用任意 AI 图像工具完成，再提交到本站。</p>
-        <div class="actions"><a class="btn red" href="${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent('认领：' + s.name)}" target="_blank" rel="noopener">认领这个景点</a></div>`}
+        <p class="kv" style="margin-top:14px">${L.claimBody}</p>
+        <div class="actions"><a class="btn red" href="${repo}/issues/new?template=claim-scene.yml&title=${encodeURIComponent((EN ? 'Claim: ' : '认领：') + name(s))}" target="_blank" rel="noopener">${L.claim}</a></div>`}
     `;
   }
 
+  const activate = (el, s) => {
+    document.querySelectorAll('.hs.active,.mk.active').forEach((x) => x.classList.remove('active'));
+    el.classList.add('active');
+    render(s);
+  };
   document.querySelectorAll('.mk').forEach((el) => {
     const s = byId[el.dataset.id];
-    const act = () => {
-      document.querySelectorAll('.mk.active').forEach((x) => x.classList.remove('active'));
-      el.classList.add('active');
-      render(s);
-    };
-    el.addEventListener('click', act);
-    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } });
+    el.addEventListener('click', () => activate(el, s));
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(el, s); } });
   });
 
   const planview = document.getElementById('planview');
@@ -131,11 +142,6 @@ const PLAN_POS = {
   if (location.hash === '#plan') setView('plan');
 
   document.querySelectorAll('.hs').forEach((el) => {
-    const s = byId[el.dataset.id];
-    el.addEventListener('click', () => {
-      document.querySelectorAll('.hs.active,.mk.active').forEach((x) => x.classList.remove('active'));
-      el.classList.add('active');
-      render(s);
-    });
+    el.addEventListener('click', () => activate(el, byId[el.dataset.id]));
   });
 </script>

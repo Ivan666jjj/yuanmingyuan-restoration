@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base lang="en" title="Method · Yuanmingyuan Restoration">
+  <div class="page-head"><div class="wrap row">
+    <div><p class="kicker">METHOD</p><h1>Method</h1></div>
+    <p>Grounding “looks right” in “has a source”: every scene's evidence is laid open — image, archive, or inference.</p>
+  </div></div>
+  <div class="wrap article">
+    <nav class="toc" aria-label="Contents">
+      <a href="#evidence">1 · Evidence tiers</a><a href="#flow">2 · Four steps</a><a href="#spec">3 · Delivery spec</a><a href="#pitfall">4 · Pitfalls</a><a href="#license">5 · Licence & limits</a>
+    </nav>
+    <div class="prose">
+      <h2 id="evidence">1 · Evidence tiers</h2>
+      <ul>
+        <li><b>A</b>: precise imagery (copperplates, album) plus dimensioned drawings or models — supports form-level reconstruction. e.g. the Western Mansions, Fanghu Shengjing, Wanfang Anhe.</li>
+        <li><b>B</b>: historical photographs or partial drawings — outline reliable, ornament inferred. e.g. Haiyue Kaijin.</li>
+        <li><b>C</b>: textual archives only — schematic at best; excluded from the formal gallery.</li>
+      </ul>
+      <h2 id="flow">2 · Four steps</h2>
+      <div class="steps4">
+        <div class="s"><div class="idx">01</div><h3>Extract parameters</h3><p>Bays, materials, colours, scale, orientation from the 1744 album, the 1786 copperplates, Lei-family drawings and excavation reports.</p></div>
+        <div class="s"><div class="idx">02</div><h3>Executable prompts</h3><p>Parameters written item by item, not atmosphere. e.g. “peacock-green glazed tiles, pink-grey plaster, twelve zodiac-headed bronze figures holding jade tablets”.</p></div>
+        <div class="s"><div class="idx">03</div><h3>Reference-driven generation</h3><p>Public-domain images as references; take only the form, re-render as photography; no engraving lines, paper or seals.</p></div>
+        <div class="s"><div class="idx">04</div><h3>Physical correction</h3><p>Fountains with outlets and parabolic fall; water below the rim; single light source; members with thickness, none floating; tile rows discrete.</p></div>
+      </div>
+      <h2 id="spec">3 · Delivery spec</h2>
+      <ul>
+        <li>Master 2940×1912; web exports 1600px WebP plus 720 thumbnail.</li>
+        <li>Must include: reference source, full prompt, model name/version.</li>
+        <li>No text, seals or watermarks; any plaque must be sourced.</li>
+      </ul>
+      <h2 id="pitfall">4 · Pitfalls</h2>
+      <ul>
+        <li><b>Colourising the engraving</b> keeps its line work and perspective — not a reconstruction.</li>
+        <li><b>Ignoring colour rules</b>: Haiyantang is green-glazed and pink-plastered, not all white marble.</li>
+        <li><b>Stone “trees”</b>: the cone shapes in the plates are living topiary pines.</li>
+        <li><b>Sourceless fountains</b>: jets must issue from mouths, fish or tower tops.</li>
+      </ul>
+      <h2 id="license">5 · Licence & limits</h2>
+      <p>Code MIT; images <b>CC BY-SA 4.0</b> — share and adapt with attribution and share-alike. Historical references are public domain, cited per scene.</p>
+      <div class="note">Limit: these are AI-assisted scholarly reconstructions, not archaeological survey; not for construction or academic citation. Form and colour are sourced; ornament and proportion are not guaranteed inch-by-inch.</div>
+    </div>
+  </div>
+</Base>
