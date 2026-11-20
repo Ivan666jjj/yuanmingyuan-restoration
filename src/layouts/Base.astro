@@ -16,7 +16,7 @@ const T = en ? {
   repo: 'GitHub repo ↗', issues: 'Claims & discussion ↗',
   copy: '© 2026 Yan Yuhuan',
   disclaimer: 'Images are AI-assisted scholarly reconstructions, not archaeological survey; not for restoration or academic citation.',
-  switch: '中文', switchHref: u(''),
+  switch: '中文',
 } : {
   brand: '圆明园数字复原计划', sub: 'Yuanmingyuan Restoration',
   nav: [['', '首页'], ['gallery', '复原图册'], ['method', '复原方法'], ['contribute', '参与共建']],
@@ -28,9 +28,11 @@ const T = en ? {
   repo: 'GitHub 仓库 ↗', issues: '认领与讨论 ↗',
   copy: '© 2026 严毓焕 / Yan Yuhuan',
   disclaimer: '本站图像为 AI 考据级复原，非考古测绘，不可作为修复或论文依据。',
-  switch: 'EN', switchHref: u('en/'),
+  switch: 'EN',
 };
-const path = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
+const path = Astro.url.pathname.replace(base, '').replace(/^\/|\/$/g, '');
+const switchHref = en ? u(path.replace(/^en\/?/, '')) : u('en/' + path);
+const ogImage = new URL(u('og-cover.jpg'), Astro.site).href;
 const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
 ---
 <!doctype html>
@@ -43,6 +45,9 @@ const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
     <meta property="og:title" content={title || T.defaultTitle} />
     <meta property="og:description" content={desc || T.defaultDesc} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <link rel="icon" href={u('favicon.svg')} type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,8 +61,8 @@ const repo = 'https://github.com/Ivan666jjj/yuanmingyuan-restoration';
           <span><b>{T.brand}</b><span>{T.sub}</span></span>
         </a>
         <nav class="main">
-          {T.nav.map(([href, label]) => <a href={u((en ? 'en/' : '') + href)} aria-current={path === (en ? 'en/' : '') + href ? 'page' : undefined}>{label}</a>)}
-          <a class="gh" href={T.switchHref}>{T.switch}</a>
+          {T.nav.map(([href, label]) => <a href={u((en ? 'en/' : '') + href)} aria-current={path === ((en ? 'en/' : '') + href).replace(/\/$/, '') ? 'page' : undefined}>{label}</a>)}
+          <a class="gh" href={switchHref}>{T.switch}</a>
         </nav>
       </div>
     </header>
