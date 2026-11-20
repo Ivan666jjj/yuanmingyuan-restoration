@@ -60,7 +60,7 @@ const has3d = done.filter((s) => s.model3d).length;
 
   <dialog class="lightbox" id="lb">
     <img id="lb-img" alt="" />
-    <model-viewer id="lb-3d" hidden camera-controls auto-rotate ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1"></model-viewer>
+    <model-viewer id="lb-3d" data-sky={u('images/3d/sky.jpg')} hidden camera-controls auto-rotate ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1"></model-viewer>
     <div class="lb-bar"><button type="button" id="lb-toggle" hidden>旋转查看</button></div>
     <div class="cap" id="lb-cap"></div>
     <div class="meta" id="lb-meta"></div>
@@ -111,6 +111,9 @@ const has3d = done.filter((s) => s.model3d).length;
       try {
         await loadMV();
         if (!mv.getAttribute('src')) mv.setAttribute('src', src);
+        if (mv.dataset.sky) mv.setAttribute('skybox-image', mv.dataset.sky);
+        mv.setAttribute('environment-image', 'neutral');
+        mv.setAttribute('shadow-softness', '0.9');
         img.hidden = true;
         mv.hidden = false;
         mode = '3d';

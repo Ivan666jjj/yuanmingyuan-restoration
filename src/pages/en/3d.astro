@@ -21,7 +21,7 @@ const viewLabel = ['front', 'side', 'oblique'];
 
       {items.map((s) => (
         <article class="d3-item">
-          <div class="d3-view" data-glb={u(s.model3d.glb)} data-title={`${s.en} · 3D massing`}>
+          <div class="d3-view" data-glb={u(s.model3d.glb)} data-sky={u('images/3d/sky.jpg')} data-title={`${s.en} · 3D massing`}>
             <img src={u(s.model3d.hero || s.image)} alt={`${s.en} 3D massing`} loading="lazy" />
             <button type="button" class="d3-load">Load 3D model</button>
           </div>
@@ -71,6 +71,9 @@ const viewLabel = ['front', 'side', 'oblique'];
           await loadMV();
           const mv = document.createElement('model-viewer');
           mv.setAttribute('src', view.dataset.glb);
+          if (view.dataset.sky) mv.setAttribute('skybox-image', view.dataset.sky);
+          mv.setAttribute('environment-image', 'neutral');
+          mv.setAttribute('shadow-softness', '0.9');
           mv.setAttribute('alt', view.dataset.title || '3D model');
           mv.setAttribute('camera-controls', '');
           mv.setAttribute('auto-rotate', '');
