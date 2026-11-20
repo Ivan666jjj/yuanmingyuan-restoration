@@ -21,7 +21,7 @@ const viewLabel = ['正立面', '侧面', '斜俯视'];
 
       {items.map((s) => (
         <article class="d3-item">
-          <div class="d3-view" data-glb={u(s.model3d.glb)} data-sky={u('images/3d/sky.jpg')} data-camera={s.model3d.camera} data-title={`${s.name} · 三维底稿`}>
+          <div class="d3-view" data-glb={u(s.model3d.glb)} data-sky={u('images/3d/sky.jpg')} data-camera={s.model3d.camera} data-target={s.model3d.target} data-title={`${s.name} · 三维底稿`}>
             <img src={u(s.model3d.hero || s.image)} alt={`${s.name}三维底稿`} loading="lazy" />
             <button type="button" class="d3-load">载入三维模型</button>
           </div>
@@ -76,6 +76,9 @@ const viewLabel = ['正立面', '侧面', '斜俯视'];
           mv.setAttribute('shadow-softness', '0.9');
           mv.setAttribute('field-of-view', '30deg');
           mv.setAttribute('camera-orbit', view.dataset.camera || '195deg 62deg auto');
+          mv.setAttribute('min-camera-orbit', 'auto auto 20m');
+          mv.setAttribute('max-camera-orbit', 'auto auto 260m');
+          if (view.dataset.target) mv.setAttribute('camera-target', view.dataset.target);
           mv.setAttribute('alt', view.dataset.title || '三维模型');
           mv.setAttribute('camera-controls', '');
           mv.setAttribute('autoplay', '');

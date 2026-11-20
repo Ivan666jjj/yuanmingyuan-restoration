@@ -21,7 +21,7 @@ const viewLabel = ['front', 'side', 'oblique'];
 
       {items.map((s) => (
         <article class="d3-item">
-          <div class="d3-view" data-glb={u(s.model3d.glb)} data-sky={u('images/3d/sky.jpg')} data-camera={s.model3d.camera} data-title={`${s.en} · 3D massing`}>
+          <div class="d3-view" data-glb={u(s.model3d.glb)} data-sky={u('images/3d/sky.jpg')} data-camera={s.model3d.camera} data-target={s.model3d.target} data-title={`${s.en} · 3D massing`}>
             <img src={u(s.model3d.hero || s.image)} alt={`${s.en} 3D massing`} loading="lazy" />
             <button type="button" class="d3-load">Load 3D model</button>
           </div>
@@ -76,6 +76,9 @@ const viewLabel = ['front', 'side', 'oblique'];
           mv.setAttribute('shadow-softness', '0.9');
           mv.setAttribute('field-of-view', '30deg');
           mv.setAttribute('camera-orbit', view.dataset.camera || '195deg 62deg auto');
+          mv.setAttribute('min-camera-orbit', 'auto auto 20m');
+          mv.setAttribute('max-camera-orbit', 'auto auto 260m');
+          if (view.dataset.target) mv.setAttribute('camera-target', view.dataset.target);
           mv.setAttribute('alt', view.dataset.title || '3D model');
           mv.setAttribute('camera-controls', '');
           mv.setAttribute('autoplay', '');

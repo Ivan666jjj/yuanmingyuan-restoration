@@ -35,7 +35,7 @@ const has3d = done.filter((s) => s.model3d).length;
             data-full={u(s.image)}
             data-title={`${s.name} · ${s.garden}`}
             data-glb={s.model3d?.glb ? asset(s.model3d.glb) : undefined}
-            data-camera={s.model3d?.camera}
+            data-camera={s.model3d?.camera} data-target={s.model3d?.target}
             data-basis={s.model3d?.basis}
             data-model={s.model}
             tabindex="0"
@@ -61,7 +61,7 @@ const has3d = done.filter((s) => s.model3d).length;
 
   <dialog class="lightbox" id="lb">
     <img id="lb-img" alt="" />
-    <model-viewer id="lb-3d" autoplay data-sky={u('images/3d/sky.jpg')} hidden camera-controls auto-rotate ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1"></model-viewer>
+    <model-viewer id="lb-3d" min-camera-orbit="auto auto 20m" max-camera-orbit="auto auto 260m" autoplay data-sky={u('images/3d/sky.jpg')} hidden camera-controls auto-rotate ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" exposure="1"></model-viewer>
     <div class="lb-bar"><button type="button" id="lb-toggle" hidden>旋转查看</button></div>
     <div class="cap" id="lb-cap"></div>
     <div class="meta" id="lb-meta"></div>
@@ -117,6 +117,8 @@ const has3d = done.filter((s) => s.model3d).length;
         mv.setAttribute('shadow-softness', '0.9');
         mv.setAttribute('field-of-view', '30deg');
         mv.setAttribute('camera-orbit', (document.getElementById('lb').dataset.camera) || '195deg 62deg auto');
+        const tgt = document.getElementById('lb').dataset.target;
+        if (tgt) mv.setAttribute('camera-target', tgt); else mv.removeAttribute('camera-target');
         img.hidden = true;
         mv.hidden = false;
         mode = '3d';
@@ -132,6 +134,7 @@ const has3d = done.filter((s) => s.model3d).length;
       const d = card.dataset;
       lb.dataset.glb = d.glb || '';
       lb.dataset.camera = d.camera || '';
+      lb.dataset.target = d.target || '';
       img.src = d.full;
       img.alt = d.title;
       cap.textContent = d.title;
