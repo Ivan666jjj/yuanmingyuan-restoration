@@ -17,6 +17,7 @@ Symmetric regions are traced from their left half and mirrored, which also remov
 """
 
 import json
+import math
 import os
 import sys
 
@@ -39,9 +40,15 @@ REGIONS = {
                      mirror=AXIS_X, depth=0.045, mode="shade", params=dict()),
     "door_medallion": dict(box=(2347, 1800, 2421, 1869), shape=("ellipse",), mirror=2384, depth=0.012, scale=6,
                            recess=0.014, mode="vector", source="huayuanmen_door_medallion.json"),
-    "spandrel": dict(box=(2218, 1404, 2280, 1560),
-                     shape=("poly", [(2223, 1408), (2272, 1408), (2240, 1480), (2228, 1540), (2222, 1556)]),
-                     mirror=None, depth=0.02, mode="mask", params=dict()),
+    # Left spandrel sprig, drawn as curves; the right spandrel mirrors it about the gate axis in
+    # huayuanmen.py. The shape is the field inside the panel's inner rim (huayuanmen.py SPANDREL_*:
+    # straight side 258.2 px and arc radius 262 px from the arch centre 2477.2/1587.3, top 1410.5).
+    "spandrel": dict(box=(2209, 1400, 2300, 1572), mirror=None, depth=0.014, scale=4,
+                     # The arc meets the straight side at y 1542.8, where the field ends in a point.
+                     shape=("poly", [(2219.0, 1410.5), (2283.8, 1410.5)] +
+                            [(2477.2 - math.sqrt(262 ** 2 - (1587.3 - y) ** 2), y) for y in range(1415, 1541, 5)] +
+                            [(2219.0, 1587.3 - math.sqrt(262 ** 2 - 258.2 ** 2))]),
+                     mode="vector", source="huayuanmen_spandrel.json"),
     "attic": dict(box=(2290, 1196, 2660, 1336),
                   shape=("poly", [(2318, 1200), (2632, 1200), (2650, 1300), (2600, 1285), (2530, 1266),
                                   (2475, 1262), (2420, 1266), (2350, 1285), (2300, 1300)]),
@@ -222,9 +229,10 @@ def draw_vector(region, h_px, w_px, debug=None):
     up, (x0, y0) = region["scale"], region["box"][:2]
     (mx, my), (ax, ay), s = d["axis"], d["album_axis"], d["album_scale"]
     quarter = region.get("mirror_y") is not None
-    if ax != region["mirror"] or (quarter and ay != region["mirror_y"]):
+    mirrored = region["mirror"] is not None   # an unmirrored drawing covers the whole box
+    if (mirrored and ax != region["mirror"]) or (quarter and ay != region["mirror_y"]):
         raise ValueError("drawing axes and region mirror lines disagree")
-    hx, hy = (ax - x0) * up, (ay - y0) * up if quarter else h_px
+    hx, hy = (ax - x0) * up if mirrored else w_px, (ay - y0) * up if quarter else h_px
 
     def to_px(p):
         p = np.asarray(p, float).reshape(-1, 2)
@@ -261,7 +269,7 @@ def draw_vector(region, h_px, w_px, debug=None):
     if 0 in pockets:
         raise ValueError(f"ground_at points lie on a drawn line: "
                          f"{[p for p, k in zip(d['ground_at'], pockets) if k == 0]}")
-    edges = [lab[0], lab[:, 0]] + ([] if quarter else [lab[-1]])
+    edges = [lab[0], lab[:, 0]] + ([] if quarter else [lab[-1]]) + ([] if mirrored else [lab[:, -1]])
     seeds = np.setdiff1d(np.concatenate((edges if d.get("ground_from_edges", True) else []) + [pockets]), [0])
     yy, xx = np.mgrid[:hy, :hx] + 0.5
     bead = np.zeros((hy, hx))
@@ -279,7 +287,8 @@ def draw_vector(region, h_px, w_px, debug=None):
         debug.update(lines=lines, ground=ground, groove=groove)
 
     def whole(a):
-        a = np.hstack([a, a[:, ::-1]])[:, :w_px]
+        if mirrored:
+            a = np.hstack([a, a[:, ::-1]])[:, :w_px]
         return np.vstack([a, a[::-1]])[:h_px] if quarter else a
 
     carved, groove, bead = whole(~ground), whole(groove), whole(bead)

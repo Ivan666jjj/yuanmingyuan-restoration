@@ -49,8 +49,8 @@ def vz(px_y):
 
 # Horizontal stations, measured (left half, mirrored; symmetry check passed within 6.2 %).
 X_OPEN = hx(2294)        # door opening half width (frame inner line)
-X_FRAME = hx(2249)       # door-frame pilaster outer edge
-X_PIER = hx(2182)        # pier face with recessed panel, outer edge
+X_FRAME = hx(2232)       # door-frame pilaster outer edge (sunk panel 2248-2281, see FRAME_PANEL)
+X_PIER = hx(2182)        # plain pier face outer edge
 X_NARROW = hx(2154)      # narrow pilaster behind the column, outer edge
 X_COL = hx(2129)         # column centre
 R_COL = 50 * K / 2       # column shaft radius
@@ -62,23 +62,22 @@ X_CORNER_BALL = hx(2326 + 7)  # corner ball centre (upper axis is shifted 7 px b
 X_SCROLL = hx(2173)      # broken-pediment volute centre
 X_LION = hx(2105)        # lion pedestal centre
 X_BLOCK = hx(2290)       # small stone block centre at the door jamb
-X_SPANDREL = (hx(2295), hx(2212))
 
 # Vertical stations, measured.
 Z_THRESHOLD = vz(2058)
-Z_LEAF_TOP = vz(1621)
+Z_LEAF_TOP = vz(1640)
+# Transom over the leaves, top down: (y top px, y bottom px, half-depth m). Fillet, a hatched
+# (shaded, so set back) band, a bright projecting torus, a fascia, a vertically hatched frieze,
+# a fillet and a plain band. Lines read off the engraving; depths are estimates.
+TRANSOM = [(1598, 1601, 0.11), (1601, 1609, 0.09), (1609, 1615, 0.12), (1615, 1620, 0.10),
+           (1620, 1628, 0.085), (1628, 1631, 0.10), (1631, 1640, 0.095)]
+# Moulded frame round the tympanum carving, between the engraved lines at r 157 and 165 px.
+R_TYMPANUM_FRAME = (157 * K, 165 * K)
 Z_TRANSOM_TOP = vz(1598)
-Z_SPRING = vz(1595)
-R_ARCH = 176.4 * K       # fitted semicircle radius
-Z_ARCHIVOLT_TOP = vz(1396)
-R_ARCHIVOLT = Z_ARCHIVOLT_TOP - Z_SPRING
-Z_IMPOST = (vz(1683), vz(1640))
 Z_COL_CAP = (vz(1535), vz(1490))
 Z_ARCHITRAVE = (vz(1490), vz(1440))
 Z_LEAF_BLOCK = (vz(1440), vz(1385))
 Z_CORNICE = (vz(1380), vz(1337))
-Z_CORNICE_CROWN = vz(1280)
-Z_KEYSTONE = (vz(1353), vz(1310))
 Z_SCROLL = vz(1267)
 Z_ATTIC_EAVE = (vz(1170), vz(1138))
 Z_EAVE_CROWN = vz(1100)
@@ -97,6 +96,48 @@ H_LION = (1985 - 1862) * K
 Z_BLOCK_TOP = vz(1948)
 WALL_PANEL_PITCH = 425 * K   # right-wall panel spacing (3112/3537/3962 px on the moulding)
 X_FIRST_PANEL = hx(3125)  # first panel's frame centre (x 2964-3285 px)
+
+# Arch zone. The engraved archivolt lines were fitted as circles on both flanks at once: centre
+# x 2477.2, y 1587.3. Half-widths below are taken about that centre, so the 2 px offset from
+# AXIS_X drops out of the symmetric model.
+ARCH_C_PX = 2477.2
+Z_ARCH_C = vz(1587.3)
+Z_ARCHIVOLT_FOOT = vz(1631)   # the legs stand on the impost cap
+# Archivolt profile, inside to outside: (radius px, projection m). The radii are the engraved
+# lines: inner fillet from the opening edge (X_OPEN) to 194, fascia 196-224, a torus between
+# quirks at 225 and 240, outer fillet to 251, edge at 253. Projections are estimates.
+ARCHIVOLT = [(X_OPEN / K, 0.035), (194, 0.035), (195.5, 0.05), (224, 0.05), (225, 0.044),
+             (226.5, 0.05), (229, 0.062), (232, 0.067), (235, 0.062), (237.5, 0.052), (239.5, 0.044),
+             (241.5, 0.055), (251, 0.055), (253, 0.042)]
+# Impost under each leg, top down: (y top, y bottom, inner and outer half-width at the top, the
+# same at the bottom, projection m); cap, two fasciae, a bell narrowing downward, the door-frame
+# cap and a fillet. Half-widths in px about the arch centre; projections are estimates.
+IMPOST = [(1631, 1640, 180, 253, 180, 253, 0.09), (1640, 1650, 185, 245, 185, 245, 0.07),
+          (1650, 1660, 182, 247, 182, 247, 0.075), (1660, 1680, 181, 247, 194, 239, 0.05),
+          (1680, 1690, 175, 251, 175, 251, 0.085), (1690, 1700, 181, 245, 181, 245, 0.06)]
+Z_FRAME_TOP = vz(1700)
+# Door-frame pilaster below the impost: a sunk panel x 2248-2281, y 1703-2005, standing on a
+# plinth from the threshold up to y 2012 that is 6 px wider outward. The pier between the
+# pilaster and the column is plain wall on the engraving.
+FRAME_PANEL = ((2248, 2281), (2005, 1703))
+Z_FRAME_PLINTH = vz(2012)
+X_FRAME_PLINTH = hx(2226)
+# Raised centre of the main cornice: flat out to 177 px from the axis, then a straight rake
+# (slope 0.58, from both flanks) into an arc of radius 205 px over the crown. The bent part
+# keeps a normal thickness of 37 px, i.e. about the flat cornice's 43 px measured vertically.
+CORNICE_BREAK = 177 * K
+CORNICE_RAKE = 0.58
+CORNICE_R = 205 * K
+CORNICE_T = 37 * K
+# Spandrel panels: straight outer side 264.7 px from the arch centre (left 2211-2218, right
+# 2742 mirrored), top y 1404, bottom y 1568, inner side on a 255.5 px arc just clear of the
+# archivolt. Double rim: outer band 3 px, groove 1.5 px, inner band 2 px.
+SPANDREL_X = 264.7 * K
+Z_SPANDREL = (vz(1568), vz(1404))
+R_SPANDREL = 255.5 * K
+# The sprig carved in the field (huayuanmen_relief.py "spandrel", top-left corner of its box);
+# moved by the arch centre's offset from AXIS_X, as the panel itself is placed about the arch centre.
+SPANDREL_RELIEF_PX = (2209 - (ARCH_C_PX - AXIS_X), 1400)
 
 # Estimates (not readable from the engraving).
 EST_BODY_HALF_DEPTH = 0.45   # gate body projects 0.15 m beyond the wall faces
@@ -259,16 +300,20 @@ class Builder:
         self.box(mat, xa, xa + w, y0, y1, z0 + w, z1 - w)
         self.box(mat, xb - w, xb, y0, y1, z0 + w, z1 - w)
 
-    def loft_xz(self, mat, rings):
+    def loft_xz(self, mat, rings, open_ends=False):
         """Closed ring solid swept through (outline, y) rings. Outlines are closed XZ loops
-        sampled at matching points; the last ring joins back to the first."""
+        sampled at matching points; the last ring joins back to the first. With open_ends the
+        outlines are open paths and both ends are capped (archivolt legs)."""
         bm = bmesh.new()
         vs = [[bm.verts.new((x, y, z)) for x, z in path] for path, y in rings]
         n = len(vs[0])
         for a, b in zip(vs, vs[1:] + vs[:1]):
-            for k in range(n):
+            for k in range(n - 1 if open_ends else n):
                 j = (k + 1) % n
                 bm.faces.new((a[k], a[j], b[j], b[k]))
+        if open_ends:
+            for k in (0, n - 1):
+                bm.faces.new([v[k] for v in vs])
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         return self._add(mat, bm, smooth=True)
 
@@ -341,6 +386,47 @@ def spiral(cx, y, cz, r0, turns, n=48, flip=1):
     return pts
 
 
+def cornice_line(frac, half_w, n=48):
+    """Main-cornice line at a fraction of its height (0 underside, 1 top), sampled left to right
+    from -half_w to half_w: flat outside, raked and arched over the centre (see CORNICE_*)."""
+    z0, z1 = Z_CORNICE
+    flat = z0 + frac * (z1 - z0)
+    a = math.atan(CORNICE_RAKE)
+    off = frac * CORNICE_T
+    zc = z0 + CORNICE_RAKE * (CORNICE_BREAK - CORNICE_R * math.sin(a)) - CORNICE_R * math.cos(a)
+    r = CORNICE_R + off
+    x_t = r * math.sin(a)                                    # rake meets arc
+    x_k = CORNICE_BREAK + (off / math.cos(a) - (flat - z0)) / CORNICE_RAKE   # rake meets flat
+
+    def z(x):
+        x = abs(x)
+        if x <= x_t:
+            return zc + math.sqrt(r * r - x * x)
+        return max(flat, z0 + CORNICE_RAKE * (CORNICE_BREAK - x) + off / math.cos(a))
+    xs = sorted({half_w * i / n for i in range(n + 1)} | {x_t, x_k})
+    xs = [x for x in xs if x <= half_w]
+    xs = [-x for x in reversed(xs) if x > 0] + xs
+    return [(x, z(x)) for x in xs]
+
+
+def arch_path(r, n=48):
+    """Archivolt line of radius r: up the right leg from the impost, over the crown, down the left."""
+    return [(r, Z_ARCHIVOLT_FOOT)] + arc(0, Z_ARCH_C, r, 0, math.pi, n) + [(-r, Z_ARCHIVOLT_FOOT)]
+
+
+def spandrel_outline(inset):
+    """Right-hand spandrel panel outline (x > 0), shrunk by inset."""
+    x0, r = SPANDREL_X - inset, R_SPANDREL + inset
+    z0, z1 = Z_SPANDREL[0] + inset, Z_SPANDREL[1] - inset
+    a_top = math.asin((z1 - Z_ARCH_C) / r)
+    if r > x0 and Z_ARCH_C + math.sqrt(r * r - x0 * x0) > z0:
+        # Deep insets: the arc meets the straight side above the panel foot, so the outline ends in
+        # a point there (left as a rectangle foot, the arc would cross the side and the polygon would
+        # turn inside out, which made the inner rim's boolean cut fail and fill the whole field).
+        return [(x0, z1)] + arc(0, Z_ARCH_C, r, a_top, math.acos(x0 / r), 24)
+    return [(x0, z0), (x0, z1)] + arc(0, Z_ARCH_C, r, a_top, math.asin((z0 - Z_ARCH_C) / r), 24)
+
+
 def segment_curve(half_w, z_end, z_crown, n=16):
     """Segmental arch through (±half_w, z_end) and (0, z_crown), sampled left to right."""
     rise = z_crown - z_end
@@ -356,7 +442,7 @@ def segment_curve(half_w, z_end, z_crown, n=16):
 RELIEF_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "huayuanmen_relief")
 RELIEF_LIFT = 0.003     # lowest carved level stands this far proud of its face (no shared faces)
 RELIEF_SINK = 0.004     # the panel's outer edge dips this far into the face, so no gap shows
-RELIEF_DECIMATE = 0.25  # share of triangles kept; flat ground and gentle slopes go first
+RELIEF_DECIMATE = 0.23  # share of triangles kept; flat ground and gentle slopes go first (keeps the glb under 10 MB)
 RELIEF_SHARP = math.radians(50)   # faces meeting at more than this are a carved edge, not a curve
 
 
@@ -434,8 +520,8 @@ def build_body(b):
     for sx in (-1, 1):
         b.prism_xz("plaster", [(sx * X_OPEN, 0), (sx * X_BODY, 0), (sx * X_BODY, top), (sx * X_OPEN, top)],
                    -GF, GF)
-    head = [(-X_OPEN, top), (-X_OPEN, Z_SPRING)] + arc(0, Z_SPRING, R_ARCH, math.pi, 0, 32)[1:-1] + \
-           [(X_OPEN, Z_SPRING), (X_OPEN, top)]
+    # the head fills the arch up to the underside of the raised cornice
+    head = cornice_line(0, X_OPEN) + arc(0, Z_ARCH_C, X_OPEN, 0, math.pi, 48)[1:-1]
     b.prism_xz("plaster", head, -GF, GF)
     b.box("marble", -X_OPEN, X_OPEN, -GF, GF, 0, Z_THRESHOLD + 0.03)
 
@@ -474,7 +560,8 @@ def build_doors(b):
     medallion and a second arch-cut sub-panel. Below the tall panel the leaf is plain.
     """
     t = DOOR_LEAF_HALF_T
-    b.box("marble", -X_OPEN, X_OPEN, -0.08, 0.08, Z_LEAF_TOP, Z_TRANSOM_TOP)
+    for y0, y1, d in TRANSOM:
+        b.box("marble", -X_OPEN, X_OPEN, -d, d, vz(y1), vz(y0))
     fields, insets = door_fields(), door_fields(DOOR_RIM_W)
     for sx in (-1, 1):
         leaf = b.box("bronze", 0, sx * X_OPEN, -t, t, Z_THRESHOLD + 0.03, Z_LEAF_TOP)
@@ -511,9 +598,16 @@ def build_doors(b):
                      *sorted((f - s * (meta["recess"] + RELIEF_SINK / 2), f + s * 0.01)))
     # Tympanum: the carving is traced from the engraving (huayuanmen_relief.py). Whether it was
     # openwork or relief on a solid plate cannot be told from the print; a solid plate is assumed.
-    b.prism_xz("plaster", arc(0, Z_TRANSOM_TOP, R_ARCH - 0.003, 0, math.pi, 32), -0.012, 0.012)
+    # The plate reaches 2 cm into the masonry all round, so no daylight shows at its edge.
+    rp = X_OPEN + 0.02
+    b.prism_xz("plaster", [(-rp, Z_TRANSOM_TOP), (rp, Z_TRANSOM_TOP)] + arc(0, Z_ARCH_C, rp, 0, math.pi, 48),
+               -0.012, 0.012)
+    r0, r1 = R_TYMPANUM_FRAME
+    ring = [(r1, Z_TRANSOM_TOP)] + arc(0, Z_ARCH_C, r1, 0, math.pi, 48) + [(-r1, Z_TRANSOM_TOP), (-r0, Z_TRANSOM_TOP)] + \
+        arc(0, Z_ARCH_C, r0, math.pi, 0, 48) + [(r0, Z_TRANSOM_TOP)]
     for s in (-1, 1):
         b.relief("marble", "tympanum", 2299, 1422, s * 0.012, s)
+        b.prism_xz("marble", ring, *sorted((s * 0.008, s * 0.03)))
 
 
 def build_face(b, s):
@@ -524,11 +618,15 @@ def build_face(b, s):
         return sorted((f, f + s * d))
 
     for sx in (-1, 1):
-        # door-frame pilaster and impost; above the impost the archivolt leg takes over
-        b.box("marble", sx * X_OPEN, sx * X_FRAME, *proj(0.04), 0, Z_IMPOST[0])
-        b.box("marble", sx * (X_OPEN - 0.01), sx * (X_FRAME + 0.02), *proj(0.07), *Z_IMPOST)
-        b.box("marble", sx * (X_OPEN - 0.01), sx * X_FRAME, *proj(0.04), Z_IMPOST[1], Z_SPRING)
-        b.frame("marble", sx * (X_FRAME + 0.05), sx * (X_PIER - 0.05), 0.40, 2.40, *proj(0.025), 0.04)
+        # door-frame pilaster and the impost on which the archivolt leg stands
+        b.box("marble", sx * X_OPEN, sx * X_FRAME_PLINTH, *proj(0.06), 0, Z_FRAME_PLINTH)
+        pil = b.box("marble", sx * X_OPEN, sx * X_FRAME, *proj(0.04), Z_FRAME_PLINTH, Z_FRAME_TOP)
+        (px0, px1), (py0, py1) = FRAME_PANEL
+        b.cut_xz(pil, "marble", [(sx * hx(px0), vz(py0)), (sx * hx(px1), vz(py0)), (sx * hx(px1), vz(py1)),
+                                 (sx * hx(px0), vz(py1))], *sorted((f + s * 0.025, f + s * 0.06)))
+        for y0, y1, i0, o0, i1, o1, d in IMPOST:
+            pts = [(sx * i1 * K, vz(y1)), (sx * o1 * K, vz(y1)), (sx * o0 * K, vz(y0)), (sx * i0 * K, vz(y0))]
+            b.prism_xz("marble", pts if sx > 0 else pts[::-1], *proj(d))
         # narrow pilaster and outer strip behind the column
         b.box("marble", sx * X_PIER, sx * X_NARROW, *proj(0.05), 0, Z_COL_CAP[1] - 0.03)
         b.box("marble", sx * (X_COL + R_COL), sx * X_BODY, *proj(0.03), 0, Z_CORNICE[0])
@@ -545,23 +643,54 @@ def build_face(b, s):
         # lion stands in front of the column (plate 4); depth offset is an estimate
         build_lion(b, sx * X_LION, s * (GF + 0.78), s)
         b.box("marble", sx * (X_BLOCK - 0.09), sx * (X_BLOCK + 0.09), *proj(0.40), 0, Z_BLOCK_TOP)
-    band = arc(0, Z_SPRING, R_ARCHIVOLT, 0, math.pi, 32) + arc(0, Z_SPRING, R_ARCH, math.pi, 0, 32)
-    b.prism_xz("marble", band, *proj(0.04))
-    for sx in (-1, 1):
-        b.box("marble", sx * R_ARCH, sx * (X_OPEN - 0.01), *proj(0.04), Z_IMPOST[1], Z_SPRING)
-    # wedge keystone reaching up under the raised cornice
-    b.prism_xz("marble", [(-0.07, Z_ARCHIVOLT_TOP - 0.10), (0.07, Z_ARCHIVOLT_TOP - 0.10),
-                          (0.12, Z_KEYSTONE[1]), (-0.12, Z_KEYSTONE[1])], *proj(0.10))
+    # archivolt: the measured profile swept round the arch; its back sits 1 cm inside the wall
+    rings = [(arch_path(r * K), f + s * d) for r, d in ARCHIVOLT]
+    rings += [(arch_path(ARCHIVOLT[-1][0] * K), f - s * 0.01), (arch_path(ARCHIVOLT[0][0] * K + 0.004), f - s * 0.01)]
+    b.loft_xz("marble", rings, open_ends=True)
+    build_keystone(b, s, f)
+
+
+def build_keystone(b, s, f):
+    """Keystone stack on the crown, read top down off the engraving (y px, half-widths px):
+    flared bowl 1270-1300 (51 -> 26), gadrooned bulb 1301-1345 (30), round plinth 1345-1360 (32),
+    console with a diamond 1360-1387 (25 -> 17), ring 1387-1393 (18), drop 1393-1405 (10).
+    The turned parts are centred on the wall face; projections follow from their radii."""
+    def y(d):
+        return f + s * d
+    b.prism_xz("marble", [(-25 * K, vz(1360)), (25 * K, vz(1360)), (17 * K, vz(1387)), (-17 * K, vz(1387))],
+               *sorted((y(-0.01), y(0.11))))
+    b.prism_xz("marble", [(0, vz(1364)), (10 * K, vz(1373.5)), (0, vz(1383)), (-10 * K, vz(1373.5))],
+               *sorted((y(0.105), y(0.122))))
+    b.lathe("marble", (0, y(0.03), vz(1393)), [(0, 0), (16 * K, 0), (18 * K, 3 * K), (16 * K, 6 * K), (0, 6 * K)])
+    b.lathe("marble", (0, y(0.05), vz(1405)),
+            [(0, 0), (3 * K, 2 * K), (8 * K, 6 * K), (10 * K, 9 * K), (9 * K, 12 * K), (0, 12 * K)])
+    b.lathe("marble", (0, f, vz(1360)),
+            [(0, 0), (28 * K, 0), (32 * K, 4 * K), (32 * K, 10 * K), (29 * K, 15 * K), (0, 15 * K)], segments=48)
+    b.lathe("marble", (0, f, vz(1345)),
+            [(0, 0), (22 * K, 0), (26 * K, 6 * K), (28 * K, 16 * K), (28 * K, 26 * K), (26 * K, 36 * K),
+             (24 * K, 42 * K), (23 * K, 44 * K), (0, 44 * K)], segments=48)
+    for k in range(14):  # gadroons
+        a = 2 * math.pi * (k + 0.5) / 14
+        b.ellipsoid("marble", (26 * K * math.cos(a), f + 26 * K * math.sin(a), vz(1323)), (0.021, 0.021, 20 * K),
+                    segments=12)
+    b.lathe("marble", (0, f, vz(1300)),
+            [(0, 0), (26 * K, 0), (28 * K, 4 * K), (34 * K, 10 * K), (44 * K, 18 * K), (50 * K, 22 * K),
+             (51 * K, 26 * K), (51 * K, 30 * K), (0, 30 * K)], segments=48)
 
 
 def build_spandrel(b, sx, s, f):
-    """Curved-triangle relief panel between the archivolt and the cornice, with a scroll."""
-    zs, zt, xo, rc = Z_SPRING + 0.15, Z_CORNICE[0] - 0.06, X_SPANDREL[1], R_ARCHIVOLT + 0.06
-    a_top, a_bot = math.asin((zt - Z_SPRING) / rc), math.asin((zs - Z_SPRING) / rc)
-    pts = [(xo, zs), (xo, zt)] + arc(0, Z_SPRING, rc, a_top, a_bot, 16)
-    pts = [(sx * x, z) for x, z in pts]
-    b.prism_xz("marble", pts if sx > 0 else list(reversed(pts)), *sorted((f, f + s * 0.02)))
-    b.tube("marble", spiral(sx * (xo - 0.17), f + s * 0.03, Z_SPRING + 0.55, 0.12, 1.25, flip=sx), 0.018)
+    """Spandrel panel with a double rim (SPANDREL_*); the field is the wall face, so it reads sunk."""
+    def xz(pts):
+        p = [(sx * x, z) for x, z in pts]
+        return p if sx > 0 else p[::-1]
+    for i0, i1, h, back in ((0, 3, 0.025, 0.005), (4.5, 6.5, 0.018, 0.007)):
+        rim = b.prism_xz("marble", xz(spandrel_outline(i0 * K)), *sorted((f - s * back, f + s * h)))
+        b.cut_xz(rim, "marble", xz(spandrel_outline(i1 * K)), *sorted((f - s * 0.01, f + s * (h + 0.01))))
+    x0, y0 = SPANDREL_RELIEF_PX
+    if sx * s > 0:   # the drawing is the left spandrel as the viewer sees it
+        b.relief("marble", "spandrel", x0, y0, f, s)
+    else:
+        b.relief("marble", "spandrel", 2 * AXIS_X - x0, y0, f, s, mirror=True)
 
 
 def build_column(b, x, y):
@@ -607,18 +736,15 @@ def build_lion(b, x, y, s):
 
 def build_entablature(b):
     zc0, zc1 = Z_CORNICE
-    mid = zc0 + 0.4 * (zc1 - zc0)
     xr = X_COL - 0.2  # the cornice breaks forward over the columns from here outward
-    b.box("marble", -xr, xr, -(GF + 0.05), GF + 0.05, zc0, mid)
-    b.box("marble", -xr, xr, -(GF + 0.12), GF + 0.12, mid, zc1)
+    # Profile bottom up, as the engraving's bands read near the break: a set-back fillet (dark
+    # band under the fascia), the fascia, a set-back cove (dark band under the corona), the corona.
+    layers = [(0, 0.28, 0.03), (0.28, 0.58, 0.07), (0.58, 0.72, 0.09), (0.72, 1, 0.12)]
+    for t0, t1, d in layers:
+        b.prism_xz("marble", cornice_line(t0, xr) + cornice_line(t1, xr)[::-1], -(GF + d), GF + d)
     ry = GF + EST_COL_OFFSET + 0.24
     for sx in (-1, 1):
         b.box("marble", sx * xr, sx * X_CORNICE, -ry, ry, zc0, zc1)
-    # central segmental rise of the cornice, standing 5 mm proud so no face is shared
-    half = X_SCROLL - 0.25
-    top = segment_curve(half, zc1, Z_CORNICE_CROWN)
-    bottom = [(x, z - 0.12) for x, z in reversed(top)]
-    b.prism_xz("marble", top + bottom, -(GF + 0.125), GF + 0.125)
     # broken pediment: S-curved raking cornice rising inward to a volute, small curl outside
     for sx in (-1, 1):
         n = 16
