@@ -51,12 +51,9 @@ def vz(px_y):
 # Horizontal stations, measured (left half, mirrored; symmetry check passed within 6.2 %).
 X_OPEN = hx(2294)        # door opening half width (frame inner line)
 X_FRAME = hx(2232)       # door-frame pilaster outer edge (sunk panel 2248-2281, see FRAME_PANEL)
-X_PIER = hx(2182)        # plain pier face outer edge
-X_NARROW = hx(2154)      # narrow pilaster behind the column, outer edge
 X_COL = hx(2129)         # column centre
 R_COL = 50 * K / 2       # column shaft radius
 X_BODY = hx(2056)        # gate body outer edge (side walls start here)
-X_CORNICE = hx(2053)     # main cornice outer end
 X_LION = hx(2105)        # lion pedestal centre
 X_BLOCK = hx(2290)       # small stone block centre at the door jamb
 
@@ -71,9 +68,7 @@ TRANSOM = [(1598, 1601, 0.11), (1601, 1609, 0.09), (1609, 1615, 0.12), (1615, 16
 # Moulded frame round the tympanum carving, between the engraved lines at r 157 and 165 px.
 R_TYMPANUM_FRAME = (157 * K, 165 * K)
 Z_TRANSOM_TOP = vz(1598)
-Z_COL_CAP = (vz(1535), vz(1490))
-Z_ARCHITRAVE = (vz(1490), vz(1440))
-Z_LEAF_BLOCK = (vz(1440), vz(1385))
+Z_COL_CAP = (vz(1535), vz(1491))
 Z_CORNICE = (vz(1380), vz(1337))
 R_TOP_BALL = 38 * K / 2      # finial ball diameter 38 px
 Z_CARTOUCHE = (vz(1100), vz(1013))
@@ -169,6 +164,43 @@ X_FINIAL = 157.5 * K
 FINIAL_SQUARE = [(1137, 22), (1124, 22), (1121, 17), (1121, 16.5), (1116, 13)]
 FINIAL_ROUND = [(1117, 12.5), (1114, 12.5), (1113, 9), (1106, 9), (1105, 7), (1100, 7)]
 FINIAL_BALL = (1093, 15)
+# Column ressaut, measured on the left column. The left column leans in the engraving (shaft
+# centre 2133 at its top, 2127.5 at y 1860; the right one stands upright at 2821), so the parts
+# above it are measured about RESSAUT_PX, the common centre of the pilaster, the console and the
+# capital's echinus (all within 1 px), and placed about X_COL. Rows are (y top, y bottom, outer
+# px, inner px); inner None means the mirror of outer about RESSAUT_PX.
+RESSAUT_PX = 2136
+RESSAUT_PILASTER = (2085, 2187)       # pilaster behind the column, from the ground to the abacus
+RESSAUT_FRIEZE = (1378, 1471)         # the pilaster's continuation between abacus and cornice
+PILASTER_CAP = (1520, 1535, 2079, 2194)
+# Cornice over the column, top down: fascia, shaded cove, fascia, shaded cove, fillet, deep cove
+# under the soffit. Each layer's return at the outer end shows its projection beyond the frieze.
+RESSAUT_CORNICE = [(1336, 1342, 2052, None), (1342, 1351, 2060, None), (1351, 1357, 2063, None),
+                   (1357, 1363, 2067, None), (1363, 1366, 2072, None), (1366, 1378, 2080, None)]
+# Abacus over capital and pilaster (its inner end also covers the pier strip at 2187-2196);
+# projection beyond the column's front as the outer return beyond the pilaster (2085).
+ABACUS = [(1471, 1478, 2072, 2207), (1478, 1491, 2081, 2198)]
+# Console on the frieze: a pedestal (base, body, under-cap, cap, bottom up) and a bell of three
+# leaves (centre px, half-width px) rising from it to the soffit.
+CONSOLE_PEDESTAL = [(1466, 1470, 2094, 2178), (1452, 1466, 2108, 2164), (1447, 1452, 2104, 2168),
+                    (1440, 1447, 2097, 2175)]
+CONSOLE_BELL = [(1381, 33), (1386, 36), (1392, 37.5), (1410, 37.5), (1418, 35), (1426, 32),
+                (1432, 29.5), (1440, 30)]       # (y px, half-width px); its right flank is shaded
+CONSOLE_BELL_ROUND = 7                 # px, the width of that shaded flank
+# Leaves on the bell (top centre px, bottom point px, half-width px): round tops at CONSOLE_LEAF_Y[0],
+# widest a half-width lower, tapering to points that lean in towards the middle leaf.
+CONSOLE_LEAVES = [(2112, 2124, 10.5), (2136, 2136, 10.5), (2160, 2148, 10.5)]
+CONSOLE_LEAF_Y = (1389, 1439)
+# Capital (y px, radius px) about the column axis, bottom up: astragal, a band of beads, the
+# echinus carved with eggs; then the abacus.
+CAPITAL = [(1535, 25), (1532, 27), (1529, 33), (1524, 33), (1521, 30), (1512, 30), (1510, 33),
+           (1500, 36), (1491, 36)]
+CAPITAL_BEADS = (1516, 30, 4)        # y, centre radius, bead radius (px)
+CAPITAL_EGGS = (1502, 33, 5, 7)      # y, centre radius, half-width, half-height (px)
+# Depths (estimates): the frieze stands 4 cm behind the column's front, the console's pedestal
+# body is flush with it, the bell 2 cm behind, its leaves 4.5 cm thick.
+EST_FRIEZE_BACK, EST_BELL_DEPTH, EST_LEAF_DEPTH = 0.04, 0.035, 0.02
+
 # Broken pediment over each column: a raking cornice that rises inward from a point on the main
 # cornice and curls into a volute, over a sunk triangle. Measured on the left piece; the volute
 # ring centres (2174.5 / 2781.5) put its axis at 2478. The cornice's lines from the top: the
@@ -365,17 +397,21 @@ class Builder:
         self.box(mat, xa, xa + w, y0, y1, z0 + w, z1 - w)
         self.box(mat, xb - w, xb, y0, y1, z0 + w, z1 - w)
 
-    def loft_xz(self, mat, rings, open_ends=False):
+    def loft_xz(self, mat, rings, open_ends=False, capped=False):
         """Closed ring solid swept through (outline, y) rings. Outlines are closed XZ loops
-        sampled at matching points; the last ring joins back to the first. With open_ends the
-        outlines are open paths and both ends are capped (archivolt legs)."""
+        sampled at matching points; the last ring joins back to the first, or with capped the
+        first and last rings are closed with a face each. With open_ends the outlines are open
+        paths and both ends are capped (archivolt legs)."""
         bm = bmesh.new()
         vs = [[bm.verts.new((x, y, z)) for x, z in path] for path, y in rings]
         n = len(vs[0])
-        for a, b in zip(vs, vs[1:] + vs[:1]):
+        for a, b in zip(vs, vs[1:] + ([] if capped else vs[:1])):
             for k in range(n - 1 if open_ends else n):
                 j = (k + 1) % n
                 bm.faces.new((a[k], a[j], b[j], b[k]))
+        if capped:
+            bm.faces.new(vs[0])
+            bm.faces.new(vs[-1])
         if open_ends:
             for k in (0, n - 1):
                 bm.faces.new([v[k] for v in vs])
@@ -597,6 +633,51 @@ def pediment_outlines():
     return {"cyma": cyma, "corona": corona, "cove": cove, "fillet": fillet, "triangle": triangle}
 
 
+def col_x(px, sx):
+    """Album px on the left column ressaut -> model x on side sx, about the column axis."""
+    return sx * (X_COL + (RESSAUT_PX - px) * K)
+
+
+def ressaut_rows(rows):
+    """Yield (x outer, x inner, z bottom, z top, outer return px) for rows (y0, y1, outer, inner)."""
+    for y0, y1, o, i in rows:
+        yield o, (2 * RESSAUT_PX - o) if i is None else i, vz(y1), vz(y0), RESSAUT_PILASTER[0] - o
+
+
+def bell_rows():
+    """CONSOLE_BELL as (y, centre, half-width) rows every 2 px."""
+    ys, hs = zip(*CONSOLE_BELL)
+    return [(y, RESSAUT_PX, float(np.interp(y, ys, hs))) for y in range(ys[0], ys[-1] + 1, 2)]
+
+
+def leaf_rows(top_c, bot_c, hw, n=24):
+    """A console leaf as (y, centre, half-width) rows: round top, then sides curving in to the point."""
+    y0, y1 = CONSOLE_LEAF_Y
+    rows = []
+    for k in range(n + 1):
+        u = k / n
+        y = y0 + (y1 - y0) * u * u * (3 - 2 * u) if u < 0.5 else y0 + (y1 - y0) * u
+        if y < y0 + hw:
+            h = math.sqrt(max(hw * hw - (y0 + hw - y) ** 2, 0))
+        else:
+            h = hw * (1 - ((y - y0 - hw) / (y1 - y0 - hw)) ** 1.6)
+        rows.append((y, top_c + (bot_c - top_c) * ((y - y0) / (y1 - y0)) ** 1.5, h))
+    return rows
+
+
+def build_pillow(b, rows, sx, s, y_back, depth, round_px, steps=5):
+    """Relief with rounded flanks on face s: rows (y px, centre px, half-width px) top down give the
+    outline; its sides roll in over round_px (a quarter ellipse) to a flat front at y_back + depth."""
+    rings = []
+    for k in range(steps):
+        a = math.pi / 2 * k / (steps - 1)
+        d = round_px * (1 - math.cos(a))
+        lo = [(col_x(c - max(h - d, 0.3), sx), vz(y)) for y, c, h in rows]
+        hi = [(col_x(c + max(h - d, 0.3), sx), vz(y)) for y, c, h in rows]
+        rings.append((lo + hi[::-1], s * (y_back + depth * math.sin(a))))
+    b.loft_xz("marble", rings, capped=True)
+
+
 def ped_xz(pts_px, sx=-1):
     """Album px about the pediment axis -> model (x, z) on side sx; the right side is the mirror."""
     return [(sx * abs(x - PED_AXIS_PX) * K, vz(y)) for x, y in pts_px]
@@ -695,11 +776,15 @@ def drop_hidden_ground(me):
 # Building parts
 # ---------------------------------------------------------------------------
 def build_body(b):
-    """Gate body: two piers and the arch spandrel, through the full depth."""
+    """Gate body: two piers and the arch spandrel, through the full depth. From the side walls'
+    coping up the engraving shows sky outside the pilaster, so the body narrows to the pilaster
+    there and the walls' coping runs on to it (build_walls)."""
     top = Z_CORNICE[0]
     for sx in (-1, 1):
-        b.prism_xz("plaster", [(sx * X_OPEN, 0), (sx * X_BODY, 0), (sx * X_BODY, top), (sx * X_OPEN, top)],
-                   -GF, GF)
+        xp = abs(col_x(RESSAUT_PILASTER[0], sx))
+        outline = [(X_OPEN, 0), (X_BODY, 0), (X_BODY, Z_COPING_BOTTOM), (xp, Z_COPING_BOTTOM), (xp, top),
+                   (X_OPEN, top)]
+        b.prism_xz("plaster", [(sx * x, z) for x, z in outline], -GF, GF)
     # the head fills the arch up to the underside of the raised cornice
     head = cornice_line(0, X_OPEN) + arc(0, Z_ARCH_C, X_OPEN, 0, math.pi, 48)[1:-1]
     b.prism_xz("plaster", head, -GF, GF)
@@ -807,18 +892,9 @@ def build_face(b, s):
         for y0, y1, i0, o0, i1, o1, d in IMPOST:
             pts = [(sx * i1 * K, vz(y1)), (sx * o1 * K, vz(y1)), (sx * o0 * K, vz(y0)), (sx * i0 * K, vz(y0))]
             b.prism_xz("marble", pts if sx > 0 else pts[::-1], *proj(d))
-        # narrow pilaster and outer strip behind the column
-        b.box("marble", sx * X_PIER, sx * X_NARROW, *proj(0.05), 0, Z_COL_CAP[1] - 0.03)
-        b.box("marble", sx * (X_COL + R_COL), sx * X_BODY, *proj(0.03), 0, Z_CORNICE[0])
         cy = s * (GF + EST_COL_OFFSET)
-        build_column(b, sx * X_COL, cy)
-        # ressaut above the column: architrave block, block with a leaf crown
-        b.box("marble", sx * (X_COL - 0.17), sx * (X_COL + 0.17), *sorted((f, cy + s * 0.17)), *Z_ARCHITRAVE)
-        b.box("marble", sx * (X_COL - 0.15), sx * (X_COL + 0.15), *sorted((f, cy + s * 0.15)), *Z_LEAF_BLOCK)
-        zl = sum(Z_LEAF_BLOCK) / 2
-        for k in range(-2, 3):
-            b.ellipsoid("marble", (sx * X_COL + k * 0.05, cy + s * 0.16, zl - 0.01 * abs(k)),
-                        (0.03, 0.02, 0.09 - 0.01 * abs(k)), segments=10)
+        build_column(b, sx * X_COL, cy, s)
+        build_ressaut(b, sx, s)
         build_spandrel(b, sx, s, f)
         # lion stands in front of the column (plate 4); depth offset is an estimate
         build_lion(b, sx * X_LION, s * (GF + 0.78), s)
@@ -873,7 +949,7 @@ def build_spandrel(b, sx, s, f):
         b.relief("marble", "spandrel", 2 * AXIS_X - x0, y0, f, s, mirror=True)
 
 
-def build_column(b, x, y):
+def build_column(b, x, y, s):
     z_base = 0.14
     b.box("marble", x - 0.16, x + 0.16, y - 0.16, y + 0.16, 0, z_base)
     b.lathe("marble", (x, y, z_base), [(0, 0), (R_COL + 0.04, 0), (R_COL + 0.04, 0.04),
@@ -881,12 +957,46 @@ def build_column(b, x, y):
     z0, z1 = z_base + 0.09, Z_COL_CAP[0]
     prof = [(0, 0)] + [(R_COL * (1 - 0.12 * (t / 8) ** 1.5), (z1 - z0) * t / 8) for t in range(9)] + [(0, z1 - z0)]
     b.lathe("marble", (x, y, z0), prof, segments=24)
-    zc0, zc1 = Z_COL_CAP
-    b.lathe("marble", (x, y, zc0), [(0, 0), (R_COL * 0.95, 0), (R_COL * 1.25, (zc1 - zc0) * 0.5),
-                                    (R_COL * 1.3, (zc1 - zc0) * 0.6), (0, (zc1 - zc0) * 0.6)])
-    b.box("marble", x - 0.16, x + 0.16, y - 0.16, y + 0.16, zc0 + (zc1 - zc0) * 0.6, zc1)
-    for sx in (-1, 1):  # Ionic-like volutes (order is a guess)
-        b.cylinder("marble", (x + sx * 0.13, y, zc0 + (zc1 - zc0) * 0.45), 0.05, 0.28, axis="Y", segments=16)
+    zc0 = Z_COL_CAP[0]
+    prof = [(r * K, vz(py) - zc0) for py, r in CAPITAL]
+    b.lathe("marble", (x, y, zc0), [(0, 0)] + prof + [(0, prof[-1][1])], segments=32)
+    # beads and eggs on the half facing out (the back half is against the pilaster)
+    for (py, rc, ra, rz), n, seg in (((*CAPITAL_BEADS, CAPITAL_BEADS[2]), 13, 8), (CAPITAL_EGGS, 8, 14)):
+        for k in range(n):
+            a = math.radians(-100 + 200 * (k + 0.5) / n)
+            b.ellipsoid("marble", (x + rc * K * math.sin(a), y + s * rc * K * math.cos(a), vz(py)),
+                        (ra * K, ra * K, rz * K), segments=seg)
+
+
+def build_ressaut(b, sx, s):
+    """Pilaster behind the column and, over its capital, the abacus, the frieze with its console
+    and the cornice that breaks forward over the column (RESSAUT_* and friends), on face s."""
+    f = GF
+    y_pil = GF + EST_COL_OFFSET - R_COL          # the column's back touches the pilaster
+    y_col = GF + EST_COL_OFFSET + R_COL          # the column's front
+    y_frieze = y_col - EST_FRIEZE_BACK
+
+    def slab(o, i, z0, z1, y):
+        b.box("marble", *sorted((col_x(o, sx), col_x(i, sx))), *sorted((s * f, s * y)), z0, z1)
+
+    o, i = RESSAUT_PILASTER
+    slab(o, i, 0, Z_COL_CAP[1], y_pil)
+    b.box("marble", *sorted((sx * X_BODY, col_x(o, sx))), *sorted((s * f, s * (f + 0.03))), 0, Z_COPING_BOTTOM)
+    y0, y1, o2, i2 = PILASTER_CAP
+    slab(o2, i2, vz(y1), vz(y0), y_pil + (o - o2) * K)
+    for o2, i2, z0, z1, ret in ressaut_rows(ABACUS):
+        slab(o2, i2, z0, z1, y_col + ret * K)
+    slab(o, i, vz(RESSAUT_FRIEZE[1]), vz(RESSAUT_FRIEZE[0]), y_frieze)
+    for o2, i2, z0, z1, ret in ressaut_rows(RESSAUT_CORNICE):
+        slab(o2, i2, z0, z1, y_frieze + ret * K)
+    # console: pedestal, bell and its three leaves
+    body = CONSOLE_PEDESTAL[1][2]
+    for o2, i2, z0, z1, _ in ressaut_rows(CONSOLE_PEDESTAL):
+        slab(o2, i2, z0, z1, y_col + (body - o2) * K)
+    build_pillow(b, bell_rows(), sx, s, y_frieze, EST_BELL_DEPTH, CONSOLE_BELL_ROUND)
+    for top_c, bot_c, hw in CONSOLE_LEAVES:
+        build_pillow(b, leaf_rows(top_c, bot_c, hw), sx, s, y_frieze + EST_BELL_DEPTH - 0.01,
+                     EST_LEAF_DEPTH + 0.01, 4)
 
 
 def build_lion(b, x, y, s):
@@ -915,17 +1025,13 @@ def build_lion(b, x, y, s):
 
 
 def build_entablature(b):
-    zc0, zc1 = Z_CORNICE
     xr = X_COL - 0.2  # the cornice breaks forward over the columns from here outward
     # Profile bottom up, as the engraving's bands read near the break: a set-back fillet (dark
     # band under the fascia), the fascia, a set-back cove (dark band under the corona), the corona.
     layers = [(0, 0.28, 0.03), (0.28, 0.58, 0.07), (0.58, 0.72, 0.09), (0.72, 1, 0.12)]
     for t0, t1, d in layers:
         b.prism_xz("marble", cornice_line(t0, xr) + cornice_line(t1, xr)[::-1], -(GF + d), GF + d)
-    ry = GF + EST_COL_OFFSET + 0.24
-    for sx in (-1, 1):
-        b.box("marble", sx * xr, sx * X_CORNICE, -ry, ry, zc0, zc1)
-    build_pediment(b, ry - 0.10)
+    build_pediment(b, GF + EST_COL_OFFSET + R_COL - EST_FRIEZE_BACK)
 
 
 def build_pediment(b, y_front):
@@ -1025,7 +1131,7 @@ def build_walls(b):
         x0, x1 = sx * X_BODY, sx * (X_BODY + EST_WALL_LENGTH)
         b.box("plaster", x0, x1, -t, t, 0, zc)
         b.box("marble", x0, x1 + sx * 0.03, -(t + 0.03), t + 0.03, 0, 0.22)  # plinth course (inferred)
-        b.prism_yz("marble", coping, x0, x1 + sx * 0.05)
+        b.prism_yz("marble", coping, col_x(RESSAUT_PILASTER[0], sx), x1 + sx * 0.05)
         for s in (-1, 1):
             y = s * t
             centres = [X_FIRST_PANEL + i * WALL_PANEL_PITCH for i in range(4)]
