@@ -20,12 +20,14 @@ Outputs in <dir>: huayuanmen.glb, huayuanmen-{hero,front,side,oblique}.webp, hua
 """
 
 import argparse
+import json
 import math
 import os
 import sys
 
 import bmesh
 import bpy
+import numpy as np
 from mathutils import Matrix, Vector
 
 # ---------------------------------------------------------------------------
@@ -88,14 +90,13 @@ Z_CROWN = (vz(1013), vz(983))
 Z_TOP = vz(950)
 Z_WALL_TOP = vz(1556)
 Z_COPING_BOTTOM = vz(1597)
-Z_WALL_PANEL = (vz(1846), vz(1634))
 # The lions stand in front of the gate, so their base sits lower in the picture than the
 # threshold line; heights are taken from their own base line (y 2115).
 H_LION_PEDESTAL = (2115 - 1985) * K
 H_LION = (1985 - 1862) * K
 Z_BLOCK_TOP = vz(1948)
-WALL_PANEL_PITCH = 425 * K   # right-wall panel centres 3112/3537/3962/4375 px
-X_FIRST_PANEL = hx(3112)
+WALL_PANEL_PITCH = 425 * K   # right-wall panel spacing (3112/3537/3962 px on the moulding)
+X_FIRST_PANEL = hx(3125)  # first panel's frame centre (x 2964-3285 px)
 
 # Estimates (not readable from the engraving).
 EST_BODY_HALF_DEPTH = 0.45   # gate body projects 0.15 m beyond the wall faces
@@ -148,6 +149,7 @@ class Builder:
         self.mats = mats
         self.count = 0
         self.section = "part"
+        self.relief_meshes = {}
 
     def _add(self, mat, bm, smooth=False):
         self.count += 1
@@ -235,6 +237,20 @@ class Builder:
         """Extrude a simple polygon drawn in the YZ (section) plane from x0 to x1."""
         return self._prism(mat, [(x0, y, z) for y, z in pts], (x1 - x0, 0, 0))
 
+    def cut_xz(self, obj, mat, pts, y0, y1):
+        """Subtract a prism (simple polygon in XZ, extruded from y0 to y1) from obj's mesh."""
+        cutter = self.prism_xz(mat, pts, y0, y1)
+        mod = obj.modifiers.new("cut", "BOOLEAN")
+        mod.operation, mod.object = "DIFFERENCE", cutter
+        bpy.context.view_layer.update()
+        me = bpy.data.meshes.new_from_object(obj.evaluated_get(bpy.context.evaluated_depsgraph_get()))
+        obj.modifiers.remove(mod)
+        old, obj.data = obj.data, me
+        me.name = old.name
+        bpy.data.meshes.remove(old)
+        bpy.data.meshes.remove(cutter.data)   # also removes the cutter object
+        return obj
+
     def frame(self, mat, x0, x1, z0, z1, y0, y1, w):
         """Rectangular moulding frame from four bars that touch but never overlap."""
         xa, xb = sorted((x0, x1))
@@ -242,6 +258,19 @@ class Builder:
         self.box(mat, xa, xb, y0, y1, z1 - w, z1)
         self.box(mat, xa, xa + w, y0, y1, z0 + w, z1 - w)
         self.box(mat, xb - w, xb, y0, y1, z0 + w, z1 - w)
+
+    def loft_xz(self, mat, rings):
+        """Closed ring solid swept through (outline, y) rings. Outlines are closed XZ loops
+        sampled at matching points; the last ring joins back to the first."""
+        bm = bmesh.new()
+        vs = [[bm.verts.new((x, y, z)) for x, z in path] for path, y in rings]
+        n = len(vs[0])
+        for a, b in zip(vs, vs[1:] + vs[:1]):
+            for k in range(n):
+                j = (k + 1) % n
+                bm.faces.new((a[k], a[j], b[j], b[k]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        return self._add(mat, bm, smooth=True)
 
     def tube(self, mat, points, radius, closed=False):
         """Round tube along a 3D polyline (scroll work, festoons, mouldings)."""
@@ -266,6 +295,24 @@ class Builder:
         bm.from_mesh(me)
         bpy.data.meshes.remove(me)
         return self._add(mat, bm, smooth=True)
+
+    def relief(self, mat, name, px_x0, px_y0, y_face, s, mirror=False):
+        """Place a traced relief panel (see huayuanmen_relief.py) on a face.
+
+        The panel's top-left corner sits at engraving pixel (px_x0, px_y0); s=+1 faces north,
+        -1 south (the south face repeats the north elevation as seen by its viewer); mirror
+        flips the panel left-right. Instances share one mesh, so repeats cost nothing in the glb.
+        """
+        if name not in self.relief_meshes:
+            self.relief_meshes[name] = relief_mesh(name, self.mats[mat])
+        self.count += 1
+        obj = bpy.data.objects.new(f"{self.section}.{mat}.relief.{self.count}", self.relief_meshes[name])
+        obj.location = (-s * (px_x0 - AXIS_X) * K, y_face, (BASE_Y - px_y0) * K)
+        obj.rotation_euler = (0, 0, 0 if s > 0 else math.pi)
+        obj.scale = (-1 if mirror else 1, 1, 1)
+        self.col.objects.link(obj)
+        return obj
+
 
 
 def _dedupe(verts):
@@ -304,6 +351,81 @@ def segment_curve(half_w, z_end, z_crown, n=16):
 
 
 # ---------------------------------------------------------------------------
+# Traced relief panels
+# ---------------------------------------------------------------------------
+RELIEF_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "huayuanmen_relief")
+RELIEF_LIFT = 0.003     # lowest carved level stands this far proud of its face (no shared faces)
+RELIEF_SINK = 0.004     # the panel's outer edge dips this far into the face, so no gap shows
+RELIEF_DECIMATE = 0.25  # share of triangles kept; flat ground and gentle slopes go first
+RELIEF_SHARP = math.radians(50)   # faces meeting at more than this are a carved edge, not a curve
+
+
+def relief_meta(name):
+    with open(os.path.join(RELIEF_DIR, "manifest.json")) as f:
+        return json.load(f)[name]
+
+
+def load_relief(name):
+    """Height (0..1) and outline mask arrays of a traced panel, rows top to bottom."""
+    meta = relief_meta(name)
+    px = load_relief_png(name)
+    return px[..., 0], px[..., 3] > 0.5, meta
+
+
+def load_relief_png(name):
+    """RGBA pixels of one relief PNG, rows top to bottom."""
+    img = bpy.data.images.load(os.path.join(RELIEF_DIR, f"{name}.png"))
+    img.colorspace_settings.name = "Non-Color"
+    w, h = img.size
+    px = np.array(img.pixels[:], dtype=np.float32).reshape(h, w, 4)[::-1]
+    bpy.data.images.remove(img)
+    return px
+
+
+def relief_mesh(name, material):
+    """Height-field mesh of one traced panel in local space.
+
+    Local axes: engraving columns run along -X (the north viewer's right is -X), rows along
+    -Z, carving depth along +Y. One vertex per traced sample, then decimated.
+    """
+    height, inside, meta = load_relief(name)
+    rows, cols = height.shape
+    edge = inside & ~(np.roll(inside, 1, 0) & np.roll(inside, -1, 0) & np.roll(inside, 1, 1) &
+                      np.roll(inside, -1, 1))
+    edge[[0, -1], :] |= inside[[0, -1], :]
+    edge[:, [0, -1]] |= inside[:, [0, -1]]
+    # Uncarved ground inside the outline sinks into the face as well, so the carving rises straight
+    # from the face instead of standing on a RELIEF_LIFT plinth one engraving pixel wide.
+    sunk = -RELIEF_SINK
+    if "recess" in meta:   # hatched ground sunk into the face: it lies on the pocket floor
+        sunk = np.where(load_relief_png(f"{name}.pocket")[..., 0] > 0.5, -meta["recess"], -RELIEF_SINK)
+    y = np.where(edge | (height <= 0), sunk, RELIEF_LIFT + meta["depth"] * height)
+    index = -np.ones((rows, cols), dtype=np.int64)
+    r, c = np.nonzero(inside)
+    index[r, c] = np.arange(len(r))
+    step = K / meta["scale"]   # traced at meta["scale"] samples per engraving pixel
+    verts = np.stack([-c * step, y[r, c], -r * step], axis=1)
+    q = inside[:-1, :-1] & inside[1:, :-1] & inside[1:, 1:] & inside[:-1, 1:]
+    qr, qc = np.nonzero(q)
+    faces = np.stack([index[qr, qc], index[qr + 1, qc], index[qr + 1, qc + 1], index[qr, qc + 1]], axis=1)
+    me = bpy.data.meshes.new(f"relief.{name}.raw")
+    me.from_pydata(verts.tolist(), [], faces.tolist())
+    tmp = bpy.data.objects.new("relief_tmp", me)
+    bpy.context.scene.collection.objects.link(tmp)
+    mod = tmp.modifiers.new("decimate", "DECIMATE")
+    mod.ratio = RELIEF_DECIMATE
+    bpy.context.view_layer.update()
+    out = bpy.data.meshes.new_from_object(tmp.evaluated_get(bpy.context.evaluated_depsgraph_get()))
+    bpy.data.objects.remove(tmp, do_unlink=True)
+    bpy.data.meshes.remove(me)
+    out.name = f"relief.{name}"
+    out.shade_smooth()
+    out.set_sharp_from_angle(angle=RELIEF_SHARP)   # keep carved walls crisp: no smoothing across a cliff
+    out.materials.append(material)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Building parts
 # ---------------------------------------------------------------------------
 def build_body(b):
@@ -318,36 +440,80 @@ def build_body(b):
     b.box("marble", -X_OPEN, X_OPEN, -GF, GF, 0, Z_THRESHOLD + 0.03)
 
 
+DOOR_LEAF_HALF_T = 0.04
+DOOR_FIELD = 0.006          # raised sub-panel fields stand this far proud of the leaf
+
+
+def door_arc(px_cx, px_cy, r, px_x0, px_x1, upper, n=16):
+    """Engraving-pixel points of a circular arc between two x positions (upper or lower half)."""
+    sign = -1 if upper else 1
+    return [(x, px_cy + sign * math.sqrt(r * r - (x - px_cx) ** 2))
+            for x in (px_x0 + (px_x1 - px_x0) * i / n for i in range(n + 1))]
+
+
+DOOR_RIM_W = 3              # raised rim round the arch-cut fields, engraving px (double line in the print)
+DOOR_RIM_H = 0.012          # its height above the field, about the carved panels' own border
+
+
+def door_fields(w=0):
+    """Outlines (engraving px) of the upper and lower arch-cut fields of the left leaf, inset by w.
+
+    Upper field: rectangle whose bottom is cut by the circle round the medallion; lower field: the
+    same below. Each arch meets the sides where the circle crosses them.
+    """
+    upper = [(2338 + w, 1761 + w), (2432 - w, 1761 + w)] + door_arc(2385, 1842.8, 51.8 + w, 2432 - w, 2338 + w, True)
+    lower = [(2340 + w, 1922 - w)] + door_arc(2385, 1824, 65 + w, 2340 + w, 2430 - w, False) + [(2430 - w, 1922 - w)]
+    return upper, lower
+
+
 def build_doors(b):
-    """Closed double doors, transom and fanlight grille in the middle of the opening."""
-    t = 0.04
+    """Closed double doors, transom and carved tympanum in the middle of the opening.
+
+    Leaf layout read off the engraving (left leaf; the right leaf mirrors it): an upper panel
+    with a carved sub-panel, and a tall panel holding an arch-cut sub-panel, a four-lobed
+    medallion and a second arch-cut sub-panel. Below the tall panel the leaf is plain.
+    """
+    t = DOOR_LEAF_HALF_T
     b.box("marble", -X_OPEN, X_OPEN, -0.08, 0.08, Z_LEAF_TOP, Z_TRANSOM_TOP)
+    fields, insets = door_fields(), door_fields(DOOR_RIM_W)
     for sx in (-1, 1):
-        b.box("bronze", 0, sx * X_OPEN, -t, t, Z_THRESHOLD + 0.03, Z_LEAF_TOP)
-        cx = sx * X_OPEN / 2
+        leaf = b.box("bronze", 0, sx * X_OPEN, -t, t, Z_THRESHOLD + 0.03, Z_LEAF_TOP)
         for s in (-1, 1):
-            y = s * (t + 0.008)
-            for z0, z1 in ((vz(1718), vz(1655)), (vz(1937), vz(1741)), (vz(2040), vz(1951))):
-                b.box("bronze", cx - X_OPEN / 2 + 0.07, cx + X_OPEN / 2 - 0.07, y - 0.008, y + 0.008, z0, z1)
-            rc = 37 * K
-            b.cylinder("bronze", (cx, s * (t + 0.02), vz(1828)), rc, 0.02, axis="Y", segments=32)
-            for k in range(4):
-                a = math.pi / 4 + k * math.pi / 2
-                b.ellipsoid("bronze", (cx + 0.55 * rc * math.cos(a), s * (t + 0.035), vz(1828) + 0.55 * rc * math.sin(a)),
-                            (0.05, 0.015, 0.05))
-    # Fanlight: openwork or relief cannot be told from the engraving; drawn as radial relief
-    # on a solid back plate (inference).
-    zs = Z_TRANSOM_TOP
-    b.prism_xz("plaster", arc(0, zs, R_ARCH - 0.02, 0, math.pi, 32), -0.012, 0.012)
-    for (r_out, r_in), hy in zip(((R_ARCH, R_ARCH - 0.05), (0.5, 0.45), (0.15, 0.0)), (0.030, 0.031, 0.032)):
-        ring = arc(0, zs, r_out, 0, math.pi, 32) + arc(0, zs, r_in, math.pi, 0, 32) if r_in else \
-            arc(0, zs, r_out, 0, math.pi, 32)
-        b.prism_xz("marble", ring, -hy, hy)
-    for k in range(1, 10):
-        a = math.pi * k / 10
-        mid = (0.15 + R_ARCH - 0.05) / 2
-        b.rotated_box("marble", (mid * math.cos(a), 0, zs + mid * math.sin(a)),
-                      (R_ARCH - 0.2, 0.044, 0.035), -a)
+            f = s * t
+
+            def out(d):
+                return sorted((f, f + s * d))
+
+            b.frame("bronze", sx * hx(2323), sx * hx(2449), vz(1721), vz(1660), *out(0.010), 3 * K)
+            b.frame("bronze", sx * hx(2320), sx * hx(2448), vz(1941), vz(1745), *out(0.010), 4 * K)
+            b.box("bronze", sx * hx(2341), sx * hx(2431), *out(DOOR_FIELD), vz(1709), vz(1675))
+            ff = s * (t + DOOR_FIELD)
+            for field, inset in zip(fields, insets):
+                def xz(poly):
+                    return [(sx * hx(x), vz(y)) for x, y in poly]
+                b.prism_xz("bronze", xz(field), *out(DOOR_FIELD))
+                # rim: the field outline less its inset, unbroken; where it passes door_band's own
+                # carved border the two merge into one band, as in the print
+                rim = b.prism_xz("bronze", xz(field), *sorted((ff - s * 0.001, ff + s * DOOR_RIM_H)))
+                b.cut_xz(rim, "bronze", xz(inset), *sorted((ff - s * 0.002, ff + s * (DOOR_RIM_H + 0.001))))
+        for s in (-1, 1):
+            f, ff = s * t, s * (t + DOOR_FIELD)
+            for name, (x0, y0), y in (("door_top", (2341, 1675), ff), ("door_band", (2340, 1761), ff),
+                                      ("door_low", (2340, 1890), ff), ("door_medallion", (2347, 1800), f)):
+                if sx * s > 0:   # +X is the north viewer's left leaf, the south viewer's right leaf
+                    b.relief("bronze", name, x0, y0, y, s)
+                else:
+                    b.relief("bronze", name, 2 * AXIS_X - x0, y0, y, s, mirror=True)
+            # The medallion's hatched ground is sunk into the leaf (see huayuanmen_relief.py): cut its
+            # pocket a little deeper than the relief's floor so the two never share a face.
+            meta = relief_meta("door_medallion")
+            b.cut_xz(leaf, "bronze", [(sx * hx(x), vz(y)) for x, y in meta["pocket"]],
+                     *sorted((f - s * (meta["recess"] + RELIEF_SINK / 2), f + s * 0.01)))
+    # Tympanum: the carving is traced from the engraving (huayuanmen_relief.py). Whether it was
+    # openwork or relief on a solid plate cannot be told from the print; a solid plate is assumed.
+    b.prism_xz("plaster", arc(0, Z_TRANSOM_TOP, R_ARCH - 0.003, 0, math.pi, 32), -0.012, 0.012)
+    for s in (-1, 1):
+        b.relief("marble", "tympanum", 2299, 1422, s * 0.012, s)
 
 
 def build_face(b, s):
@@ -543,28 +709,56 @@ def build_walls(b):
                      [min(centres[-1] + WALL_PANEL_PITCH / 2, X_BODY + EST_WALL_LENGTH - 0.1)]
             for c in strips:
                 b.box("marble", sx * (c - 0.085), sx * (c + 0.085), *sorted((y, y + s * 0.03)), 0.22, zc)
-            pw = WALL_PANEL_PITCH - 0.17 - 0.30
             for c in centres:
-                build_wall_panel(b, sx * c, y, s, pw)
+                build_wall_panel(b, sx * c, y, s)
 
 
-def build_wall_panel(b, cx, y, s, width):
-    """Panel with a lobed (notched-corner) moulding and a large central flower."""
-    z0, z1 = Z_WALL_PANEL
-    zm, a, h, rc = (z0 + z1) / 2, width / 2, (z1 - z0) / 2, 0.14
-    path = []
-    corners = ((a, h, math.pi, 1.5 * math.pi), (a, -h, 0.5 * math.pi, math.pi),
-               (-a, -h, 0.0, 0.5 * math.pi), (-a, h, 1.5 * math.pi, 2 * math.pi))
-    for px, pz, a0, a1 in corners:  # quarter circles centred on each corner, clockwise
-        path += [(px + rc * math.cos(a0 - (a0 - a1) * i / 8), pz + rc * math.sin(a0 - (a0 - a1) * i / 8))
-                 for i in range(9)]
-    yf = y + s * 0.02
-    b.tube("marble", [(cx + px, yf, zm + pz) for px, pz in path], 0.022, closed=True)
-    b.cylinder("marble", (cx, y + s * 0.015, zm), 0.09, 0.03, axis="Y", segments=24)
-    for k in range(8):
-        ang = k * math.pi / 4
-        b.ellipsoid("marble", (cx + 0.15 * math.cos(ang), y + s * 0.025, zm + 0.15 * math.sin(ang)),
-                    (0.07, 0.02, 0.07), segments=10)
+WALL_PANEL_HALF = (161 * K, 106 * K)    # frame outer edge, x 2964-3286.5 and y 1669-1880.5 px
+WALL_PANEL_Z = 1775                     # frame centre row (px)
+WALL_FRAME_BAND = 0.02                  # moulding band height off the wall face (estimate)
+WALL_FRAME_COVE = 6                     # sections across the cove
+WALL_FRAME_ARC = 10                     # samples per traced corner arc
+ORNAMENT_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "huayuanmen_ornament.json")
+WALL_ORNAMENT = ("wall_ornament", 140, 1682)  # traced panel: left edge 140 px left of the frame centre
+                                              # (ornament axis 3129 px, frame 3125 px, as drawn) and top row
+
+
+def frame_outline(arcs, origin, scale, a, h):
+    """Closed outline (panel-centred metres) of one moulding line from its traced upper-left
+    corner: each arc resampled to WALL_FRAME_ARC points so every line has matching samples."""
+    corner = []
+    for arc in arcs:
+        p = np.asarray(arc, dtype=float)
+        t = np.concatenate([[0.0], np.cumsum(np.hypot(*np.diff(p, axis=0).T))])
+        corner += [(np.interp(v, t, p[:, 0]), np.interp(v, t, p[:, 1]))
+                   for v in np.linspace(0.0, t[-1], WALL_FRAME_ARC + 1)[:-1]]
+    corner.append(tuple(arcs[-1][-1]))
+    ul = [(-a + (x - origin[0]) * scale * K, h - (y - origin[1]) * scale * K) for x, y in corner]
+    ur = [(-x, z) for x, z in reversed(ul)]
+    return ul + ur + [(x, -z) for x, z in reversed(ur)] + [(x, -z) for x, z in reversed(ul)]
+
+
+def build_wall_panel(b, cx, y, s):
+    """Panel with the traced lobed-corner moulding (flat band, then a cove down to the field)
+    and the traced cross-and-scroll ornament."""
+    with open(ORNAMENT_JSON) as f:
+        d = json.load(f)
+    fr, zm = d["frame"], vz(WALL_PANEL_Z)
+    line = {k: [(cx + x, zm + z) for x, z in frame_outline(fr[k], fr["origin"], d["album_scale"], *WALL_PANEL_HALF)]
+            for k in ("outer", "band_inner", "cove_inner")}
+    cove = []
+    for i in range(1, WALL_FRAME_COVE):
+        t = i / WALL_FRAME_COVE
+        ring = [(p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t)
+                for p, q in zip(line["band_inner"], line["cove_inner"])]
+        cove.append((ring, y + s * WALL_FRAME_BAND * (1 - math.sqrt(1 - (1 - t) ** 2))))
+    y_band, sink = y + s * WALL_FRAME_BAND, y - s * RELIEF_SINK
+    # the cove's last ring sits just behind the face so it cuts the wall cleanly
+    b.loft_xz("marble", [(line["outer"], sink), (line["outer"], y_band), (line["band_inner"], y_band), *cove,
+                         (line["cove_inner"], y - s * 0.5 * RELIEF_SINK), (line["cove_inner"], sink)])
+    name, left, top = WALL_ORNAMENT
+    centre_px = AXIS_X - s * cx / K
+    b.relief("marble", name, centre_px - left, top, y, s)
 
 
 def build_ground(b):
@@ -623,6 +817,8 @@ def join_by_material(col):
     """One mesh per material keeps the glb small and the draw-call count low."""
     groups = {}
     for ob in list(col.objects):
+        if ".relief." in ob.name:   # shared relief meshes stay instanced
+            continue
         groups.setdefault(ob.data.materials[0].name, []).append(ob)
     for name, obs in groups.items():
         bm = bmesh.new()
