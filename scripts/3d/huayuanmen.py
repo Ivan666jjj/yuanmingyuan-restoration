@@ -600,11 +600,25 @@ def relief_mesh(name, material):
     out = bpy.data.meshes.new_from_object(tmp.evaluated_get(bpy.context.evaluated_depsgraph_get()))
     bpy.data.objects.remove(tmp, do_unlink=True)
     bpy.data.meshes.remove(me)
+    drop_hidden_ground(out)
     out.name = f"relief.{name}"
     out.shade_smooth()
     out.set_sharp_from_angle(angle=RELIEF_SHARP)   # keep carved walls crisp: no smoothing across a cliff
     out.materials.append(material)
     return out
+
+
+def drop_hidden_ground(me):
+    """Delete the faces lying wholly on the sunk ground (-RELIEF_SINK): they sit behind the face
+    the panel is set on, so no view sees them, and they are about an eighth of a decimated panel's
+    triangles. Done after decimation, so the carved forms keep the triangles it gave them; pocket
+    floors (recess) lie deeper and stay."""
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    hidden = [f for f in bm.faces if all(abs(v.co.y + RELIEF_SINK) < 1e-5 for v in f.verts)]
+    bmesh.ops.delete(bm, geom=hidden, context="FACES")
+    bm.to_mesh(me)
+    bm.free()
 
 
 # ---------------------------------------------------------------------------
