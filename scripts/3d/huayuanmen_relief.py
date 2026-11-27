@@ -39,7 +39,8 @@ REGIONS = {
     "tympanum": dict(box=(2299, 1422, 2651, 1598), shape=("semicircle", 2475, 1598, 176),
                      mirror=AXIS_X, depth=0.045, mode="shade", params=dict()),
     "door_medallion": dict(box=(2347, 1800, 2421, 1869), shape=("ellipse",), mirror=2384, depth=0.012, scale=6,
-                           recess=0.014, mode="vector", source="huayuanmen_door_medallion.json"),
+                           recess=0.014, mode="vector", source="huayuanmen_door_medallion.json",
+                           decimate=0.12),   # glb under 10 MB
     # Left spandrel sprig, drawn as curves; the right spandrel mirrors it about the gate axis in
     # huayuanmen.py. The shape is the field inside the panel's inner rim (huayuanmen.py SPANDREL_*:
     # straight side 258.2 px and arc radius 262 px from the arch centre 2477.2/1587.3, top 1410.5).
@@ -65,6 +66,7 @@ REGIONS = {
     # top-bottom correlation of the engraving). The clipped corners keep the frame's corner
     # notches out.
     "wall_ornament": dict(box=(2985, 1682, 3273, 1874), mirror=3129, mirror_y=1778, depth=0.025, scale=3,
+                          decimate=0.12,   # glb under 10 MB
                           shape=("poly", [(3013, 1682), (3245, 1682), (3273, 1704), (3273, 1852),
                                           (3245, 1874), (3013, 1874), (2985, 1852), (2985, 1704)]),
                           mode="vector", source="huayuanmen_ornament.json"),

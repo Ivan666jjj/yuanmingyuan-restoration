@@ -18,6 +18,7 @@
   ],
   "depth": 0.012,
   "scale": 6,
+  "decimate": 0.12,
   "recess": 0.014,
   "pocket": [
    [
@@ -1625,6 +1626,7 @@
    1874
   ],
   "depth": 0.025,
-  "scale": 3
+  "scale": 3,
+  "decimate": 0.12
  }
 }
