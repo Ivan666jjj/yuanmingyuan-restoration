@@ -38,7 +38,7 @@ REGIONS = {
     "tympanum": dict(box=(2299, 1422, 2651, 1598), shape=("semicircle", 2475, 1598, 176),
                      mirror=AXIS_X, depth=0.045, mode="shade", params=dict()),
     "door_medallion": dict(box=(2347, 1800, 2421, 1869), shape=("ellipse",), mirror=2384, depth=0.012, scale=6,
-                           recess=0.008, mode="vector", source="huayuanmen_door_medallion.json"),
+                           recess=0.014, mode="vector", source="huayuanmen_door_medallion.json"),
     "spandrel": dict(box=(2218, 1404, 2280, 1560),
                      shape=("poly", [(2223, 1408), (2272, 1408), (2240, 1480), (2228, 1540), (2222, 1556)]),
                      mirror=None, depth=0.02, mode="mask", params=dict()),
