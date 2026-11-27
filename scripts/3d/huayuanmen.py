@@ -167,9 +167,14 @@ FINIAL_BALL = (1093, 15)
 # Column ressaut, measured on the left column. The left column leans in the engraving (shaft
 # centre 2133 at its top, 2127.5 at y 1860; the right one stands upright at 2821), so the parts
 # above it are measured about RESSAUT_PX, the common centre of the pilaster, the console and the
-# capital's echinus (all within 1 px), and placed about X_COL. Rows are (y top, y bottom, outer
-# px, inner px); inner None means the mirror of outer about RESSAUT_PX.
+# capital's echinus (all within 1 px). The scan is turned about 0.4 degrees (the axis is 2475 at
+# the ground, 2477 here, 2478 at the pediment), so the ressauts' half-span is taken about the
+# local axis: left 2136 and right 2821 give 342.5 px, a little inside the columns' feet (X_COL)
+# as the engraved columns lean in; this keeps the pediment volutes 39 px inside the ressaut
+# centres, as engraved. Rows are (y top, y bottom, outer px, inner px); inner None means the
+# mirror of outer about RESSAUT_PX.
 RESSAUT_PX = 2136
+RESSAUT_HALF_SPAN = 342.5
 RESSAUT_PILASTER = (2085, 2187)       # pilaster behind the column, from the ground to the abacus
 RESSAUT_FRIEZE = (1378, 1471)         # the pilaster's continuation between abacus and cornice
 PILASTER_CAP = (1520, 1535, 2079, 2194)
@@ -212,15 +217,15 @@ PED_AXIS_PX = 2478
 PED_VOLUTE = (2174.5, 1270)
 PED_DISC_R, PED_EYE_RING_R, PED_ROSETTE_R = 19.5, 13, 9
 PED_BASE_PX = 1338          # 1 px into the main cornice's top (1337)
-PED_POINT_X = 2069
+PED_POINT_X = 2076
 PED_NECK = {
-    "A": [(2069, 1325), (2073, 1323), (2080, 1319), (2085, 1315), (2090, 1311), (2095, 1307), (2100, 1301),
+    "A": [(2074, 1322), (2077, 1319.5), (2085, 1315), (2090, 1311), (2095, 1307), (2100, 1301),
           (2105, 1295), (2110, 1289), (2115, 1283), (2120, 1275), (2125, 1269), (2130, 1262), (2135, 1256),
           (2140, 1252), (2145, 1247), (2150, 1245), (2155, 1243)],
-    "B": [(2075, 1322.5), (2085, 1321), (2090, 1318), (2095, 1314), (2100, 1310), (2105, 1304), (2110, 1298),
+    "B": [(2077, 1324.5), (2083, 1322), (2090, 1318), (2095, 1314), (2100, 1310), (2105, 1304), (2110, 1298),
           (2115, 1291), (2120, 1284), (2125, 1277), (2130, 1270), (2135, 1265), (2140, 1259), (2145, 1254),
           (2150, 1250), (2155, 1248), (2160, 1246)],
-    "C": [(2069, 1333), (2090, 1333), (2097, 1332), (2100, 1331), (2105, 1327), (2110, 1323), (2115, 1317),
+    "C": [(2076, 1333), (2090, 1333), (2097, 1332), (2100, 1331), (2105, 1327), (2110, 1323), (2115, 1317),
           (2120, 1312), (2125, 1305), (2130, 1300), (2135, 1292), (2140, 1286), (2145, 1282), (2150, 1276),
           (2155, 1273)],
     "D": [(2113, 1338), (2115, 1335), (2120, 1332), (2125, 1328), (2130, 1323), (2135, 1316), (2140, 1308),
@@ -634,8 +639,8 @@ def pediment_outlines():
 
 
 def col_x(px, sx):
-    """Album px on the left column ressaut -> model x on side sx, about the column axis."""
-    return sx * (X_COL + (RESSAUT_PX - px) * K)
+    """Album px on the left column ressaut -> model x on side sx."""
+    return sx * (RESSAUT_HALF_SPAN + RESSAUT_PX - px) * K
 
 
 def ressaut_rows(rows):
