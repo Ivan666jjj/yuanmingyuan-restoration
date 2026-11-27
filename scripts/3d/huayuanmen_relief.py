@@ -25,6 +25,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage as ndi
 from skimage.filters import threshold_otsu
+from skimage.measure import approximate_polygon, find_contours
 from skimage.morphology import skeletonize
 
 AXIS_X = 2475  # gate axis in album_2 pixels
@@ -54,6 +55,11 @@ REGIONS = {
     # (huayuanmen.py ATTIC_AXIS_PX; the cartouche's own mirror axis on album_2 is 2481.5).
     "attic": dict(box=(2380, 1118, 2584, 1276), shape=("rect",), mirror=2482, depth=0.035, scale=3,
                   mode="vector", source="huayuanmen_attic.json", decimate=0.12),   # glb under 10 MB
+    # Crowning cartouche on the attic, traced on album_2 itself (huayuanmen_crown.json) about the
+    # attic axis. It stands free against the sky, so its silhouette is written to the manifest and
+    # huayuanmen.py cuts the crown's body to it.
+    "crown": dict(box=(2384, 988, 2580, 1125), shape=("rect",), mirror=2482, depth=0.03, scale=3,
+                  mode="vector", source="huayuanmen_crown.json", silhouette=True),
     # The door panels are drawn as curves too (one JSON each); they mirror left-right only.
     "door_top": dict(box=(2341, 1675, 2431, 1709), shape=("rect",), mirror=2386, depth=0.012, scale=6,
                      mode="vector", source="huayuanmen_door_top.json"),
@@ -372,6 +378,16 @@ def trace(album, region, debug=None):
     return h * shape, shape
 
 
+def silhouette(shape, region):
+    """Album-px outline of a free-standing relief's body: its outline mask with the enclosed
+    ground filled, traced along the mask's edge and simplified to within a sixth of a pixel."""
+    filled = ndi.binary_fill_holes(shape)
+    contour = max(find_contours(np.pad(filled, 1).astype(float), 0.5), key=len)
+    (x0, y0), up = region["box"][:2], region["scale"]
+    rc = approximate_polygon(contour, 0.5)[:-1] - 1
+    return [[round(x0 + (c + 0.5) / up, 2), round(y0 + (r + 0.5) / up, 2)] for r, c in rc]
+
+
 def main():
     src, out_dir = sys.argv[1:3]
     os.makedirs(out_dir, exist_ok=True)
@@ -386,6 +402,8 @@ def main():
         manifest[name] = dict(box=region["box"], depth=region["depth"], scale=region.get("scale", 1))
         if "decimate" in region:   # share of triangles kept, where a large panel needs fewer
             manifest[name]["decimate"] = region["decimate"]
+        if region.get("silhouette"):
+            manifest[name]["silhouette"] = silhouette(shape, region)
         pocket = pocket_outline(region)
         if pocket is not None:
             Image.fromarray((pocket_mask(region, *h.shape) * 255).astype("uint8"), "L").save(

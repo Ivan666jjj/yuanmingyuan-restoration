@@ -70,10 +70,11 @@ R_TYMPANUM_FRAME = (157 * K, 165 * K)
 Z_TRANSOM_TOP = vz(1598)
 Z_COL_CAP = (vz(1535), vz(1491))
 Z_CORNICE = (vz(1380), vz(1337))
-R_TOP_BALL = 38 * K / 2      # finial ball diameter 38 px
-Z_CARTOUCHE = (vz(1100), vz(1013))
-Z_CROWN = (vz(1013), vz(983))
-Z_TOP = vz(950)
+# Crowning cartouche (traced in huayuanmen_crown.json): ball centre row and radius (fitted to its
+# outline, x 2464-2502, y 950-988) and the neck under it as (row, half-width px) from the top.
+CROWN_BALL = (969, 19)
+CROWN_NECK = [(986, 6), (990, 5), (994, 7)]
+EST_CROWN_HALF_THICK = 0.10   # the slab's depth is not drawn; about the ball's radius
 Z_WALL_TOP = vz(1556)
 Z_COPING_BOTTOM = vz(1597)
 # The lions stand in front of the gate, so their base sits lower in the picture than the
@@ -496,17 +497,6 @@ def _dedupe(verts):
 def arc(cx, cz, r, a0, a1, n):
     return [(cx + r * math.cos(a0 + (a1 - a0) * i / n), cz + r * math.sin(a0 + (a1 - a0) * i / n))
             for i in range(n + 1)]
-
-
-def spiral(cx, y, cz, r0, turns, n=48, flip=1):
-    """Flat volute in the XZ plane, shrinking from r0 toward the centre."""
-    pts = []
-    for i in range(n + 1):
-        t = i / n
-        a = math.pi / 2 + flip * 2 * math.pi * turns * t
-        r = r0 * (1 - 0.8 * t)
-        pts.append((cx + flip * r * math.cos(a), y, cz + r * math.sin(a)))
-    return pts
 
 
 def cornice_line(frac, half_w, n=48):
@@ -1106,25 +1096,23 @@ def build_attic(b):
                 + [(0, vz(FINIAL_ROUND[-1][0]) - z1)], segments=24)
         yb, rb = FINIAL_BALL
         b.ellipsoid("marble", (x, 0, vz(yb)), (rb * K,) * 3)
-    # crowning cartouche, crown and finial ball
-    zc0, zc1 = Z_CARTOUCHE
-    w = 170 * K  # cartouche incl. side scrolls, x 2400-2570
-    shape = [(-0.10, zc0), (0.10, zc0), (0.24, zc0 + 0.10), (w * 0.5, zc1 - 0.12), (0.20, zc1),
-             (-0.20, zc1), (-w * 0.5, zc1 - 0.12), (-0.24, zc0 + 0.10)]
-    shape[0], shape[1] = (-0.10, zc0 - 0.06), (0.10, zc0 - 0.06)  # seated into the eave arch
-    b.prism_xz("marble", list(reversed(shape)), -0.14, 0.14)
+    build_crown(b)
+
+
+def build_crown(b):
+    """Crowning cartouche on the attic eave: a slab cut to the traced silhouette (huayuanmen_crown.json,
+    via the relief manifest) with the tracing carved on both faces, and the ball on a short neck."""
+    meta = relief_meta("crown")
+    t = EST_CROWN_HALF_THICK
+    b.prism_xz("marble", [((px - ATTIC_AXIS_PX) * K, vz(py)) for px, py in meta["silhouette"]], -t, t)
+    x0, y0 = meta["box"][:2]
     for s in (-1, 1):
-        for sx in (-1, 1):
-            b.tube("marble", spiral(sx * 0.30, s * 0.15, zc0 + 0.14, 0.09, 1.25, flip=sx), 0.016)
-        b.ellipsoid("marble", (0, s * 0.15, (zc0 + zc1) / 2), (0.07, 0.03, 0.07), segments=12)
-    zr0, zr1 = Z_CROWN
-    b.lathe("marble", (0, 0, zr0), [(0, 0), (0.15, 0), (0.22, (zr1 - zr0) * 0.6), (0.18, zr1 - zr0), (0, zr1 - zr0)])
-    for k in range(12):
-        a = 2 * math.pi * k / 12
-        b.ellipsoid("marble", (0.2 * math.cos(a), 0.2 * math.sin(a), zr0 + (zr1 - zr0) * 0.6),
-                    (0.025, 0.025, (zr1 - zr0) * 0.55), segments=8)
-    rb = (Z_TOP - zr1) / 2
-    b.ellipsoid("marble", (0, 0, zr1 + rb), (R_TOP_BALL, R_TOP_BALL, rb))
+        b.relief("marble", "crown", x0 - (ATTIC_AXIS_PX - AXIS_X), y0, s * t, s)
+    z0 = vz(CROWN_NECK[-1][0])   # neck foot, sunk into the cap's rim
+    b.lathe("marble", (0, 0, z0), [(0, 0)] + [(w * K, vz(y) - z0) for y, w in CROWN_NECK[::-1]]
+            + [(0, vz(CROWN_NECK[0][0]) - z0)])
+    yb, rb = CROWN_BALL
+    b.ellipsoid("marble", (0, 0, vz(yb)), (rb * K,) * 3, segments=32)
 
 
 def build_walls(b):
