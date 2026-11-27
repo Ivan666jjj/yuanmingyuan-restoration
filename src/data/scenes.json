@@ -694,8 +694,26 @@
       "category": "西洋楼",
       "x": 675,
       "y": 112,
-      "ref": "《西洋楼二十景》铜版画",
-      "status": "open"
+      "ref": "《西洋楼二十景》铜版画·花园门北面",
+      "status": "done",
+      "image": "/images/restorations/huayuanmen.webp",
+      "thumb": "/images/thumbs/huayuanmen.webp",
+      "model": "Blender 4.5 LTS（参数化建模）",
+      "prompt": "花园门北立面：半圆券门洞配对开铜门，券内扇形格栅；两侧圆柱前各蹲一石狮；主檐口中段上拱，断山花两端起涡卷；钟形阁楼顶立牌饰、冠饰与顶球；两侧高墙饰海棠心板，门前扇形铺地。",
+      "model3d": {
+        "glb": "/models/huayuanmen.glb",
+        "hero": "/images/3d/huayuanmen-hero.webp",
+        "views": [
+          "/images/3d/huayuanmen-front.webp",
+          "/images/3d/huayuanmen-side.webp",
+          "/images/3d/huayuanmen-oblique.webp"
+        ],
+        "tool": "Blender 4.5 LTS · 参数化建模",
+        "basis": "依据《西洋楼二十景》铜版画第四幅「花园门北面」（1786）量取各构件的横向分段与竖向标高，按同一比例尺换算：门总宽约 4.0 米、总高约 5.25 米。比例尺无文献记载，按画家视平线约 1.55 米推定，门宽可能在 3.5–4.7 米之间，全部尺寸随之等比浮动；构件进深、墙厚（约 0.6 米）、圆柱与石狮离门面的距离画面无法量取，为估算；铜版画只绘北面，南立面按北面镜像推断；券内扇形格栅是镂空还是浮雕无法判定，按实心底板加放射条浮雕示意；柱式按爱奥尼式推测；铜版画为黑白，汉白玉、粉红灰墙与铜色门扇均为推断（铜门之说未见原始出处）；两侧围墙各示意 10 米，北侧扇形铺地与直道按画面示意，南侧铺地为推断；石狮、花环、牌饰等雕饰为简化几何表达；纯色材质，无贴图。建模脚本 scripts/3d/huayuanmen.py 可复现。",
+        "license": "CC BY-SA 4.0",
+        "camera": "195deg 72deg 24m",
+        "target": "0m 2.4m 0m"
+      }
     },
     {
       "id": "xianfashan",
