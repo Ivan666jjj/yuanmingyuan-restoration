@@ -29,6 +29,7 @@ import bmesh
 import bpy
 import numpy as np
 from mathutils import Matrix, Vector
+from mathutils.geometry import interpolate_bezier
 
 # ---------------------------------------------------------------------------
 # Measurements (album_2.jpg pixels; gate axis x=2475, threshold centre line y=2064)
@@ -37,9 +38,9 @@ K = 0.00471  # m per px at the gate plane; horizon-line estimate, see module doc
 AXIS_X, BASE_Y = 2475, 2064
 
 
-def hx(px_x):
+def hx(px_x, axis=AXIS_X):
     """Horizontal engraving pixel -> metres from the gate axis (absolute)."""
-    return abs(px_x - AXIS_X) * K
+    return abs(px_x - axis) * K
 
 
 def vz(px_y):
@@ -56,9 +57,6 @@ X_COL = hx(2129)         # column centre
 R_COL = 50 * K / 2       # column shaft radius
 X_BODY = hx(2056)        # gate body outer edge (side walls start here)
 X_CORNICE = hx(2053)     # main cornice outer end
-X_ATTIC_EAVE = hx(2272)  # attic flat eave half width
-X_EAVE_ARCH = hx(2373)   # arched segment of the attic eave, half width
-X_CORNER_BALL = hx(2326 + 7)  # corner ball centre (upper axis is shifted 7 px by scan tilt)
 X_SCROLL = hx(2173)      # broken-pediment volute centre
 X_LION = hx(2105)        # lion pedestal centre
 X_BLOCK = hx(2290)       # small stone block centre at the door jamb
@@ -79,10 +77,6 @@ Z_ARCHITRAVE = (vz(1490), vz(1440))
 Z_LEAF_BLOCK = (vz(1440), vz(1385))
 Z_CORNICE = (vz(1380), vz(1337))
 Z_SCROLL = vz(1267)
-Z_ATTIC_EAVE = (vz(1170), vz(1138))
-Z_EAVE_CROWN = vz(1100)
-Z_CORNER_BALL_TOP = vz(1080)
-R_CORNER_BALL = 32 * K / 2   # ball diameters 31 / 33 px
 R_TOP_BALL = 38 * K / 2      # finial ball diameter 38 px
 Z_CARTOUCHE = (vz(1100), vz(1013))
 Z_CROWN = (vz(1013), vz(983))
@@ -138,6 +132,45 @@ R_SPANDREL = 255.5 * K
 # The sprig carved in the field (huayuanmen_relief.py "spandrel", top-left corner of its box);
 # moved by the arch centre's offset from AXIS_X, as the panel itself is placed about the arch centre.
 SPANDREL_RELIEF_PX = (2209 - (ARCH_C_PX - AXIS_X), 1400)
+
+# Attic. Its left and right edges were measured together (finial balls 2326/2640, eave ends
+# 2274/2694, eave arch), which puts the upper part's axis at about x 2482, 7 px right of AXIS_X
+# (the scan is slightly tilted); lines read on the left only are taken about ATTIC_AXIS_PX.
+ATTIC_AXIS_PX = 2482
+# Eave: the top line is flat at y 1134.5 and rises over the centre in a segmental arc to y 1085.
+# Every lower line also runs flat and then arches, with its own crown; the break moves inward
+# with depth (top line 105 px from the axis, underside 92 px). Profile lines top down as (px
+# below the top line where flat, px below it at the crown, end half-width px): fluted band, cyma
+# flaring out to the corona, corona, its soffit, cove, bottom fillet. The ends return the
+# profile, so each line's front projection is taken equal to its measured overhang at the ends.
+EAVE_TOP_PX, EAVE_CROWN_PX = 1134.5, 1085
+EAVE_BREAK_PX = (105, 92)
+EAVE_PROFILE = [(0, 0, 209), (8.5, 7.5, 209), (17.5, 13, 217), (21.5, 16, 217), (21.5, 16, 201),
+                (35.5, 27, 193), (42.5, 36, 193)]
+# Attic body: a field framed by a raised band about 19.5 px wide. The band's outer edge (the
+# attic's outline against the sky) and its inner edge, left side, top down. At the foot the
+# band passes under the outline and curls up into a volute: centre, the radii of the band's
+# inner and outer edges at angles measured from straight down, turning outward and up (it ends
+# on the right of the eye), and the round eye, ringed by a groove. At the top the band stops
+# 97 px from the axis, where the field rises under the arched eave.
+ATTIC_FACE_HALF_W_PX = ATTIC_AXIS_PX - 2292.7
+ATTIC_OUTLINE = [(2292.7, 1177), (2292.7, 1200), (2292, 1223), (2288, 1250), (2280, 1275),
+                 (2268, 1293), (2252, 1302), (2236, 1304), (2228, 1304)]
+ATTIC_BAND_INNER = [(2310, 1197), (2311, 1223), (2307, 1250), (2299, 1275), (2287, 1295),
+                    (2270, 1312), (2252, 1322), (2240, 1323)]
+ATTIC_BAND_END_PX = 2385
+ATTIC_VOLUTE = (2217.5, 1296)
+ATTIC_VOLUTE_RADII = [(0, 7.75, 27.25), (45, 7.5, 22.4), (90, 7, 18.5), (180, 6.5, 14),
+                      (270, 6, 11), (300, 5.8, 10)]
+ATTIC_VOLUTE_EYE = 4.5
+ATTIC_FIELD_SINK = 0.025      # field set back behind the band (estimate)
+# Corner finials, 157.5 px either side of the axis, standing on the eave. Square block, bevel and
+# plinth, then a round collar and neck, as (y px, half-width px) bottom up; ball radius 15 px
+# centred at y 1093.
+X_FINIAL = 157.5 * K
+FINIAL_SQUARE = [(1137, 22), (1124, 22), (1121, 17), (1121, 16.5), (1116, 13)]
+FINIAL_ROUND = [(1117, 12.5), (1114, 12.5), (1113, 9), (1106, 9), (1105, 7), (1100, 7)]
+FINIAL_BALL = (1093, 15)
 
 # Estimates (not readable from the engraving).
 EST_BODY_HALF_DEPTH = 0.45   # gate body projects 0.15 m beyond the wall faces
@@ -239,12 +272,13 @@ class Builder:
                             verts=bm.verts)
         return self._add(mat, bm, smooth=True)
 
-    def lathe(self, mat, center, profile, segments=32):
-        """Revolve a closed (radius, z) profile (starting and ending on the axis) around Z."""
+    def lathe(self, mat, center, profile, segments=32, phase=0.0):
+        """Revolve a closed (radius, z) profile (starting and ending on the axis) around Z.
+        segments=4 with phase=pi/4 gives a square block whose half-width is radius / sqrt(2)."""
         bm = bmesh.new()
         rings = []
         for s in range(segments):
-            a = 2 * math.pi * s / segments
+            a = 2 * math.pi * s / segments + phase
             rings.append([bm.verts.new((center[0] + r * math.cos(a), center[1] + r * math.sin(a),
                                         center[2] + z)) for r, z in profile])
         for s in range(segments):
@@ -314,6 +348,23 @@ class Builder:
         if open_ends:
             for k in (0, n - 1):
                 bm.faces.new([v[k] for v in vs])
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        return self._add(mat, bm, smooth=True)
+
+    def stack(self, mat, rings):
+        """Closed solid lofted top down through rings. Each ring is an elevation line (x, z),
+        sampled left to right with the same count in every ring, run along the front at +y and
+        back along the rear at -y; the first and last rings are capped with strips."""
+        bm = bmesh.new()
+        loops = [[bm.verts.new((x, d, z)) for x, z in pts] + [bm.verts.new((x, -d, z)) for x, z in reversed(pts)]
+                 for pts, d in rings]
+        n = len(loops[0])
+        for a, c in zip(loops, loops[1:]):
+            for k in range(n):
+                bm.faces.new((a[k], a[(k + 1) % n], c[(k + 1) % n], c[k]))
+        for loop in (loops[0], loops[-1]):
+            for i in range(n // 2 - 1):
+                bm.faces.new((loop[i], loop[i + 1], loop[n - 2 - i], loop[n - 1 - i]))
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         return self._add(mat, bm, smooth=True)
 
@@ -427,13 +478,58 @@ def spandrel_outline(inset):
     return [(x0, z0), (x0, z1)] + arc(0, Z_ARCH_C, r, a_top, math.asin((z0 - Z_ARCH_C) / r), 24)
 
 
-def segment_curve(half_w, z_end, z_crown, n=16):
-    """Segmental arch through (±half_w, z_end) and (0, z_crown), sampled left to right."""
-    rise = z_crown - z_end
-    radius = (half_w ** 2 + rise ** 2) / (2 * rise)
-    cz = z_crown - radius
-    return [(x, cz + math.sqrt(radius ** 2 - x ** 2))
-            for x in (-half_w + 2 * half_w * i / n for i in range(n + 1))]
+def eave_line(f, a, half_w, n=24):
+    """Attic eave line f px below the top line where flat and a px below it at the crown,
+    sampled left to right from -half_w to half_w (see EAVE_*); always n + 3 points."""
+    z_flat, z_crown = vz(EAVE_TOP_PX + f), vz(EAVE_CROWN_PX + a)
+    b0, b1 = EAVE_BREAK_PX
+    xk = (b0 + (b1 - b0) * f / EAVE_PROFILE[-1][0]) * K
+    rise = z_crown - z_flat
+    r = (xk * xk + rise * rise) / (2 * rise)
+    ak = math.asin(xk / r)
+    arch = [(r * math.sin(t), z_crown - r + r * math.cos(t)) for t in (ak * (2 * i / n - 1) for i in range(n + 1))]
+    return [(-half_w, z_flat)] + arch + [(half_w, z_flat)]
+
+
+def smooth_path(points, n=6):
+    """Smooth curve through 2D points (Blender's auto-handle Bezier), n samples per span."""
+    cu = bpy.data.curves.new("path", "CURVE")
+    bez = cu.splines.new("BEZIER").bezier_points
+    bez.add(len(points) - 1)
+    for bp, (x, y) in zip(bez, points):
+        bp.co = (x, y, 0)
+        bp.handle_left_type = bp.handle_right_type = "AUTO"
+    out = []
+    for p, q in zip(bez, bez[1:]):
+        out += [(v.x, v.y) for v in interpolate_bezier(p.co, p.handle_right, q.handle_left, q.co, n + 1)[:-1]]
+    bpy.data.curves.remove(cu)
+    return out + [tuple(points[-1])]
+
+
+def offset_px(pts, d):
+    """Polyline in image axes (y down) moved d px to the left of its direction of travel."""
+    p = np.asarray(pts, float)
+    t = np.gradient(p, axis=0)
+    t /= np.linalg.norm(t, axis=1)[:, None]
+    return [tuple(q) for q in p + d * np.stack([t[:, 1], -t[:, 0]], 1)]
+
+
+def volute_edge(k, a0, a1, grow=0.0, step=10):
+    """Attic volute: band edge k (1 inner, 2 outer; see ATTIC_VOLUTE_RADII) from angle a0 to a1
+    degrees, radius grown by grow px, as album px points."""
+    cx, cy = ATTIC_VOLUTE
+    angs, rs = zip(*[(row[0], row[k]) for row in ATTIC_VOLUTE_RADII])
+    n = max(1, round(abs(a1 - a0) / step))
+    out = []
+    for a in (a0 + (a1 - a0) * i / n for i in range(n + 1)):
+        r = float(np.interp(a, angs, rs)) + grow
+        out.append((cx - r * math.sin(math.radians(a)), cy + r * math.cos(math.radians(a))))
+    return out
+
+
+def attic_xz(pts_px, sx=-1):
+    """Album px about the attic axis -> model (x, z) on side sx; the right side is the mirror."""
+    return [(sx * abs(x - ATTIC_AXIS_PX) * K, vz(y)) for x, y in pts_px]
 
 
 # ---------------------------------------------------------------------------
@@ -499,7 +595,7 @@ def relief_mesh(name, material):
     tmp = bpy.data.objects.new("relief_tmp", me)
     bpy.context.scene.collection.objects.link(tmp)
     mod = tmp.modifiers.new("decimate", "DECIMATE")
-    mod.ratio = RELIEF_DECIMATE
+    mod.ratio = meta.get("decimate", RELIEF_DECIMATE)
     bpy.context.view_layer.update()
     out = bpy.data.meshes.new_from_object(tmp.evaluated_get(bpy.context.evaluated_depsgraph_get()))
     bpy.data.objects.remove(tmp, do_unlink=True)
@@ -768,35 +864,43 @@ def build_entablature(b):
 
 
 def build_attic(b):
-    z0 = Z_CORNICE[1]
-    z1 = Z_ATTIC_EAVE[0]
-    xb, xt = X_SCROLL - 0.17, X_ATTIC_EAVE - 0.07
-    side = [(xt + (xb - xt) * (1 - t / 10) ** 2, z0 + (z1 - z0) * t / 10) for t in range(11)]
-    profile = [(-x, z) for x, z in side] + [(x, z) for x, z in reversed(side)]
-    b.prism_xz("plaster", list(reversed(profile)), -EST_ATTIC_HALF_DEPTH, EST_ATTIC_HALF_DEPTH)
-    ze0, ze1 = Z_ATTIC_EAVE
-    b.box("marble", -X_ATTIC_EAVE, X_ATTIC_EAVE, -0.42, 0.42, ze0, ze1)
-    top = segment_curve(X_EAVE_ARCH, ze1, Z_EAVE_CROWN)
-    bottom = [(x, z - 0.15) for x, z in reversed(top)]
-    b.prism_xz("marble", top + bottom, -0.425, 0.425)
-    for sx in (-1, 1):
-        r = R_CORNER_BALL
-        zp = Z_CORNER_BALL_TOP - 2 * r
-        b.box("marble", sx * X_CORNER_BALL - 0.10, sx * X_CORNER_BALL + 0.10, -0.10, 0.10, ze1, ze1 + 0.04)
-        b.lathe("marble", (sx * X_CORNER_BALL, 0, ze1 + 0.04),
-                [(0, 0), (0.07, 0), (0.04, (zp - ze1 - 0.04) * 0.6), (0.05, zp - ze1 - 0.04), (0, zp - ze1 - 0.04)])
-        b.ellipsoid("marble", (sx * X_CORNER_BALL, 0, zp + r), (r, r, r))
+    d = EST_ATTIC_HALF_DEPTH
+    face_w = ATTIC_FACE_HALF_W_PX
+    # Eave: one solid lofted down through the profile lines.
+    b.stack("marble", [(eave_line(f, a, w * K), d + (w - face_w) * K) for f, a, w in EAVE_PROFILE])
+    # Field: the attic's whole outline (inset 0.5 px behind the band's edges), its top buried in
+    # the eave's bottom fillet and its foot in the main cornice.
+    left = attic_xz(offset_px(smooth_path(ATTIC_OUTLINE), 0.5) + volute_edge(2, 300, 45, grow=-0.5))
+    x_foot = -left[-1][0]
+    top = eave_line(EAVE_PROFILE[-1][0] - 3.5, EAVE_PROFILE[-1][1] - 4, (face_w - 0.5) * K)
+    right = [(-x, z) for x, z in left]
+    field = top + right + cornice_line(0.5, x_foot)[::-1] + left[::-1]
+    b.prism_xz("marble", field, -(d - ATTIC_FIELD_SINK), d - ATTIC_FIELD_SINK)
+    # Cartouche carved on the field (huayuanmen_attic.json), both faces; the relief is centred on
+    # ATTIC_AXIS_PX, so its corner shifts by the attic's offset from AXIS_X.
+    x0, y0 = relief_meta("attic")["box"][:2]
     for s in (-1, 1):
-        y = s * EST_ATTIC_HALF_DEPTH
-        # facade cartouche and festoons
-        shield = [(-0.22, 4.12), (0.22, 4.12), (0.20, 3.92), (0.0, 3.78), (-0.20, 3.92)]
-        b.prism_xz("marble", shield, *sorted((y, y + s * 0.05)))
-        for sx in (-1, 1):
-            pts = [(sx * (0.25 + 0.5 * t), y + s * 0.06, 4.10 - 0.35 * math.sin(math.pi * t) - 0.25 * t)
-                   for t in (i / 12 for i in range(13))]
-            for i, p in enumerate(pts[1:-1], 1):  # leafy garland: overlapping flattened leaves
-                rr = 0.035 + 0.02 * math.sin(math.pi * i / 12)
-                b.ellipsoid("marble", p, (rr * 1.3, rr * 0.5, rr * 0.8), segments=10)
+        b.relief("marble", "attic", x0 - (ATTIC_AXIS_PX - AXIS_X), y0, s * (d - ATTIC_FIELD_SINK), s)
+    # Raised band round the field, ending in the volute; its top runs 3 px up into the eave.
+    y_top = ATTIC_OUTLINE[0][1] - 3
+    band = ([(ATTIC_BAND_END_PX, y_top), (ATTIC_OUTLINE[0][0], y_top)] + smooth_path(ATTIC_OUTLINE)
+            + volute_edge(1, 0, 300) + volute_edge(2, 300, 0) + smooth_path(ATTIC_BAND_INNER)[::-1]
+            + [(ATTIC_BAND_END_PX, ATTIC_BAND_INNER[0][1])])
+    for sx in (-1, 1):
+        pts = attic_xz(band, sx)
+        b.prism_xz("marble", pts if sx < 0 else pts[::-1], -d, d)
+        (ex, ez), = attic_xz([ATTIC_VOLUTE], sx)
+        b.cylinder("marble", (ex, 0, ez), ATTIC_VOLUTE_EYE * K, 2 * d - 0.006, axis="Y", segments=20)
+    # Corner finials.
+    z0, z1 = vz(FINIAL_SQUARE[0][0]), vz(FINIAL_ROUND[0][0])
+    for sx in (-1, 1):
+        x = sx * X_FINIAL
+        b.lathe("marble", (x, 0, z0), [(0, 0)] + [(h * K * math.sqrt(2), vz(y) - z0) for y, h in FINIAL_SQUARE]
+                + [(0, vz(FINIAL_SQUARE[-1][0]) - z0)], segments=4, phase=math.pi / 4)
+        b.lathe("marble", (x, 0, z1), [(0, 0)] + [(h * K, vz(y) - z1) for y, h in FINIAL_ROUND]
+                + [(0, vz(FINIAL_ROUND[-1][0]) - z1)], segments=24)
+        yb, rb = FINIAL_BALL
+        b.ellipsoid("marble", (x, 0, vz(yb)), (rb * K,) * 3)
     # crowning cartouche, crown and finial ball
     zc0, zc1 = Z_CARTOUCHE
     w = 170 * K  # cartouche incl. side scrolls, x 2400-2570
@@ -1066,7 +1170,9 @@ def export_glb(path, col):
         ob.select_set(True)
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_apply=True,
                               export_yup=True, export_draco_mesh_compression_enable=False,
-                              export_cameras=False, export_lights=False)
+                              export_cameras=False, export_lights=False,
+                              # No material has a texture, so UVs only add weight (about 0.6 MB).
+                              export_texcoords=False)
     print(f"GLB {path}: {os.path.getsize(path) / 1e6:.2f} MB")
 
 

@@ -49,10 +49,10 @@ REGIONS = {
                             [(2477.2 - math.sqrt(262 ** 2 - (1587.3 - y) ** 2), y) for y in range(1415, 1541, 5)] +
                             [(2219.0, 1587.3 - math.sqrt(262 ** 2 - 258.2 ** 2))]),
                      mode="vector", source="huayuanmen_spandrel.json"),
-    "attic": dict(box=(2290, 1196, 2660, 1336),
-                  shape=("poly", [(2318, 1200), (2632, 1200), (2650, 1300), (2600, 1285), (2530, 1266),
-                                  (2475, 1262), (2420, 1266), (2350, 1285), (2300, 1300)]),
-                  mirror=AXIS_X, depth=0.04, mode="mask", params=dict()),
+    # Attic cartouche, drawn as curves (huayuanmen_attic.json) and mirrored about the attic axis
+    # (huayuanmen.py ATTIC_AXIS_PX; the cartouche's own mirror axis on album_2 is 2481.5).
+    "attic": dict(box=(2380, 1118, 2584, 1276), shape=("rect",), mirror=2482, depth=0.035, scale=3,
+                  mode="vector", source="huayuanmen_attic.json", decimate=0.12),   # glb under 10 MB
     # The door panels are drawn as curves too (one JSON each); they mirror left-right only.
     "door_top": dict(box=(2341, 1675, 2431, 1709), shape=("rect",), mirror=2386, depth=0.012, scale=6,
                      mode="vector", source="huayuanmen_door_top.json"),
@@ -175,7 +175,8 @@ def catmull_rom(points, closed=False, n=8):
 
 VECTOR_LINE = 1.5    # width of a drawn line, in pixels of the drawing's source scan
 VECTOR_GAP = 2       # samples a line is thickened by while finding the ground (closes small gaps)
-VECTOR_LEAF = 2.5    # album px from a shape's edge to its full height
+VECTOR_LEAF = 2.5    # album px from a shape's edge to its full height (a drawing of broad, swelling
+                     # forms, as the attic cartouche, sets a larger "leaf")
 VECTOR_GROOVE = 1.0  # album px from an inner line to the full height beside it
 VECTOR_CREASE = 0.4  # height left at the bottom of a groove
 
@@ -183,6 +184,7 @@ VECTOR_CREASE = 0.4  # height left at the bottom of a groove
 def load_drawing(region):
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), region["source"])) as f:
         return json.load(f)
+
 
 
 def pocket_outline(region):
@@ -213,6 +215,34 @@ def pocket_mask(region, h_px, w_px):
     return np.asarray(img) > 0
 
 
+def raster_bands(bands, to_px, scale, w, h, ss):
+    """Mask (h, w) of a drawing's bands: raised straps of a drawn width along a centre line
+    (strapwork on a hatched ground), round-ended, drawn ss times supersampled. In draw_vector
+    they block the ground like a closed outline and rise from their own edges. scale is samples
+    per drawing px."""
+    img = Image.new("L", (w * ss, h * ss), 0)
+    draw = ImageDraw.Draw(img)
+    for b in bands:
+        c, r = to_px(catmull_rom(b["points"])) * ss, b["width"] * scale * ss / 2
+        draw.line([tuple(q) for q in c], fill=255, width=max(1, round(2 * r)), joint="curve")
+        for qx, qy in (c[0], c[-1]):   # round ends
+            draw.ellipse((qx - r, qy - r, qx + r, qy + r), fill=255)
+    return np.asarray(img.resize((w, h), Image.BOX)) > 127
+
+
+def plinth_body(forms, r, mirrored):
+    """The body a drawing's forms stand on, as the attic cartouche's mass under its scrolls: the
+    forms closed up by a disc of radius r samples (so it hugs them and leaves the panel's corners
+    plain), holes filled. draw_vector raises the open ground inside it to plinth_level, the forms
+    rise from there, and only the marked pockets sink to the face. A mirrored drawing is closed
+    across its axis."""
+    r = int(round(r))
+    m = np.pad(np.hstack([forms, forms[:, ::-1]]) if mirrored else forms, r + 1)
+    disc = np.hypot(*np.mgrid[-r:r + 1, -r:r + 1]) <= r
+    m = ndi.binary_fill_holes(ndi.binary_erosion(ndi.binary_dilation(m, disc), disc))
+    return m[r + 1:-r - 1, r + 1:-r - 1][:, :forms.shape[1]]
+
+
 def draw_vector(region, h_px, w_px, debug=None):
     """Height map and carved mask from hand-drawn curves (the left half, or the upper-left quarter
     when the region has mirror_y; the rest is mirrored).
@@ -220,10 +250,10 @@ def draw_vector(region, h_px, w_px, debug=None):
     Every drawn line is an engraved edge. The ground is the open space reachable from the drawn
     part's outer (frame) sides without crossing a line (unless the drawing sets
     ground_from_edges false, for panels whose raised border runs out to the edge), plus the
-    enclosed pockets marked ground_at (sunk scroll eyes); everything else is carved and rises. carved_at points must
-    end up carved, so an outline gap that floods a form fails loudly
-    to a rounded top, and the lines inside carved shapes become grooves (leaf veins, scroll
-    turns). Beads are domes of the drawn radius; bands are straps of a drawn width.
+    enclosed pockets marked ground_at (sunk scroll eyes); everything else is carved and rises to a
+    rounded top, and the lines inside carved shapes become grooves (leaf veins, scroll turns).
+    carved_at points must end up carved, so an outline gap that floods a form fails loudly.
+    Beads are domes of the drawn radius; bands are straps of a drawn width.
     """
     d = load_drawing(region)
     up, (x0, y0) = region["scale"], region["box"][:2]
@@ -252,16 +282,7 @@ def draw_vector(region, h_px, w_px, debug=None):
     for (cx, cy), r in [(to_px((x, y))[0], r * s * up) for x, y, r in d.get("rings", [])]:
         draw.ellipse(tuple(v * ss for v in (cx - r, cy - r, cx + r, cy + r)), outline=255, width=width)
     lines = np.asarray(img.resize((hx, hy), Image.BOX)) > 64
-    # Bands are raised straps of a drawn width along a centre line (strapwork on a hatched ground):
-    # they block the ground like a closed outline and rise from their own edges.
-    img = Image.new("L", (hx * ss, hy * ss), 0)
-    draw = ImageDraw.Draw(img)
-    for b in d.get("bands", {}).values():
-        c, r = to_px(catmull_rom(b["points"])) * ss, b["width"] * s * up * ss / 2
-        draw.line([tuple(q) for q in c], fill=255, width=max(1, round(2 * r)), joint="curve")
-        for qx, qy in (c[0], c[-1]):   # round ends
-            draw.ellipse((qx - r, qy - r, qx + r, qy + r), fill=255)
-    band = np.asarray(img.resize((hx, hy), Image.BOX)) > 127
+    band = raster_bands(d.get("bands", {}).values(), to_px, s * up, hx, hy, ss)
 
     gap = d.get("gap", VECTOR_GAP)   # a drawing whose outlines all close can narrow it
     lab, _ = ndi.label(~ndi.binary_dilation(lines | band, iterations=gap))
@@ -283,8 +304,11 @@ def draw_vector(region, h_px, w_px, debug=None):
     # A line within one line width of the ground is the form's edge (thin leaves are all edge);
     # further in, between two carved forms or inside one, it is a groove.
     groove = lines & (ndi.distance_transform_edt(~ground) > width / ss + 0.5)
+    inside = plinth_body(~ground, d["plinth_close"] * up, mirrored) if "plinth_close" in d else np.zeros((hy, hx), bool)
+    hollow = ndi.binary_dilation(np.isin(lab, np.setdiff1d(pockets, [0])), iterations=gap)
+    plinth = inside & ground & ~hollow
     if debug is not None:
-        debug.update(lines=lines, ground=ground, groove=groove)
+        debug.update(lines=lines, band=band, ground=ground & ~plinth, groove=groove, plinth=plinth)
 
     def whole(a):
         if mirrored:
@@ -292,9 +316,13 @@ def draw_vector(region, h_px, w_px, debug=None):
         return np.vstack([a, a[::-1]])[:h_px] if quarter else a
 
     carved, groove, bead = whole(~ground), whole(groove), whole(bead)
-    h = dome(ndi.distance_transform_edt(carved), VECTOR_LEAF * up) * (
+    h = dome(ndi.distance_transform_edt(carved), d.get("leaf", VECTOR_LEAF) * up) * (
         VECTOR_CREASE + (1 - VECTOR_CREASE) * dome(ndi.distance_transform_edt(~groove), VECTOR_GROOVE * up))
     h = np.maximum(h, bead)
+    if "plinth_close" in d:
+        level, inside, plinth = d["plinth_level"], whole(inside), whole(plinth)
+        h = np.where(plinth, level, np.where(inside, level + (1 - level) * h, h))
+        carved |= plinth
     return ndi.gaussian_filter(h * carved, 0.4 * up) * carved, carved
 
 
@@ -354,6 +382,8 @@ def main():
         la = np.dstack([(h * 255).round(), shape * 255]).astype("uint8")
         Image.fromarray(la, "LA").save(os.path.join(out_dir, f"{name}.png"))
         manifest[name] = dict(box=region["box"], depth=region["depth"], scale=region.get("scale", 1))
+        if "decimate" in region:   # share of triangles kept, where a large panel needs fewer
+            manifest[name]["decimate"] = region["decimate"]
         pocket = pocket_outline(region)
         if pocket is not None:
             Image.fromarray((pocket_mask(region, *h.shape) * 255).astype("uint8"), "L").save(
