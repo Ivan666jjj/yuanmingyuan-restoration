@@ -57,7 +57,6 @@ X_COL = hx(2129)         # column centre
 R_COL = 50 * K / 2       # column shaft radius
 X_BODY = hx(2056)        # gate body outer edge (side walls start here)
 X_CORNICE = hx(2053)     # main cornice outer end
-X_SCROLL = hx(2173)      # broken-pediment volute centre
 X_LION = hx(2105)        # lion pedestal centre
 X_BLOCK = hx(2290)       # small stone block centre at the door jamb
 
@@ -76,7 +75,6 @@ Z_COL_CAP = (vz(1535), vz(1490))
 Z_ARCHITRAVE = (vz(1490), vz(1440))
 Z_LEAF_BLOCK = (vz(1440), vz(1385))
 Z_CORNICE = (vz(1380), vz(1337))
-Z_SCROLL = vz(1267)
 R_TOP_BALL = 38 * K / 2      # finial ball diameter 38 px
 Z_CARTOUCHE = (vz(1100), vz(1013))
 Z_CROWN = (vz(1013), vz(983))
@@ -171,6 +169,39 @@ X_FINIAL = 157.5 * K
 FINIAL_SQUARE = [(1137, 22), (1124, 22), (1121, 17), (1121, 16.5), (1116, 13)]
 FINIAL_ROUND = [(1117, 12.5), (1114, 12.5), (1113, 9), (1106, 9), (1105, 7), (1100, 7)]
 FINIAL_BALL = (1093, 15)
+# Broken pediment over each column: a raking cornice that rises inward from a point on the main
+# cornice and curls into a volute, over a sunk triangle. Measured on the left piece; the volute
+# ring centres (2174.5 / 2781.5) put its axis at 2478. The cornice's lines from the top: the
+# cyma's top (A) and bottom (B), the corona's bottom (C), a shaded cove down to D, a fillet down
+# to E, then the sunk triangle, closed on the right by a stem under the volute. Neck lines as
+# (x, y) px from the point inward; on the volute each line is a radius per angle (degrees as
+# polar_path reads them) about PED_VOLUTE; the corona's face carries the volute disc.
+PED_AXIS_PX = 2478
+PED_VOLUTE = (2174.5, 1270)
+PED_DISC_R, PED_EYE_RING_R, PED_ROSETTE_R = 19.5, 13, 9
+PED_BASE_PX = 1338          # 1 px into the main cornice's top (1337)
+PED_POINT_X = 2069
+PED_NECK = {
+    "A": [(2069, 1325), (2073, 1323), (2080, 1319), (2085, 1315), (2090, 1311), (2095, 1307), (2100, 1301),
+          (2105, 1295), (2110, 1289), (2115, 1283), (2120, 1275), (2125, 1269), (2130, 1262), (2135, 1256),
+          (2140, 1252), (2145, 1247), (2150, 1245), (2155, 1243)],
+    "B": [(2075, 1322.5), (2085, 1321), (2090, 1318), (2095, 1314), (2100, 1310), (2105, 1304), (2110, 1298),
+          (2115, 1291), (2120, 1284), (2125, 1277), (2130, 1270), (2135, 1265), (2140, 1259), (2145, 1254),
+          (2150, 1250), (2155, 1248), (2160, 1246)],
+    "C": [(2069, 1333), (2090, 1333), (2097, 1332), (2100, 1331), (2105, 1327), (2110, 1323), (2115, 1317),
+          (2120, 1312), (2125, 1305), (2130, 1300), (2135, 1292), (2140, 1286), (2145, 1282), (2150, 1276),
+          (2155, 1273)],
+    "D": [(2113, 1338), (2115, 1335), (2120, 1332), (2125, 1328), (2130, 1323), (2135, 1316), (2140, 1308),
+          (2145, 1300), (2150, 1294), (2155, 1289), (2160, 1285)],
+    "E": [(2130, 1338), (2135, 1332), (2140, 1326), (2145, 1321), (2150, 1314), (2155, 1306), (2160, 1298),
+          (2165, 1292), (2170, 1288)],
+}
+PED_SPIRAL = {"A": [(144.2, 33.3), (150, 32.5), (180, 29), (210, 27), (240, 26.5), (270, 26.5), (300, 26.5),
+                    (330, 20)],
+              "B": [(148.9, 28), (180, 24), (210, 22.5), (240, 22.5), (270, 20.5), (285, 19.5)]}
+PED_STEM_PX = (2173, 2185)
+# Faces set back from the cyma's front (estimates): corona, cove, fillet and stem, sunk triangle.
+PED_SET_BACK = {"corona": 0.02, "cove": 0.05, "fillet": 0.08, "stem": 0.08, "triangle": 0.14}
 
 # Estimates (not readable from the engraving).
 EST_BODY_HALF_DEPTH = 0.45   # gate body projects 0.15 m beyond the wall faces
@@ -514,11 +545,11 @@ def offset_px(pts, d):
     return [tuple(q) for q in p + d * np.stack([t[:, 1], -t[:, 0]], 1)]
 
 
-def volute_edge(k, a0, a1, grow=0.0, step=10):
-    """Attic volute: band edge k (1 inner, 2 outer; see ATTIC_VOLUTE_RADII) from angle a0 to a1
-    degrees, radius grown by grow px, as album px points."""
-    cx, cy = ATTIC_VOLUTE
-    angs, rs = zip(*[(row[0], row[k]) for row in ATTIC_VOLUTE_RADII])
+def polar_path(centre, radii, a0, a1, grow=0.0, step=10):
+    """Album px points round centre from angle a0 to a1 degrees (0 straight down, 90 to the left,
+    180 up), the radius interpolated in radii [(angle, r px)] (or a constant) and grown by grow px."""
+    cx, cy = centre
+    angs, rs = zip(*radii) if isinstance(radii, list) else ((0,), (radii,))
     n = max(1, round(abs(a1 - a0) / step))
     out = []
     for a in (a0 + (a1 - a0) * i / n for i in range(n + 1)):
@@ -527,9 +558,48 @@ def volute_edge(k, a0, a1, grow=0.0, step=10):
     return out
 
 
+def volute_edge(k, a0, a1, grow=0.0, step=10):
+    """Attic volute: band edge k (1 inner, 2 outer; see ATTIC_VOLUTE_RADII) from angle a0 to a1
+    degrees, radius grown by grow px, as album px points."""
+    return polar_path(ATTIC_VOLUTE, [(row[0], row[k]) for row in ATTIC_VOLUTE_RADII], a0, a1, grow, step)
+
+
 def attic_xz(pts_px, sx=-1):
     """Album px about the attic axis -> model (x, z) on side sx; the right side is the mirror."""
     return [(sx * abs(x - ATTIC_AXIS_PX) * K, vz(y)) for x, y in pts_px]
+
+
+def pediment_outlines():
+    """Album px outlines of the left broken-pediment piece's layers (see PED_NECK), front to back.
+    A layer's top edge is the line above it raised 1 px, so it starts inside the layer in front
+    and no two layers share a face."""
+    def neck(k, up=0.0):
+        return smooth_path([(x, y - up) for x, y in PED_NECK[k]], n=3)
+
+    disc = lambda a0, a1, r=PED_DISC_R - 1: polar_path(PED_VOLUTE, r, a0, a1)
+    # Each lower line runs into the disc radially, at the angle of its last point.
+    meet = {k: math.degrees(math.atan2(PED_VOLUTE[0] - PED_NECK[k][-1][0], PED_NECK[k][-1][1] - PED_VOLUTE[1]))
+            for k in "CDE"}
+    base, x_pt = PED_BASE_PX, PED_POINT_X
+    a_end, b_end = PED_SPIRAL["A"][-1][0], PED_SPIRAL["B"][-1][0]
+    cyma = (neck("A") + polar_path(PED_VOLUTE, PED_SPIRAL["A"], PED_SPIRAL["A"][0][0], a_end)[1:]
+            + disc(a_end, b_end, PED_DISC_R)
+            + polar_path(PED_VOLUTE, PED_SPIRAL["B"], b_end, PED_SPIRAL["B"][0][0])[1:] + neck("B")[::-1])
+    corona = (neck("B", 1)
+              + polar_path(PED_VOLUTE, PED_SPIRAL["B"], PED_SPIRAL["B"][0][0], b_end, grow=1)[1:]
+              + disc(b_end, 360 + meet["C"], PED_DISC_R) + neck("C")[::-1])
+    cove = (neck("C", 1) + disc(meet["C"], meet["D"]) + neck("D")[::-1]
+            + [(x_pt, base)])
+    fillet = neck("D", 1) + disc(meet["D"], meet["E"]) + neck("E")[::-1]
+    x_stem = PED_STEM_PX[1] - 1   # just inside the stem's right side
+    a_stem = -math.degrees(math.asin((x_stem - PED_VOLUTE[0]) / (PED_DISC_R - 1)))
+    triangle = neck("E", 1) + disc(meet["E"], a_stem) + [(x_stem, base)]
+    return {"cyma": cyma, "corona": corona, "cove": cove, "fillet": fillet, "triangle": triangle}
+
+
+def ped_xz(pts_px, sx=-1):
+    """Album px about the pediment axis -> model (x, z) on side sx; the right side is the mirror."""
+    return [(sx * abs(x - PED_AXIS_PX) * K, vz(y)) for x, y in pts_px]
 
 
 # ---------------------------------------------------------------------------
@@ -855,26 +925,36 @@ def build_entablature(b):
     ry = GF + EST_COL_OFFSET + 0.24
     for sx in (-1, 1):
         b.box("marble", sx * xr, sx * X_CORNICE, -ry, ry, zc0, zc1)
-    # broken pediment: S-curved raking cornice rising inward to a volute, small curl outside
+    build_pediment(b, ry - 0.10)
+
+
+def build_pediment(b, y_front):
+    """Broken pediment over each column (PED_*), both faces; y_front is the cyma's front."""
+    outlines = pediment_outlines()
+    cy = PED_VOLUTE[1]
     for sx in (-1, 1):
-        n = 16
-        top = []
-        for i in range(n + 1):
-            t = i / n
-            x = X_CORNICE + (X_SCROLL + 0.05 - X_CORNICE) * t
-            top.append((x, zc1 + 0.12 + (Z_SCROLL + 0.08 - zc1 - 0.12) * (3 * t * t - 2 * t ** 3)))
-        bottom = [(x, max(zc1, z - 0.13)) for x, z in reversed(top)]
-        pts = [(sx * x, z) for x, z in top + bottom]
-        b.prism_xz("marble", pts if sx < 0 else list(reversed(pts)), -(GF + 0.05), GF + 0.05)
-        b.cylinder("marble", (sx * X_SCROLL, 0, Z_SCROLL), 0.12, 2 * (GF + 0.07), axis="Y", segments=32)
-        b.cylinder("marble", (sx * (X_CORNICE - 0.06), 0, zc1 + 0.12), 0.06, 2 * (GF + 0.07), axis="Y",
-                   segments=20)
+        for layer, pts in outlines.items():
+            y = y_front - PED_SET_BACK.get(layer, 0)
+            b.prism_xz("marble", ped_xz(pts, sx), -y, y)
+        x0, x1 = PED_STEM_PX
+        y = y_front - PED_SET_BACK["stem"]
+        b.prism_xz("marble", ped_xz([(x0, cy), (x1, cy), (x1, PED_BASE_PX), (x0, PED_BASE_PX)], sx), -y, y)
+        # On the disc: a ring round the eye and a whirled rosette (eight petals) on a low boss.
+        yd = y_front - PED_SET_BACK["corona"]
+        (xc, zc), = ped_xz([PED_VOLUTE], sx)
+        rb = PED_ROSETTE_R * K
         for s in (-1, 1):
-            y = s * (GF + 0.08)
-            b.tube("marble", spiral(sx * X_SCROLL, y, Z_SCROLL, 0.10, 1.5, flip=-sx), 0.016)
-            b.tube("marble", [(sx * (X_SCROLL - 0.08), y, Z_SCROLL + 0.05),
-                              (sx * (X_SCROLL - 0.17), y, Z_SCROLL - 0.02),
-                              (sx * (X_SCROLL - 0.22), y, zc1 + 0.08)], 0.03)
+            ring = [(x, s * yd, z) for x, z in ped_xz(polar_path(PED_VOLUTE, PED_EYE_RING_R, 0, 360, step=10), sx)]
+            b.tube("marble", ring, 1.2 * K, closed=True)
+            b.ellipsoid("marble", (xc, s * yd, zc), (rb, 0.012, rb), segments=16)
+            for k in range(8):
+                petal = []
+                for i in range(7):
+                    r = 1.5 + 7 * i / 6
+                    a = 45 * k + 70 * i / 6
+                    (x, z), = ped_xz(polar_path(PED_VOLUTE, r, a, a, step=1)[:1], sx)
+                    petal.append((x, s * (yd + 0.012 * math.sqrt(max(0.0, 1 - (r / PED_ROSETTE_R) ** 2)) + 0.002), z))
+                b.tube("marble", petal, 1.0 * K)
 
 
 def build_attic(b):
