@@ -185,6 +185,21 @@ def catmull_rom(points, closed=False, n=8):
     return np.vstack(seg + [p[-2:-1]])
 
 
+def closed_outline(points, axis_x=None, n=8):
+    """The drawn outline of a closed shape. A shape whose first and last points lie on the mirror
+    axis is the left half of a symmetric form: it is drawn open, with no edge along the axis, and
+    its end tangents come from the mirrored neighbours, so the mirrored halves join smoothly (crown
+    boss and stem, self-check 2026-11-28: closing them drew a line on the axis that the mirror
+    turned into a groove the engraving does not have)."""
+    p = np.asarray(points, float)
+    if axis_x is None or not np.allclose(p[[0, -1], 0], axis_x):
+        c = catmull_rom(p, closed=True, n=n)
+        return np.vstack([c, c[:1]])
+    ghost = lambda q: [2 * axis_x - q[0], q[1]]
+    c = catmull_rom(np.vstack([ghost(p[1]), p, ghost(p[-2])]), n=n)
+    return np.vstack([c[n:len(c) - 1 - n], p[-1:]])
+
+
 VECTOR_LINE = 1.5    # width of a drawn line, in pixels of the drawing's source scan
 VECTOR_GAP = 2       # samples a line is thickened by while finding the ground (closes small gaps)
 VECTOR_LEAF = 2.5    # album px from a shape's edge to its full height (a drawing of broad, swelling
@@ -284,8 +299,8 @@ def draw_vector(region, h_px, w_px, debug=None):
     img = Image.new("L", (hx * ss, hy * ss), 0)
     draw = ImageDraw.Draw(img)
     width = max(1, round(d.get("line", VECTOR_LINE) * s * up * ss))   # finer engravings set their own
-    curves = [catmull_rom(p, closed=True) for p in d.get("closed", {}).values()]
-    curves = [np.vstack([c, c[:1]]) for c in curves] + [catmull_rom(p) for p in d.get("lines", {}).values()]
+    curves = [closed_outline(p, mx if mirrored else None) for p in d.get("closed", {}).values()]
+    curves += [catmull_rom(p) for p in d.get("lines", {}).values()]
     curves += [np.asarray(p, float) for p in d.get("polylines", {}).values()]  # straight edges
     for c in curves:
         draw.line([tuple(q) for q in to_px(c) * ss], fill=255, width=width, joint="curve")

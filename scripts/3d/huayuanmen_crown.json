@@ -1,5 +1,5 @@
 {
- "about": "Crowning cartouche of the Garden Gate (plate 4, 'North Side of Garden Gate'), left half, traced on the Palace Museum copy (album_2.jpg, public domain) in its own pixels: the cap with its coronet, the palmette, the outer frame with its feet and the inner C-scrolls. Bands are raised straps of the given width along a Catmull-Rom centre line; closed shapes are raised forms; ground_at marks the hatched (sunk) fields. The right half is the mirror image about x 2482, the attic's axis (both halves of the frame fit best about 2482, the cap about 2482.5). The eave polyline runs about 5 px under the attic eave's top, from the axis into the frame's foot, and closes the crown's body against it (the feet stand outside it). frame_inner is the narrow strip running inside the frame, with the groove frame_groove between, along its slope and side (self-check 2026-11-28: the album shows the frame as a broad band, a groove and a narrow strip; the model had the broad band only).",
+ "about": "Crowning cartouche of the Garden Gate (plate 4, 'North Side of Garden Gate'), left half, traced on the Palace Museum copy (album_2.jpg, public domain) in its own pixels: the cap with its coronet, the palmette, the outer frame with its feet and the inner C-scrolls. Bands are raised straps of the given width along a Catmull-Rom centre line; closed shapes are raised forms; ground_at marks the hatched (sunk) fields. The right half is the mirror image about x 2482, the attic's axis (both halves of the frame fit best about 2482, the cap about 2482.5). The eave polyline runs about 5 px under the attic eave's top, from the axis into the frame's foot, and closes the crown's body against it (the feet stand outside it). frame_inner is the narrow strip running inside the frame, with the groove frame_groove between, along its slope and side (self-check 2026-11-28: the album shows the frame as a broad band, a groove and a narrow strip; the model had the broad band only). Self-check 2026-11-28 on a 1-px brightness map of the album: the shell is a cluster of solid round lobes on the sunk ground, edged on each side by a thin strap (shell_edge). The lobes (lobe_a-d, and lobe_m on the axis) are the album's own outlines: the iso-brightness 144 contour of each lobe on the 0.8-px-smoothed scan, resampled to 12 points (a bead is as high as a carved form, so beads on a raised shell plate vanished). The boss is a shield pointed at the top, half-width 6.5 px over rows 1036-1039; the collar is half-width 4 px over rows 1059.5-1064.5. The fan's top leaf is pointed (album rows 1022-1026, dark notches either side), so its apex points are close together: drawn as a half shape its end tangent is level, and widely spaced points rounded it into a knob.",
  "axis": [
   2482,
   1000
@@ -418,54 +418,99 @@
      1095
     ]
    ]
+  },
+  "shell_edge": {
+   "width": 2,
+   "points": [
+    [
+     2455,
+     1047
+    ],
+    [
+     2454.5,
+     1050
+    ],
+    [
+     2454.7,
+     1054
+    ],
+    [
+     2455.5,
+     1056.5
+    ],
+    [
+     2456.5,
+     1058.5
+    ],
+    [
+     2458,
+     1060
+    ],
+    [
+     2460,
+     1061.3
+    ],
+    [
+     2461.5,
+     1062.3
+    ]
+   ]
   }
  },
  "closed": {
   "palm_boss": [
    [
-    2482.0,
+    2482,
     1031.5
    ],
    [
-    2479.6,
-    1032.17
+    2480,
+    1032.3
    ],
    [
-    2477.84,
-    1034.0
+    2478.2,
+    1034
    ],
    [
-    2477.2,
-    1036.5
+    2476.4,
+    1036
    ],
    [
-    2477.84,
-    1039.0
+    2476.2,
+    1038.5
    ],
    [
-    2479.6,
-    1040.83
+    2477,
+    1040.5
    ],
    [
-    2482.0,
-    1041.5
+    2479.5,
+    1041.6
+   ],
+   [
+    2482,
+    1041.8
    ]
   ],
   "collar": [
    [
     2482,
-    1060.3
+    1059.5
    ],
    [
-    2477.5,
-    1060.3
+    2479.5,
+    1059.8
    ],
    [
-    2476,
-    1062.3
+    2478.5,
+    1061.5
    ],
    [
-    2477.5,
+    2478.6,
+    1063.5
+   ],
+   [
+    2478.3,
     1064.5
    ],
    [
@@ -502,15 +547,19 @@
   "palm_fan": [
    [
     2482,
-    1022.3
+    1021.8
    ],
    [
-    2479,
-    1023
+    2481,
+    1022.6
    ],
    [
-    2477.3,
-    1025
+    2479.2,
+    1024.3
+   ],
+   [
+    2477.6,
+    1026.4
    ],
    [
     2476.8,
@@ -561,170 +610,262 @@
     1043.2
    ]
   ],
-  "shell": [
+  "lobe_a": [
    [
-    2482.0,
-    1043.0
+    2463.65,
+    1048.77
    ],
    [
-    2481.39,
-    1043.1
+    2462.41,
+    1048.22
    ],
    [
-    2480.81,
-    1043.38
+    2461.42,
+    1047.29
    ],
    [
-    2480.25,
-    1043.74
-   ],
-   [
-    2479.72,
-    1044.06
-   ],
-   [
-    2479.17,
-    1044.24
-   ],
-   [
-    2478.58,
-    1044.24
-   ],
-   [
-    2477.93,
-    1044.08
-   ],
-   [
-    2477.21,
-    1043.84
-   ],
-   [
-    2476.47,
-    1043.64
-   ],
-   [
-    2475.75,
-    1043.59
-   ],
-   [
-    2475.1,
-    1043.74
-   ],
-   [
-    2474.54,
-    1044.09
-   ],
-   [
-    2474.07,
-    1044.54
-   ],
-   [
-    2473.61,
-    1045.01
-   ],
-   [
-    2473.09,
-    1045.39
-   ],
-   [
-    2472.45,
-    1045.62
-   ],
-   [
-    2471.66,
-    1045.71
-   ],
-   [
-    2470.72,
-    1045.72
-   ],
-   [
-    2469.72,
-    1045.75
-   ],
-   [
-    2468.77,
-    1045.9
-   ],
-   [
-    2467.96,
-    1046.23
-   ],
-   [
-    2467.35,
-    1046.74
-   ],
-   [
-    2466.93,
-    1047.4
-   ],
-   [
-    2466.59,
-    1048.1
-   ],
-   [
-    2466.21,
-    1048.78
-   ],
-   [
-    2465.67,
-    1049.39
-   ],
-   [
-    2464.91,
-    1049.92
-   ],
-   [
-    2463.94,
-    1050.43
-   ],
-   [
-    2462.89,
-    1050.97
-   ],
-   [
-    2461.93,
-    1051.62
+    2460.77,
+    1046.11
    ],
    [
     2461.23,
-    1052.4
+    1044.9
    ],
    [
-    2460.9,
-    1053.28
+    2462.41,
+    1044.25
    ],
    [
-    2460.92,
-    1054.22
+    2463.75,
+    1043.98
    ],
    [
-    2461.18,
-    1055.18
+    2465.1,
+    1044.05
    ],
    [
-    2461.51,
-    1056.11
+    2466.34,
+    1044.54
    ],
    [
-    2461.73,
-    1057.0
+    2466.32,
+    1045.81
    ],
    [
-    2462.5,
-    1059.8
+    2465.57,
+    1046.96
    ],
    [
-    2468,
-    1061.2
+    2464.78,
+    1048.07
+   ]
+  ],
+  "lobe_b": [
+   [
+    2469.35,
+    1050.08
    ],
    [
-    2476,
-    1061
+    2468.08,
+    1050.02
+   ],
+   [
+    2467.12,
+    1049.2
+   ],
+   [
+    2466.9,
+    1047.96
+   ],
+   [
+    2467.37,
+    1046.79
+   ],
+   [
+    2468.37,
+    1046.01
+   ],
+   [
+    2469.56,
+    1045.53
+   ],
+   [
+    2470.82,
+    1045.44
+   ],
+   [
+    2471.89,
+    1046.09
+   ],
+   [
+    2471.96,
+    1047.31
+   ],
+   [
+    2471.11,
+    1048.26
+   ],
+   [
+    2470.29,
+    1049.25
+   ]
+  ],
+  "lobe_c": [
+   [
+    2475.31,
+    1055.8
+   ],
+   [
+    2473.4,
+    1055.76
+   ],
+   [
+    2471.86,
+    1054.67
+   ],
+   [
+    2470.86,
+    1053.04
+   ],
+   [
+    2470.42,
+    1051.17
+   ],
+   [
+    2471.0,
+    1049.41
+   ],
+   [
+    2472.65,
+    1048.47
+   ],
+   [
+    2474.54,
+    1048.31
+   ],
+   [
+    2476.03,
+    1049.47
+   ],
+   [
+    2476.93,
+    1051.17
+   ],
+   [
+    2477.55,
+    1052.95
+   ],
+   [
+    2476.85,
+    1054.71
+   ]
+  ],
+  "lobe_d": [
+   [
+    2468.2,
+    1057.54
+   ],
+   [
+    2466.6,
+    1055.98
+   ],
+   [
+    2464.52,
+    1056.77
+   ],
+   [
+    2462.28,
+    1056.59
+   ],
+   [
+    2460.58,
+    1055.16
+   ],
+   [
+    2460.44,
+    1052.95
+   ],
+   [
+    2461.66,
+    1051.04
+   ],
+   [
+    2463.66,
+    1050.03
+   ],
+   [
+    2465.71,
+    1050.88
+   ],
+   [
+    2467.04,
+    1052.72
+   ],
+   [
+    2468.85,
+    1053.98
+   ],
+   [
+    2469.57,
+    1055.86
+   ]
+  ],
+  "lobe_m": [
+   [
+    2482,
+    1044.74
+   ],
+   [
+    2481.64,
+    1044.61
+   ],
+   [
+    2480.7,
+    1045.2
+   ],
+   [
+    2479.87,
+    1045.93
+   ],
+   [
+    2479.02,
+    1046.64
+   ],
+   [
+    2478.32,
+    1047.5
+   ],
+   [
+    2477.98,
+    1048.55
+   ],
+   [
+    2477.96,
+    1049.66
+   ],
+   [
+    2478.17,
+    1050.75
+   ],
+   [
+    2478.59,
+    1051.77
+   ],
+   [
+    2479.37,
+    1052.55
+   ],
+   [
+    2480.41,
+    1052.9
+   ],
+   [
+    2481.45,
+    1052.53
    ],
    [
     2482,
-    1060.8
+    1052.7
    ]
   ]
  },
@@ -787,36 +928,6 @@
    [
     2457.5,
     1041
-   ]
-  ],
-  "shell_rib_0": [
-   [
-    2481.33,
-    1055.08
-   ],
-   [
-    2479.12,
-    1044.53
-   ]
-  ],
-  "shell_rib_1": [
-   [
-    2480.11,
-    1055.67
-   ],
-   [
-    2472.93,
-    1045.8
-   ]
-  ],
-  "shell_rib_2": [
-   [
-    2479.28,
-    1056.73
-   ],
-   [
-    2466.03,
-    1049.55
    ]
   ],
   "frame_groove": [
@@ -909,38 +1020,23 @@
   [
    2458.25,
    1013.65
+  ],
+  [
+   2458,
+   1052
+  ],
+  [
+   2477,
+   1058
+  ],
+  [
+   2475.8,
+   1045.8
+  ],
+  [
+   2468.8,
+   1051.8
   ]
  ],
- "rings": [
-  [
-   2482,
-   1048.5,
-   3.4
-  ],
-  [
-   2472,
-   1050.5,
-   2.5
-  ],
-  [
-   2465,
-   1046.5,
-   2.5
-  ],
-  [
-   2462,
-   1053.5,
-   2.5
-  ],
-  [
-   2466,
-   1057.5,
-   2
-  ],
-  [
-   2471,
-   1055.5,
-   2
-  ]
- ]
+ "rings": []
 }
