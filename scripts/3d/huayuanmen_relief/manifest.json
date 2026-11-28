@@ -1599,6 +1599,17 @@
   "scale": 6,
   "decimate": 0.12
  },
+ "garland": {
+  "box": [
+   2222,
+   1180,
+   2398,
+   1348
+  ],
+  "depth": 0.035,
+  "scale": 3,
+  "decimate": 0.12
+ },
  "crown": {
   "box": [
    2384,
@@ -3139,7 +3150,8 @@
    1709
   ],
   "depth": 0.012,
-  "scale": 6
+  "scale": 6,
+  "decimate": 0.16
  },
  "door_band": {
   "box": [
@@ -3149,7 +3161,8 @@
    1788
   ],
   "depth": 0.012,
-  "scale": 6
+  "scale": 6,
+  "decimate": 0.16
  },
  "door_low": {
   "box": [
@@ -3159,7 +3172,8 @@
    1920
   ],
   "depth": 0.012,
-  "scale": 6
+  "scale": 6,
+  "decimate": 0.16
  },
  "wall_ornament": {
   "box": [

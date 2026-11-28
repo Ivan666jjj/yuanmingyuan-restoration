@@ -1122,6 +1122,12 @@ def build_attic(b):
     x0, y0 = relief_meta("attic")["box"][:2]
     for s in (-1, 1):
         b.relief("marble", "attic", x0 - (ATTIC_AXIS_PX - AXIS_X), y0, s * (d - ATTIC_FIELD_SINK), s)
+    # The garlands hang on the field either side of the cartouche (one drawing, mirrored).
+    gx0, gy0 = relief_meta("garland")["box"][:2]
+    gx0 -= ATTIC_AXIS_PX - AXIS_X
+    for s in (-1, 1):
+        b.relief("marble", "garland", gx0, gy0, s * (d - ATTIC_FIELD_SINK), s)
+        b.relief("marble", "garland", 2 * AXIS_X - gx0, gy0, s * (d - ATTIC_FIELD_SINK), s, mirror=True)
     # Raised band round the field, ending in the volute; its top runs 3 px up into the eave.
     y_top = ATTIC_OUTLINE[0][1] - 3
     # Under the rolled strip the band's edge keeps 0.5 px inside it, so no faces coincide.

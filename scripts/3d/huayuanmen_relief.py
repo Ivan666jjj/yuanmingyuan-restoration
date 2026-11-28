@@ -62,15 +62,26 @@ REGIONS = {
     # about the console's centre; huayuanmen.py sets the panel on the bell's front.
     "console": dict(box=(2098, 1386, 2174, 1440), shape=("rect",), mirror=2136, depth=0.012, scale=6,
                     mode="vector", source="huayuanmen_console.json", decimate=0.12),
+    # Garland hanging from the cartouche's left wing down the attic field to the volute, drawn on
+    # album_2 itself (huayuanmen_garland.json); huayuanmen.py sets it and its mirror image on the
+    # field. The outline hugs the garland, so the panel carries no wide bare ground.
+    "garland": dict(box=(2222, 1180, 2398, 1348), mirror=None, depth=0.035, scale=3,
+                    shape=("poly", [(2372, 1180), (2396, 1186), (2392, 1212), (2384, 1240), (2370, 1262),
+                                    (2356, 1282), (2340, 1302), (2322, 1320), (2304, 1334), (2285, 1346),
+                                    (2228, 1346), (2224, 1334), (2248, 1326), (2270, 1316), (2288, 1299),
+                                    (2300, 1280), (2310, 1260), (2316, 1240), (2321, 1222), (2334, 1205),
+                                    (2355, 1186)]),
+                    mode="vector", source="huayuanmen_garland.json", decimate=0.12),   # glb under 10 MB
     "crown": dict(box=(2384, 988, 2580, 1125), shape=("rect",), mirror=2482, depth=0.03, scale=3,
                   mode="vector", source="huayuanmen_crown.json", silhouette=True),
-    # The door panels are drawn as curves too (one JSON each); they mirror left-right only.
+    # The door panels are drawn as curves too (one JSON each); they mirror left-right only. They
+    # keep fewer triangles than the default (glb under 10 MB with the attic garlands).
     "door_top": dict(box=(2341, 1675, 2431, 1709), shape=("rect",), mirror=2386, depth=0.012, scale=6,
-                     mode="vector", source="huayuanmen_door_top.json"),
+                     mode="vector", source="huayuanmen_door_top.json", decimate=0.16),
     "door_band": dict(box=(2340, 1761, 2430, 1788), shape=("rect",), mirror=2385, depth=0.012, scale=6,
-                      mode="vector", source="huayuanmen_door_band.json"),
+                      mode="vector", source="huayuanmen_door_band.json", decimate=0.16),
     "door_low": dict(box=(2340, 1890, 2430, 1920), shape=("rect",), mirror=2385, depth=0.012, scale=6,
-                     mode="vector", source="huayuanmen_door_low.json"),
+                     mode="vector", source="huayuanmen_door_low.json", decimate=0.16),
     # The wall ornament is drawn as curves (huayuanmen_ornament.json, see draw_vector) for its
     # upper-left quarter and mirrored about the ornament axes 3129 / 1778 (the best left-right and
     # top-bottom correlation of the engraving). The clipped corners keep the frame's corner
