@@ -143,20 +143,30 @@ EAVE_PROFILE = [(0, 0, 209), (8.5, 7.5, 209), (17.5, 13, 217), (21.5, 16, 217), 
                 (35.5, 27, 193), (42.5, 36, 193)]
 # Attic body: a field framed by a raised band about 19.5 px wide. The band's outer edge (the
 # attic's outline against the sky) and its inner edge, left side, top down. At the foot the
-# band passes under the outline and curls up into a volute: centre, the radii of the band's
-# inner and outer edges at angles measured from straight down, turning outward and up (it ends
-# on the right of the eye), and the round eye, ringed by a groove. At the top the band stops
-# 97 px from the axis, where the field rises under the arched eave.
+# band sweeps out under the outline and curls up into a volute. Measured row by row on the left
+# volute (user review 2026-11-28: it read as a blob with a ring): its outer edge runs on from the
+# band's inner (lower) edge, round the left, over the top and down the right of the eye into the
+# outline's foot. A raised strip about 5 px wide runs along the band's lower edge into the volute
+# and winds in to the eye: its outer line follows the volute's edge to 270, then spirals on past
+# a full turn to the centre, and its inner line spirals in to the centre by 315 (darkness peaks
+# sampled every 15 degrees round the eye; the eye is where the two lines meet, with no ring).
+# Radii in px at angles from straight down, turning outward and up (90 left, 180 up, 270 right).
+# At the top the band stops 97 px from the axis, where the field rises under the arched eave.
 ATTIC_FACE_HALF_W_PX = ATTIC_AXIS_PX - 2292.7
 ATTIC_OUTLINE = [(2292.7, 1177), (2292.7, 1200), (2292, 1223), (2288, 1250), (2280, 1275),
                  (2268, 1293), (2252, 1302), (2236, 1304), (2228, 1304)]
 ATTIC_BAND_INNER = [(2310, 1197), (2311, 1223), (2307, 1250), (2299, 1275), (2287, 1295),
                     (2270, 1312), (2252, 1322), (2240, 1323)]
 ATTIC_BAND_END_PX = 2385
-ATTIC_VOLUTE = (2217.5, 1296)
-ATTIC_VOLUTE_RADII = [(0, 7.75, 27.25), (45, 7.5, 22.4), (90, 7, 18.5), (180, 6.5, 14),
-                      (270, 6, 11), (300, 5.8, 10)]
-ATTIC_VOLUTE_EYE = 4.5
+ATTIC_VOLUTE = (2216.5, 1296)
+ATTIC_VOLUTE_OUTER = [(0, 25), (45, 22.5), (90, 19.5), (135, 17), (180, 15), (225, 13.6), (270, 12.8),
+                      (305, 14)]
+ATTIC_STRIP_OUT = [(270, 12.5), (285, 11.5), (300, 11), (315, 10), (330, 8.5), (345, 8), (360, 7),
+                   (405, 6.5), (450, 5.5), (495, 4.5), (540, 4)]
+ATTIC_STRIP_IN = [(0, 20.5), (45, 18), (90, 15.3), (120, 13.5), (135, 12.5), (165, 10.5), (180, 10),
+                  (210, 9.5), (240, 8.5), (255, 7.5), (270, 6.5), (285, 5.5), (300, 4), (315, 3)]
+ATTIC_STRIP_W = 4.5             # strip width along the band's lower edge, px
+EST_VOLUTE_ROLL = 0.012         # the rolled strip stands this far proud of the band (estimate)
 ATTIC_FIELD_SINK = 0.025      # field set back behind the band (estimate)
 # Corner finials, 157.5 px either side of the axis, standing on the eave. Square block, bevel and
 # plinth, then a round collar and neck, as (y px, half-width px) bottom up; ball radius 15 px
@@ -186,26 +196,34 @@ RESSAUT_CORNICE = [(1336, 1342, 2052, None), (1342, 1351, 2060, None), (1351, 13
 # Abacus over capital and pilaster (its inner end also covers the pier strip at 2187-2196);
 # projection beyond the column's front as the outer return beyond the pilaster (2085).
 ABACUS = [(1471, 1478, 2072, 2207), (1478, 1491, 2081, 2198)]
-# Console on the frieze: a pedestal (base, body, under-cap, cap, bottom up) and a bell of three
-# leaves (centre px, half-width px) rising from it to the soffit.
+# Console on the frieze: a pedestal (base, body, under-cap, cap, bottom up) and a bell rising from
+# it to the soffit; its three leaves are a traced relief (huayuanmen_console.json) on the bell's
+# front, placed like every part col_x places.
 CONSOLE_PEDESTAL = [(1466, 1470, 2094, 2178), (1452, 1466, 2108, 2164), (1447, 1452, 2104, 2168),
                     (1440, 1447, 2097, 2175)]
-CONSOLE_BELL = [(1381, 33), (1386, 36), (1392, 37.5), (1410, 37.5), (1418, 35), (1426, 32),
-                (1432, 29.5), (1440, 30)]       # (y px, half-width px); its right flank is shaded
-CONSOLE_BELL_ROUND = 7                 # px, the width of that shaded flank
-# Leaves on the bell (top centre px, bottom point px, half-width px): round tops at CONSOLE_LEAF_Y[0],
-# widest a half-width lower, tapering to points that lean in towards the middle leaf.
-CONSOLE_LEAVES = [(2112, 2124, 10.5), (2136, 2136, 10.5), (2160, 2148, 10.5)]
-CONSOLE_LEAF_Y = (1389, 1439)
+# The body (second row) is a bowl: (y px, half-width px), its left outline read row by row.
+CONSOLE_PEDESTAL_BOWL = [(1452, 32.5), (1455, 31), (1458, 29.5), (1461, 27.8), (1464, 26.4), (1466, 26)]
+# (y px, half-width px), the left outline read row by row (user review 2026-11-28: the leaves
+# were fat drops on a bell rolled 7 px at each side; the leaves reach to 4 px of its edge).
+CONSOLE_BELL = [(1381, 33), (1386, 35.5), (1390, 37), (1410, 37), (1415, 36), (1420, 34), (1425, 30.5),
+                (1430, 29), (1436, 28), (1440, 28)]
+CONSOLE_BELL_ROUND = 4                 # px the bell's sides roll in over
+CONSOLE_RELIEF_PX = (2098, 1386)       # top-left of the "console" relief (huayuanmen_relief.py)
 # Capital (y px, radius px) about the column axis, bottom up: astragal, a band of beads, the
 # echinus carved with eggs; then the abacus.
 CAPITAL = [(1535, 25), (1532, 27), (1529, 33), (1524, 33), (1521, 30), (1512, 30), (1510, 33),
            (1500, 36), (1491, 36)]
-CAPITAL_BEADS = (1516, 30, 4)        # y, centre radius, bead radius (px)
-CAPITAL_EGGS = (1502, 33, 5, 7)      # y, centre radius, half-width, half-height (px)
+# Beads are ovals 7 px wide and 9 tall; each egg sits in a thin shell (a U-shaped rim rising to the
+# egg's top) and a small drop hangs below where neighbouring shells meet (user review 2026-11-28:
+# round beads and bare eggs did not match).
+CAPITAL_BEADS = (1516.5, 30, 3.6, 4.6)   # y, centre radius, half-width, half-height (px)
+CAPITAL_EGGS = (1501, 33, 4, 5.5)        # y, centre radius, half-width, half-height (px)
+CAPITAL_SHELL = (35, 6.6, 7.2, 0.7)      # shell: radius it runs at, half-width, half-height, tube radius (px);
+                                         # 8 shells over 200 degrees nearly touch, as in the album
+CAPITAL_DROP = (1509.5, 35, 1.5, 2.2)    # drop: y, radius it hangs at, half-width, half-height (px)
 # Depths (estimates): the frieze stands 4 cm behind the column's front, the console's pedestal
-# body is flush with it, the bell 2 cm behind, its leaves 4.5 cm thick.
-EST_FRIEZE_BACK, EST_BELL_DEPTH, EST_LEAF_DEPTH = 0.04, 0.035, 0.02
+# body is flush with it, the bell 2 cm behind.
+EST_FRIEZE_BACK, EST_BELL_DEPTH = 0.04, 0.035
 
 # Broken pediment over each column: a raking cornice that rises inward from a point on the main
 # cornice and curls into a volute, over a sunk triangle. Measured on the left piece; the volute
@@ -568,6 +586,22 @@ def smooth_path(points, n=6):
     return out + [tuple(points[-1])]
 
 
+def smooth_line(points, sigma=3.0, step=1.0):
+    """Album px polyline resampled every step px of its length and low-passed by a Gaussian of
+    sigma px, its ends pinned (odd reflection about them). Measured lines are read to the nearest
+    pixel and spirals interpolate their radius linearly between knots; drawn through as they are,
+    both show as folds and flats where the engraving's lines flow (user review 2026-11-28 of the
+    broken pediment)."""
+    p = np.asarray(points, float)
+    d = np.r_[0, np.cumsum(np.hypot(*np.diff(p, axis=0).T))]
+    t = np.linspace(0, d[-1], max(2, int(round(d[-1] / step)) + 1))
+    q = np.stack([np.interp(t, d, p[:, 0]), np.interp(t, d, p[:, 1])], 1)
+    k = min(int(3 * sigma / step), len(q) - 1)
+    w = np.exp(-0.5 * (np.arange(-k, k + 1) * step / sigma) ** 2)
+    pad = np.vstack([2 * q[0] - q[k:0:-1], q, 2 * q[-1] - q[-2:-k - 2:-1]])
+    return [tuple(v) for v in np.stack([np.convolve(pad[:, i], w / w.sum(), "valid") for i in (0, 1)], 1)]
+
+
 def offset_px(pts, d):
     """Polyline in image axes (y down) moved d px to the left of its direction of travel."""
     p = np.asarray(pts, float)
@@ -589,10 +623,10 @@ def polar_path(centre, radii, a0, a1, grow=0.0, step=10):
     return out
 
 
-def volute_edge(k, a0, a1, grow=0.0, step=10):
-    """Attic volute: band edge k (1 inner, 2 outer; see ATTIC_VOLUTE_RADII) from angle a0 to a1
-    degrees, radius grown by grow px, as album px points."""
-    return polar_path(ATTIC_VOLUTE, [(row[0], row[k]) for row in ATTIC_VOLUTE_RADII], a0, a1, grow, step)
+def volute_edge(radii, a0, a1, grow=0.0):
+    """Attic volute: the edge with radii (see ATTIC_VOLUTE_OUTER) from angle a0 to a1 degrees,
+    radius grown by grow px, as unsmoothed album px points 2 degrees apart."""
+    return polar_path(ATTIC_VOLUTE, radii, a0, a1, grow, step=2)
 
 
 def attic_xz(pts_px, sx=-1):
@@ -604,27 +638,27 @@ def pediment_outlines():
     """Album px outlines of the left broken-pediment piece's layers (see PED_NECK), front to back.
     A layer's top edge is the line above it raised 1 px, so it starts inside the layer in front
     and no two layers share a face."""
-    def neck(k, up=0.0):
-        return smooth_path([(x, y - up) for x, y in PED_NECK[k]], n=3)
+    def line(k, up=0.0):
+        """Line k from the point inward (and on round the volute for A and B) as one smooth curve."""
+        pts = [(x, y - up) for x, y in PED_NECK[k]]
+        if k in PED_SPIRAL:
+            sp = PED_SPIRAL[k]
+            pts += polar_path(PED_VOLUTE, sp, sp[0][0], sp[-1][0], grow=up, step=2)[1:]
+        return smooth_line(pts)
 
-    disc = lambda a0, a1, r=PED_DISC_R - 1: polar_path(PED_VOLUTE, r, a0, a1)
+    disc = lambda a0, a1, r=PED_DISC_R - 1: polar_path(PED_VOLUTE, r, a0, a1, step=4)
     # Each lower line runs into the disc radially, at the angle of its last point.
     meet = {k: math.degrees(math.atan2(PED_VOLUTE[0] - PED_NECK[k][-1][0], PED_NECK[k][-1][1] - PED_VOLUTE[1]))
             for k in "CDE"}
     base, x_pt = PED_BASE_PX, PED_POINT_X
     a_end, b_end = PED_SPIRAL["A"][-1][0], PED_SPIRAL["B"][-1][0]
-    cyma = (neck("A") + polar_path(PED_VOLUTE, PED_SPIRAL["A"], PED_SPIRAL["A"][0][0], a_end)[1:]
-            + disc(a_end, b_end, PED_DISC_R)
-            + polar_path(PED_VOLUTE, PED_SPIRAL["B"], b_end, PED_SPIRAL["B"][0][0])[1:] + neck("B")[::-1])
-    corona = (neck("B", 1)
-              + polar_path(PED_VOLUTE, PED_SPIRAL["B"], PED_SPIRAL["B"][0][0], b_end, grow=1)[1:]
-              + disc(b_end, 360 + meet["C"], PED_DISC_R) + neck("C")[::-1])
-    cove = (neck("C", 1) + disc(meet["C"], meet["D"]) + neck("D")[::-1]
-            + [(x_pt, base)])
-    fillet = neck("D", 1) + disc(meet["D"], meet["E"]) + neck("E")[::-1]
+    cyma = line("A") + disc(a_end, b_end, PED_DISC_R)[1:-1] + line("B")[::-1]
+    corona = line("B", 1) + disc(b_end, 360 + meet["C"], PED_DISC_R)[1:] + line("C")[::-1]
+    cove = line("C", 1) + disc(meet["C"], meet["D"]) + line("D")[::-1] + [(x_pt, base)]
+    fillet = line("D", 1) + disc(meet["D"], meet["E"]) + line("E")[::-1]
     x_stem = PED_STEM_PX[1] - 1   # just inside the stem's right side
     a_stem = -math.degrees(math.asin((x_stem - PED_VOLUTE[0]) / (PED_DISC_R - 1)))
-    triangle = neck("E", 1) + disc(meet["E"], a_stem) + [(x_stem, base)]
+    triangle = line("E", 1) + disc(meet["E"], a_stem) + [(x_stem, base)]
     return {"cyma": cyma, "corona": corona, "cove": cove, "fillet": fillet, "triangle": triangle}
 
 
@@ -643,21 +677,6 @@ def bell_rows():
     """CONSOLE_BELL as (y, centre, half-width) rows every 2 px."""
     ys, hs = zip(*CONSOLE_BELL)
     return [(y, RESSAUT_PX, float(np.interp(y, ys, hs))) for y in range(ys[0], ys[-1] + 1, 2)]
-
-
-def leaf_rows(top_c, bot_c, hw, n=24):
-    """A console leaf as (y, centre, half-width) rows: round top, then sides curving in to the point."""
-    y0, y1 = CONSOLE_LEAF_Y
-    rows = []
-    for k in range(n + 1):
-        u = k / n
-        y = y0 + (y1 - y0) * u * u * (3 - 2 * u) if u < 0.5 else y0 + (y1 - y0) * u
-        if y < y0 + hw:
-            h = math.sqrt(max(hw * hw - (y0 + hw - y) ** 2, 0))
-        else:
-            h = hw * (1 - ((y - y0 - hw) / (y1 - y0 - hw)) ** 1.6)
-        rows.append((y, top_c + (bot_c - top_c) * ((y - y0) / (y1 - y0)) ** 1.5, h))
-    return rows
 
 
 def build_pillow(b, rows, sx, s, y_back, depth, round_px, steps=5):
@@ -956,11 +975,23 @@ def build_column(b, x, y, s):
     prof = [(r * K, vz(py) - zc0) for py, r in CAPITAL]
     b.lathe("marble", (x, y, zc0), [(0, 0)] + prof + [(0, prof[-1][1])], segments=32)
     # beads and eggs on the half facing out (the back half is against the pilaster)
-    for (py, rc, ra, rz), n, seg in (((*CAPITAL_BEADS, CAPITAL_BEADS[2]), 13, 8), (CAPITAL_EGGS, 8, 14)):
+    def at(a, r, py):
+        return (x + r * K * math.sin(a), y + s * r * K * math.cos(a), vz(py))
+    for (py, rc, ra, rz), n, seg in ((CAPITAL_BEADS, 13, 10), (CAPITAL_EGGS, 8, 12)):
         for k in range(n):
-            a = math.radians(-100 + 200 * (k + 0.5) / n)
-            b.ellipsoid("marble", (x + rc * K * math.sin(a), y + s * rc * K * math.cos(a), vz(py)),
-                        (ra * K, ra * K, rz * K), segments=seg)
+            b.ellipsoid("marble", at(math.radians(-100 + 200 * (k + 0.5) / n), rc, py), (ra * K, ra * K, rz * K),
+                        segments=seg)
+    py = CAPITAL_EGGS[0]
+    r_sh, sw, sh, tube = CAPITAL_SHELL
+    y_dr, r_dr, w_dr, h_dr = CAPITAL_DROP
+    for k in range(8):
+        a = math.radians(-100 + 200 * (k + 0.5) / 8)
+        # the shell: from the egg's top down its side, round under it and up the other side
+        u = [(sw * math.cos(t), sh * math.sin(t)) for t in np.linspace(-1.2, math.pi + 1.2, 13)]
+        b.tube("marble", [at(a + du / r_sh, r_sh, py + dv) for du, dv in u], tube * K)
+        if k:   # the drop hanging where this shell meets the last
+            b.ellipsoid("marble", at(math.radians(-100 + 200 * k / 8), r_dr, y_dr), (w_dr * K, w_dr * K, h_dr * K),
+                        segments=8)
 
 
 def build_ressaut(b, sx, s):
@@ -984,14 +1015,25 @@ def build_ressaut(b, sx, s):
     slab(o, i, vz(RESSAUT_FRIEZE[1]), vz(RESSAUT_FRIEZE[0]), y_frieze)
     for o2, i2, z0, z1, ret in ressaut_rows(RESSAUT_CORNICE):
         slab(o2, i2, z0, z1, y_frieze + ret * K)
-    # console: pedestal, bell and its three leaves
+    # console: pedestal, bell and the relief of its three leaves
     body = CONSOLE_PEDESTAL[1][2]
-    for o2, i2, z0, z1, _ in ressaut_rows(CONSOLE_PEDESTAL):
-        slab(o2, i2, z0, z1, y_col + (body - o2) * K)
+    for k, (o2, i2, z0, z1, _) in enumerate(ressaut_rows(CONSOLE_PEDESTAL)):
+        if k != 1:
+            slab(o2, i2, z0, z1, y_col + (body - o2) * K)
+    # its body is a bowl, narrowing down (CONSOLE_PEDESTAL_BOWL)
+    ys, hs = zip(*CONSOLE_PEDESTAL_BOWL)
+    rows = [(yy, float(np.interp(yy, ys, hs))) for yy in np.linspace(ys[0], ys[-1], 8)]
+    bowl = ([(RESSAUT_PX + rows[0][1], rows[0][0]), (RESSAUT_PX - rows[0][1], rows[0][0])]
+            + [(RESSAUT_PX - h, yy) for yy, h in rows[1:]] + [(RESSAUT_PX + h, yy) for yy, h in rows[::-1][:-1]])
+    pts = [(col_x(px, sx), vz(py)) for px, py in bowl]
+    b.prism_xz("marble", pts if sx < 0 else pts[::-1], *sorted((s * f, s * y_col)))
     build_pillow(b, bell_rows(), sx, s, y_frieze, EST_BELL_DEPTH, CONSOLE_BELL_ROUND)
-    for top_c, bot_c, hw in CONSOLE_LEAVES:
-        build_pillow(b, leaf_rows(top_c, bot_c, hw), sx, s, y_frieze + EST_BELL_DEPTH - 0.01,
-                     EST_LEAF_DEPTH + 0.01, 4)
+    x0, y0 = CONSOLE_RELIEF_PX
+    x0 -= RESSAUT_PX - (AXIS_X - RESSAUT_HALF_SPAN)   # album px -> the px Builder.relief places by
+    if sx * s > 0:   # the drawing is the console as the viewer sees it on its left
+        b.relief("marble", "console", x0, y0, s * (y_frieze + EST_BELL_DEPTH), s)
+    else:
+        b.relief("marble", "console", 2 * AXIS_X - x0, y0, s * (y_frieze + EST_BELL_DEPTH), s, mirror=True)
 
 
 def build_lion(b, x, y, s):
@@ -1065,7 +1107,8 @@ def build_attic(b):
     b.stack("marble", [(eave_line(f, a, w * K), d + (w - face_w) * K) for f, a, w in EAVE_PROFILE])
     # Field: the attic's whole outline (inset 0.5 px behind the band's edges), its top buried in
     # the eave's bottom fillet and its foot in the main cornice.
-    left = attic_xz(offset_px(smooth_path(ATTIC_OUTLINE), 0.5) + volute_edge(2, 300, 45, grow=-0.5))
+    left = attic_xz(offset_px(smooth_path(ATTIC_OUTLINE), 0.5)
+                    + smooth_line(volute_edge(ATTIC_VOLUTE_OUTER, 305, 45, -1)))
     x_foot = -left[-1][0]
     top = eave_line(EAVE_PROFILE[-1][0] - 3.5, EAVE_PROFILE[-1][1] - 4, (face_w - 0.5) * K)
     right = [(-x, z) for x, z in left]
@@ -1078,14 +1121,20 @@ def build_attic(b):
         b.relief("marble", "attic", x0 - (ATTIC_AXIS_PX - AXIS_X), y0, s * (d - ATTIC_FIELD_SINK), s)
     # Raised band round the field, ending in the volute; its top runs 3 px up into the eave.
     y_top = ATTIC_OUTLINE[0][1] - 3
+    # Under the rolled strip the band's edge keeps 0.5 px inside it, so no faces coincide.
+    # lower runs down the band's lower edge to the volute; offset_px's -d is into the band.
+    lower = smooth_path(ATTIC_BAND_INNER)
     band = ([(ATTIC_BAND_END_PX, y_top), (ATTIC_OUTLINE[0][0], y_top)] + smooth_path(ATTIC_OUTLINE)
-            + volute_edge(1, 0, 300) + volute_edge(2, 300, 0) + smooth_path(ATTIC_BAND_INNER)[::-1]
+            + smooth_line(volute_edge(ATTIC_VOLUTE_OUTER, 305, 0, -0.5)[:-1] + offset_px(lower[::-1], 0.5))
             + [(ATTIC_BAND_END_PX, ATTIC_BAND_INNER[0][1])])
+    strip = (smooth_line(lower + volute_edge(ATTIC_VOLUTE_OUTER, 0, 270)[1:]
+                         + volute_edge(ATTIC_STRIP_OUT, 270, 540)[1:])
+             + smooth_line(volute_edge(ATTIC_STRIP_IN, 315, 0) + offset_px(lower, -ATTIC_STRIP_W)[::-1][1:]))
     for sx in (-1, 1):
         pts = attic_xz(band, sx)
         b.prism_xz("marble", pts if sx < 0 else pts[::-1], -d, d)
-        (ex, ez), = attic_xz([ATTIC_VOLUTE], sx)
-        b.cylinder("marble", (ex, 0, ez), ATTIC_VOLUTE_EYE * K, 2 * d - 0.006, axis="Y", segments=20)
+        pts = attic_xz(strip, sx)
+        b.prism_xz("marble", pts if sx < 0 else pts[::-1], -(d + EST_VOLUTE_ROLL), d + EST_VOLUTE_ROLL)
     # Corner finials.
     z0, z1 = vz(FINIAL_SQUARE[0][0]), vz(FINIAL_ROUND[0][0])
     for sx in (-1, 1):

@@ -58,6 +58,10 @@ REGIONS = {
     # Crowning cartouche on the attic, traced on album_2 itself (huayuanmen_crown.json) about the
     # attic axis. It stands free against the sky, so its silhouette is written to the manifest and
     # huayuanmen.py cuts the crown's body to it.
+    # Leaves on the console over each column, traced on album_2 itself (huayuanmen_console.json)
+    # about the console's centre; huayuanmen.py sets the panel on the bell's front.
+    "console": dict(box=(2098, 1386, 2174, 1440), shape=("rect",), mirror=2136, depth=0.012, scale=6,
+                    mode="vector", source="huayuanmen_console.json", decimate=0.12),
     "crown": dict(box=(2384, 988, 2580, 1125), shape=("rect",), mirror=2482, depth=0.03, scale=3,
                   mode="vector", source="huayuanmen_crown.json", silhouette=True),
     # The door panels are drawn as curves too (one JSON each); they mirror left-right only.
