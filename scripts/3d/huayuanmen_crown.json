@@ -1,5 +1,5 @@
 {
- "about": "Crowning cartouche of the Garden Gate (plate 4, 'North Side of Garden Gate'), left half, traced on the Palace Museum copy (album_2.jpg, public domain) in its own pixels: the cap with its coronet, the palmette, the outer frame with its feet and the inner C-scrolls. Bands are raised straps of the given width along a Catmull-Rom centre line; closed shapes are raised forms; ground_at marks the hatched (sunk) fields. The right half is the mirror image about x 2482, the attic's axis (both halves of the frame fit best about 2482, the cap about 2482.5). The eave polyline runs about 5 px under the attic eave's top, from the axis into the frame's foot, and closes the crown's body against it (the feet stand outside it).",
+ "about": "Crowning cartouche of the Garden Gate (plate 4, 'North Side of Garden Gate'), left half, traced on the Palace Museum copy (album_2.jpg, public domain) in its own pixels: the cap with its coronet, the palmette, the outer frame with its feet and the inner C-scrolls. Bands are raised straps of the given width along a Catmull-Rom centre line; closed shapes are raised forms; ground_at marks the hatched (sunk) fields. The right half is the mirror image about x 2482, the attic's axis (both halves of the frame fit best about 2482, the cap about 2482.5). The eave polyline runs about 5 px under the attic eave's top, from the axis into the frame's foot, and closes the crown's body against it (the feet stand outside it). frame_inner is the narrow strip running inside the frame, with the groove frame_groove between, along its slope and side (self-check 2026-11-28: the album shows the frame as a broad band, a groove and a narrow strip; the model had the broad band only).",
  "axis": [
   2482,
   1000
@@ -383,6 +383,39 @@
     [
      2446,
      1022.6
+    ]
+   ]
+  },
+  "frame_inner": {
+   "width": 3,
+   "points": [
+    [
+     2437.3,
+     1043
+    ],
+    [
+     2428.3,
+     1050
+    ],
+    [
+     2422,
+     1056.5
+    ],
+    [
+     2425.5,
+     1062
+    ],
+    [
+     2426,
+     1067
+    ],
+    [
+     2425,
+     1075
+    ],
+    [
+     2425,
+     1095
     ]
    ]
   }
@@ -784,6 +817,36 @@
    [
     2466.03,
     1049.55
+   ]
+  ],
+  "frame_groove": [
+   [
+    2436,
+    1041.3
+   ],
+   [
+    2427,
+    1048.3
+   ],
+   [
+    2420.5,
+    1054.5
+   ],
+   [
+    2423.2,
+    1060
+   ],
+   [
+    2423.7,
+    1065
+   ],
+   [
+    2422.75,
+    1075
+   ],
+   [
+    2422.75,
+    1094
    ]
   ]
  },

@@ -68,7 +68,7 @@ TRANSOM = [(1598, 1601, 0.11), (1601, 1609, 0.09), (1609, 1615, 0.12), (1615, 16
 # Moulded frame round the tympanum carving, between the engraved lines at r 157 and 165 px.
 R_TYMPANUM_FRAME = (157 * K, 165 * K)
 Z_TRANSOM_TOP = vz(1598)
-Z_COL_CAP = (vz(1535), vz(1491))
+Z_COL_CAP = (vz(1535), vz(1487))
 Z_CORNICE = (vz(1380), vz(1337))
 # Crowning cartouche (traced in huayuanmen_crown.json): ball centre row and radius (fitted to its
 # outline, x 2464-2502, y 950-988) and the neck under it as (row, half-width px) from the top.
@@ -195,7 +195,7 @@ RESSAUT_CORNICE = [(1336, 1342, 2052, None), (1342, 1351, 2060, None), (1351, 13
                    (1357, 1363, 2067, None), (1363, 1366, 2072, None), (1366, 1378, 2080, None)]
 # Abacus over capital and pilaster (its inner end also covers the pier strip at 2187-2196);
 # projection beyond the column's front as the outer return beyond the pilaster (2085).
-ABACUS = [(1471, 1478, 2072, 2207), (1478, 1491, 2081, 2198)]
+ABACUS = [(1471, 1478, 2072, 2207), (1478, 1487, 2081, 2198)]
 # Console on the frieze: a pedestal (base, body, under-cap, cap, bottom up) and a bell rising from
 # it to the soffit; its three leaves are a traced relief (huayuanmen_console.json) on the bell's
 # front, placed like every part col_x places.
@@ -211,8 +211,11 @@ CONSOLE_BELL_ROUND = 4                 # px the bell's sides roll in over
 CONSOLE_RELIEF_PX = (2098, 1386)       # top-left of the "console" relief (huayuanmen_relief.py)
 # Capital (y px, radius px) about the column axis, bottom up: astragal, a band of beads, the
 # echinus carved with eggs; then the abacus.
-CAPITAL = [(1535, 25), (1532, 27), (1529, 33), (1524, 33), (1521, 30), (1512, 30), (1510, 33),
-           (1500, 36), (1491, 36)]
+# Under the beads a round torus (1521-1534), and over the eggs a plain band 1487-1494.5 narrower
+# than the echinus (self-check 2026-11-28 on an edge overlay of the render on album_2: the abacus
+# reached down to 1491 with no band, so the eggs sat 4 px low; the torus was a flat plate).
+CAPITAL = [(1535, 25), (1534, 28), (1532.5, 31), (1530.5, 33), (1527.5, 34), (1524.5, 33.5), (1522.5, 31.5),
+           (1521, 30), (1512, 30), (1510, 33), (1500, 36), (1494.5, 36), (1494.5, 33.5), (1487, 33.5)]
 # Beads are ovals 7 px wide and 9 tall; each egg sits in a thin shell (a U-shaped rim rising to the
 # egg's top) and a small drop hangs below where neighbouring shells meet (user review 2026-11-28:
 # round beads and bare eggs did not match).
