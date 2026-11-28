@@ -153,14 +153,20 @@ EAVE_PROFILE = [(0, 0, 209), (8.5, 7.5, 209), (17.5, 13, 217), (21.5, 16, 217), 
 # Radii in px at angles from straight down, turning outward and up (90 left, 180 up, 270 right).
 # At the top the band stops 97 px from the axis, where the field rises under the arched eave.
 ATTIC_FACE_HALF_W_PX = ATTIC_AXIS_PX - 2292.7
-ATTIC_OUTLINE = [(2292.7, 1177), (2292.7, 1200), (2292, 1223), (2288, 1250), (2280, 1275),
-                 (2268, 1293), (2252, 1302), (2236, 1304), (2228, 1304)]
+# The outline was first read too far out low down (2280 at row 1275, then a flat run along row
+# 1304 into the volute: a hard corner, user review 2026-11-28). Re-measured as the darkness peak
+# of its thin line, row by row on the left side and on the mirrored right side (6 rows lower by
+# the scan's tilt), averaged: it bends ever faster and runs into the volute at a point, where the
+# volute's edge leaves it up and back round the eye (the shadowed channel between the turns).
+ATTIC_OUTLINE = [(2292.7, 1177), (2292, 1192), (2290, 1204), (2287, 1220), (2283, 1236), (2279, 1252),
+                 (2272, 1268), (2261.5, 1284), (2252.5, 1296), (2246, 1300.8), (2238.9, 1303.3)]
 ATTIC_BAND_INNER = [(2310, 1197), (2311, 1223), (2307, 1250), (2299, 1275), (2287, 1295),
                     (2270, 1312), (2252, 1322), (2240, 1323)]
 ATTIC_BAND_END_PX = 2385
 ATTIC_VOLUTE = (2216.5, 1296)
 ATTIC_VOLUTE_OUTER = [(0, 25), (45, 22.5), (90, 19.5), (135, 17), (180, 15), (225, 13.6), (270, 12.8),
-                      (305, 14)]
+                      (279, 14.5), (288, 23.5)]
+ATTIC_VOLUTE_TIP = 288          # angle where the outline meets the volute's edge (its last point)
 ATTIC_STRIP_OUT = [(270, 12.5), (285, 11.5), (300, 11), (315, 10), (330, 8.5), (345, 8), (360, 7),
                    (405, 6.5), (450, 5.5), (495, 4.5), (540, 4)]
 ATTIC_STRIP_IN = [(0, 20.5), (45, 18), (90, 15.3), (120, 13.5), (135, 12.5), (165, 10.5), (180, 10),
@@ -1111,7 +1117,7 @@ def build_attic(b):
     # Field: the attic's whole outline (inset 0.5 px behind the band's edges), its top buried in
     # the eave's bottom fillet and its foot in the main cornice.
     left = attic_xz(offset_px(smooth_path(ATTIC_OUTLINE), 0.5)
-                    + smooth_line(volute_edge(ATTIC_VOLUTE_OUTER, 305, 45, -1)))
+                    + smooth_line(volute_edge(ATTIC_VOLUTE_OUTER, ATTIC_VOLUTE_TIP, 45, -1)))
     x_foot = -left[-1][0]
     top = eave_line(EAVE_PROFILE[-1][0] - 3.5, EAVE_PROFILE[-1][1] - 4, (face_w - 0.5) * K)
     right = [(-x, z) for x, z in left]
@@ -1122,19 +1128,21 @@ def build_attic(b):
     x0, y0 = relief_meta("attic")["box"][:2]
     for s in (-1, 1):
         b.relief("marble", "attic", x0 - (ATTIC_AXIS_PX - AXIS_X), y0, s * (d - ATTIC_FIELD_SINK), s)
-    # The garlands hang on the field either side of the cartouche (one drawing, mirrored).
-    gx0, gy0 = relief_meta("garland")["box"][:2]
-    gx0 -= ATTIC_AXIS_PX - AXIS_X
-    for s in (-1, 1):
-        b.relief("marble", "garland", gx0, gy0, s * (d - ATTIC_FIELD_SINK), s)
-        b.relief("marble", "garland", 2 * AXIS_X - gx0, gy0, s * (d - ATTIC_FIELD_SINK), s, mirror=True)
+    # The garlands and the scrolls under the cartouche sit on the field either side of it (one
+    # drawing each, mirrored).
+    for name in ("garland", "attic_scroll"):
+        gx0, gy0 = relief_meta(name)["box"][:2]
+        gx0 -= ATTIC_AXIS_PX - AXIS_X
+        for s in (-1, 1):
+            b.relief("marble", name, gx0, gy0, s * (d - ATTIC_FIELD_SINK), s)
+            b.relief("marble", name, 2 * AXIS_X - gx0, gy0, s * (d - ATTIC_FIELD_SINK), s, mirror=True)
     # Raised band round the field, ending in the volute; its top runs 3 px up into the eave.
     y_top = ATTIC_OUTLINE[0][1] - 3
     # Under the rolled strip the band's edge keeps 0.5 px inside it, so no faces coincide.
     # lower runs down the band's lower edge to the volute; offset_px's -d is into the band.
     lower = smooth_path(ATTIC_BAND_INNER)
     band = ([(ATTIC_BAND_END_PX, y_top), (ATTIC_OUTLINE[0][0], y_top)] + smooth_path(ATTIC_OUTLINE)
-            + smooth_line(volute_edge(ATTIC_VOLUTE_OUTER, 305, 0, -0.5)[:-1] + offset_px(lower[::-1], 0.5))
+            + smooth_line(volute_edge(ATTIC_VOLUTE_OUTER, ATTIC_VOLUTE_TIP, 0, -0.5)[:-1] + offset_px(lower[::-1], 0.5))
             + [(ATTIC_BAND_END_PX, ATTIC_BAND_INNER[0][1])])
     strip = (smooth_line(lower + volute_edge(ATTIC_VOLUTE_OUTER, 0, 270)[1:]
                          + volute_edge(ATTIC_STRIP_OUT, 270, 540)[1:])

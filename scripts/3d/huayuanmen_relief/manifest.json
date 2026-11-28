@@ -1610,6 +1610,17 @@
   "scale": 3,
   "decimate": 0.12
  },
+ "attic_scroll": {
+  "box": [
+   2366,
+   1246,
+   2440,
+   1296
+  ],
+  "depth": 0.03,
+  "scale": 3,
+  "decimate": 0.12
+ },
  "crown": {
   "box": [
    2384,

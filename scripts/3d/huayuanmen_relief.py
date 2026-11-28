@@ -72,6 +72,10 @@ REGIONS = {
                                     (2300, 1280), (2310, 1260), (2316, 1240), (2321, 1222), (2334, 1205),
                                     (2355, 1186)]),
                     mode="vector", source="huayuanmen_garland.json", decimate=0.12),   # glb under 10 MB
+    # Acanthus scroll under the cartouche's left side, drawn on album_2 (huayuanmen_attic_scroll.json);
+    # set on the field with its mirror image like the garland.
+    "attic_scroll": dict(box=(2366, 1246, 2440, 1296), shape=("rect",), mirror=None, depth=0.03, scale=3,
+                         mode="vector", source="huayuanmen_attic_scroll.json", decimate=0.12),
     "crown": dict(box=(2384, 988, 2580, 1125), shape=("rect",), mirror=2482, depth=0.03, scale=3,
                   mode="vector", source="huayuanmen_crown.json", silhouette=True),
     # The door panels are drawn as curves too (one JSON each); they mirror left-right only. They
